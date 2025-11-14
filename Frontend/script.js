@@ -1,39 +1,32 @@
-// 1. COLOQUE SUAS CHAVES PÚBLICAS AQUI
-// Cole a URL que você pegou
-const SUPABASE_URL = "https://vkfhtadukcrteitnamze.supabase.co";
+// 1. A URL DA SUA NOVA API (Você acertou!)
+const API_URL =
+  "https://criadordigital-api-lotofacil-postgres.51xxn7.easypanel.host";
 
-// Cole a chave 'anon' (a pública)
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrZmh0YWR1a2NydGVpdG5hbXplIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzA1MDAxNCwiZXhwIjoyMDc4NjI2MDE0fQ.xw0VC93_iY9qgax4jERsFbKHPgJjo1U08oq6bipr9Fs";
-
-// 2. Inicializa o cliente do Supabase
-// Note que usamos a ANON_KEY (pública) aqui
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// 2. NÃO PRECISAMOS MAIS DO SUPABASE!
+//    Todo o código 'supabaseClient' e 'SUPABASE_ANON_KEY' foi removido.
 
 // 3. Referências aos elementos do HTML (continua igual)
 const selectConcursos = document.getElementById("num-concursos");
 const btnAtualizar = document.getElementById("btn-atualizar");
 const corpoTabela = document.getElementById("corpo-tabela");
 
-// 4. Função principal para buscar e exibir os dados (agora com Supabase)
+// 4. Função principal para buscar e exibir os dados (agora com FETCH)
 async function buscarResultados(limit = 10) {
   corpoTabela.innerHTML = '<tr><td colspan="3">Carregando...</td></tr>';
 
   try {
-    // 5. A "mágica" do Supabase!
-    // - from('resultados'): Seleciona sua tabela
-    // - select('*'): Pega todas as colunas
-    // - order('concurso', ...): Ordena pelo concurso, do mais novo para o mais antigo
-    // - limit(limit): Pega só o número de resultados que queremos
-    const { data: resultados, error } = await supabaseClient
-      .from("resultados")
-      .select("*")
-      .order("concurso", { ascending: false })
-      .limit(Number(limit)); // Converte o valor do select para número
+    // 5. A "mágica" agora é o FETCH!
+    //    Ele chama o endpoint que programamos no Express
+    const response = await fetch(
+      `${API_URL}/api/resultados?limit=${Number(limit)}`
+    );
 
-    if (error) {
-      throw error; // Joga o erro para o 'catch'
+    if (!response.ok) {
+      throw new Error(`Erro da API: ${response.statusText}`);
     }
+
+    // Pega os dados em JSON que a sua API enviou
+    const resultados = await response.json();
 
     corpoTabela.innerHTML = ""; // Limpa a tabela
 
@@ -41,10 +34,11 @@ async function buscarResultados(limit = 10) {
     for (const concurso of resultados) {
       const tr = document.createElement("tr");
 
-      // Ajuste na formatação da data
+      // O banco Neon envia a data no formato 'timestamp',
+      // então este código para formatar continua perfeito.
       const dataObj = new Date(concurso.data);
       const dataFormatada = dataObj.toLocaleDateString("pt-BR", {
-        timeZone: "UTC",
+        timeZone: "UTC", // Usar UTC é uma boa prática
       });
 
       tr.innerHTML = `
