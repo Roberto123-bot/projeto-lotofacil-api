@@ -1,9 +1,15 @@
-// index.js (Versão Final Automatizada)
+// index.js (Versão Final Webhook Worker)
 
-require("dotenv").config(); // IMPORTANTE: Esta deve ser a PRIMEIRA linha
+// O Express é o que cria o servidor
+const express = require("express");
+const app = express();
+// O EasyPanel vai injetar a porta real, mas 3000 é um bom fallback
+const port = process.env.PORT || 3000;
+
+require("dotenv").config();
 
 const { createClient } = require("@supabase/supabase-js");
-const axios = require("axios"); // Importamos o axios
+const axios = require("axios");
 
 // 1. COLOQUE SUAS CHAVES DO SUPABASE
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -13,36 +19,41 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const API_LOTOFACIL_URL = "https://api.guidi.dev.br/loteria/lotofacil/ultimo";
 
 // 3. Inicializa o cliente do Supabase
+// **IMPORTANTE**: Checa se as chaves existem para não quebrar o servidor
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  console.error(
+    "ERRO: As variáveis SUPABASE_URL e SUPABASE_SERVICE_KEY não foram carregadas. O servidor não será iniciado."
+  );
+  // Saia do processo para evitar erros de conexão
+  process.exit(1);
+}
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-// 4. FUNÇÃO PARA BUSCAR OS DADOS (Atualizada com a API real)
+// 4. FUNÇÃO PARA BUSCAR OS DADOS (Sua função original)
 async function buscarResultadoOficial() {
   console.log("Buscando resultado oficial da Lotofácil na API...");
 
   try {
-    // Faz a chamada GET para a API
     const response = await axios.get(API_LOTOFACIL_URL);
-
-    // Pega os dados da resposta
     const apiData = response.data;
 
-    // Mapeia os dados da API para o formato do nosso banco de dados
     const dadosObtidos = {
-      concurso: apiData.numero, // API usa 'numero', nós usamos 'concurso'
-      data: apiData.dataApuracao, // API usa 'dataApuracao' (DD/MM/YYYY)
-      dezenas: apiData.listaDezenas.join(" "), // API usa array, nós usamos string
+      concurso: apiData.numero,
+      data: apiData.dataApuracao,
+      dezenas: apiData.listaDezenas.join(" "),
     };
 
     console.log(`Resultado obtido (Concurso ${dadosObtidos.concurso})!`);
     return dadosObtidos;
   } catch (error) {
     console.error("Erro ao buscar dados da API oficial:", error.message);
-    console.error("Dados recebidos que causaram o erro:", response.data); // Ajuda a debugar
+    // **NOTA:** Removi a linha de `response.data` pois a variável `response` pode ser `undefined` em caso de erro.
     return null;
   }
 }
 
-// 5. FUNÇÃO PARA SALVAR OS DADOS (Sem alterações, já está correta)
+// 5. FUNÇÃO PARA SALVAR OS DADOS (Sua função original)
 async function salvarResultado(dados) {
   const { concurso, data, dezenas } = dados;
 
@@ -55,17 +66,17 @@ async function salvarResultado(dados) {
 
   if (checkError && checkError.code !== "PGRST116") {
     console.error("Erro ao checar concurso:", checkError.message);
-    return;
+    return `Erro ao checar concurso ${concurso}.`;
   }
 
   if (existente) {
     console.log(`Concurso ${concurso} já existe no banco. Pulando.`);
-    return;
+    return `Concurso ${concurso} já existe no banco.`;
   }
 
   // Converte a data de 'DD/MM/YYYY' para 'YYYY-MM-DD'
   const [dia, mes, ano] = data.split("/");
-  const dataFormatada = `${ano}-${mes}-${dia}T03:00:00.000Z`; // Formato ISO
+  const dataFormatada = `${ano}-${mes}-${dia}T03:00:00.000Z`;
 
   console.log(`Salvando concurso ${concurso} no Supabase...`);
 
@@ -75,20 +86,45 @@ async function salvarResultado(dados) {
 
   if (insertError) {
     console.error("Erro ao salvar no Supabase:", insertError.message);
-    return;
+    return `Erro ao salvar concurso ${concurso} no Supabase.`;
   }
 
   console.log(`Sucesso! Concurso ${concurso} salvo no banco.`);
+  return `Sucesso! Concurso ${concurso} salvo no banco.`;
 }
 
-// 6. FUNÇÃO PRINCIPAL (Sem alterações)
-async function main() {
+// 6. FUNÇÃO PRINCIPAL (Agora chama o processo de busca e salvamento)
+async function processarLotofacil() {
   const dados = await buscarResultadoOficial();
 
   if (dados) {
-    await salvarResultado(dados);
+    return await salvarResultado(dados);
+  } else {
+    return "Falha ao obter dados da API.";
   }
 }
 
-// Roda o script
-main();
+// ----------------------------------------------------------------
+// 7. O EXPRESS CRIA AS ROTAS (Endpoints)
+// ----------------------------------------------------------------
+
+// Rota principal para executar o script de automação
+app.get("/run", async (req, res) => {
+  // Roda a função principal
+  const logMessage = await processarLotofacil();
+
+  // Retorna a mensagem para o serviço que chamou (o cron job)
+  res.status(200).send({ message: logMessage });
+});
+
+// Rota raiz, apenas para checar se o servidor está no ar
+app.get("/", (req, res) => {
+  res.send(
+    "Servidor de Worker da Lotofácil está no ar. Acesse /run para executar o script."
+  );
+});
+
+// 8. O SERVIDOR COMEÇA A ESCUTAR POR CHAMADAS
+app.listen(port, () => {
+  console.log(`Servidor de Worker rodando na porta ${port}`);
+});
