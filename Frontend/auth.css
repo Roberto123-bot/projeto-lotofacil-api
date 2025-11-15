@@ -1,94 +1,96 @@
-/* CSS para as páginas de login e registro */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  background-color: #f4f7f6;
+/* --- ESTILOS PARA A TELA DE BOAS-VINDAS (WELCOME) --- */
+
+.welcome-body {
+  background-color: #f4f7f6; /* Fundo mais claro */
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-.auth-container {
+.welcome-container {
   background-color: #ffffff;
-  padding: 30px 40px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 600px; /* Um pouco maior que o formulário de login */
+  text-align: center;
 }
 
-h2 {
-  text-align: center;
-  color: #004a99; /* Azul do seu projeto */
-  margin-top: 0;
+.welcome-header h1 {
+  color: #004a99;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
 }
 
-p {
-  text-align: center;
+.welcome-header p {
   color: #555;
-  margin-bottom: 25px;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
 }
 
-.input-group {
-  margin-bottom: 20px;
+.promo-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 30px;
 }
 
-.input-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #333;
+.welcome-content p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
 }
 
-.input-group input {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-sizing: border-box; /* Importante para o padding não estourar a largura */
+.welcome-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px; /* Espaço entre os botões */
+  margin-bottom: 40px;
 }
 
-button {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
+.welcome-button {
+  display: inline-block;
+  padding: 12px 25px;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #fff;
-  background-color: #007bff; /* Azul do seu projeto */
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-/* Mensagem de erro */
-.error {
-  color: #d93025;
-  font-size: 0.9rem;
-  text-align: center;
-  margin-top: 15px;
-  height: 20px; /* Deixa um espaço reservado */
-}
-
-/* Link para trocar de formulário */
-.switch-form {
-  margin-top: 20px;
-  font-size: 0.9rem;
-}
-
-.switch-form a {
-  color: #007bff;
   text-decoration: none;
-  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.switch-form a:hover {
-  text-decoration: underline;
+.welcome-button.primary {
+  background-color: #007bff;
+  color: #ffffff;
+  border: 1px solid #007bff;
+}
+
+.welcome-button.primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.welcome-button.secondary {
+  background-color: transparent;
+  color: #007bff;
+  border: 1px solid #007bff;
+}
+
+.welcome-button.secondary:hover {
+  background-color: #e6f0ff; /* Um azul bem clarinho */
+}
+
+.welcome-footer {
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.welcome-footer p {
+  font-size: 0.85rem;
+  color: #888;
 }

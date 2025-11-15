@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bem-vindo ao Lotofácil App!</title>
+    <link rel="stylesheet" href="auth.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="welcome-body">
+    <div class="welcome-container">
+      <header class="welcome-header">
+        <h1>Bem-vindo ao Lotofácil App!</h1>
+        <p>Sua ferramenta completa de análise de resultados.</p>
+      </header>
+
+      <div class="welcome-content">
+        <p>
+          Para ter acesso a todas as estatísticas e visualizações exclusivas,
+          faça login ou crie sua conta agora mesmo.
+        </p>
+        <div class="welcome-actions">
+          <a href="login.html" class="welcome-button primary">Entrar</a>
+          <a href="register.html" class="welcome-button secondary"
+            >Criar uma conta</a
+          >
+        </div>
+      </div>
+
+      <footer class="welcome-footer">
+        <p>&copy; 2023 Lotofácil App. Todos os direitos reservados.</p>
+      </footer>
+    </div>
+    <script>
+      // Opcional: Redirecionar para o index.html se o usuário JÁ TIVER um token
+      const token = localStorage.getItem("meu-token-lotofacil");
+      if (token) {
+        window.location.href = "index.html";
+      }
+    </script>
+  </body>
+</html>

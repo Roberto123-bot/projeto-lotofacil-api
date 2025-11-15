@@ -8,9 +8,8 @@ const token = localStorage.getItem("meu-token-lotofacil");
 
 // 1. VERIFICA SE O TOKEN EXISTE
 if (!token) {
-  // Se não existir, "expulsa" o usuário para a tela de login
-  alert("Acesso não autorizado. Por favor, faça login.");
-  window.location.href = "login.html";
+  // MUDANÇA AQUI: Em vez de alert(), redireciona para a tela de boas-vindas
+  window.location.href = "welcome.html";
 }
 // Se o script continuar, é porque o usuário TEM um token.
 // -------------------------------------------
@@ -28,15 +27,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const viewTabela = document.getElementById("view-tabela");
   const viewGrid = document.getElementById("view-grid");
   const gridLoadingMsg = document.querySelector("#view-grid .loading-grid");
+  const btnLogout = document.getElementById("btn-logout");
 
   // --- NOVO: LÓGICA DE LOGOUT ---
-  const btnLogout = document.getElementById("btn-logout");
   if (btnLogout) {
     btnLogout.addEventListener("click", () => {
       // 1. Apaga o token do navegador
       localStorage.removeItem("meu-token-lotofacil");
-      // 2. Envia o usuário para o login
-      window.location.href = "login.html";
+      // MUDANÇA AQUI: Envia o usuário para a tela de boas-vindas ao sair
+      window.location.href = "welcome.html";
     });
   }
   // ---------------------------------
@@ -178,7 +177,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // Se o token for inválido ou expirado, "expulsa" o usuário
         alert("Sua sessão expirou. Por favor, faça login novamente.");
         localStorage.removeItem("meu-token-lotofacil");
-        window.location.href = "login.html";
+        // MUDANÇA AQUI: Envia para a tela de boas-vindas se o token expirar
+        window.location.href = "welcome.html";
         return; // Para a execução
       }
 
