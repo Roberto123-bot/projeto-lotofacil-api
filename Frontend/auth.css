@@ -1,3 +1,98 @@
+/* CSS para as páginas de login e registro */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  background-color: #f4f7f6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.auth-container {
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 400px;
+}
+
+h2 {
+  text-align: center;
+  color: #004a99; /* Azul do seu projeto */
+  margin-top: 0;
+}
+
+p {
+  text-align: center;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box; /* Importante para o padding não estourar a largura */
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #007bff; /* Azul do seu projeto */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Mensagem de erro */
+.error {
+  color: #d93025;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 15px;
+  height: 20px; /* Deixa um espaço reservado */
+}
+
+/* Link para trocar de formulário */
+.switch-form {
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.switch-form a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.switch-form a:hover {
+  text-decoration: underline;
+}
+
 /* --- ESTILOS PARA A TELA DE BOAS-VINDAS (WELCOME) --- */
 
 .welcome-body {
