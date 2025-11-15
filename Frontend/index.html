@@ -21,22 +21,38 @@
           <option value="100">100 concursos</option>
         </select>
         <button id="btn-atualizar">Atualizar</button>
+        <button id="btn-logout" class="btn-logout">Sair</button>
       </div>
 
-      <table id="tabela-resultados">
-        <thead>
-          <tr>
-            <th>Concurso</th>
-            <th>Data</th>
-            <th>Dezenas</th>
-          </tr>
-        </thead>
-        <tbody id="corpo-tabela">
-          <tr>
-            <td colspan="3">Carregando...</td>
-          </tr>
-        </tbody>
-      </table>
+      <nav class="view-tabs">
+        <button id="btn-view-tabela" class="tab-button active">
+          Visualização em Tabela
+        </button>
+        <button id="btn-view-grid" class="tab-button">
+          Visualização em Grade
+        </button>
+      </nav>
+
+      <div id="view-tabela" class="view-content">
+        <table id="tabela-resultados">
+          <thead>
+            <tr>
+              <th>Concurso</th>
+              <th>Data</th>
+              <th>Dezenas</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-tabela">
+            <tr>
+              <td colspan="3">Carregando...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="view-grid" class="view-content hidden">
+        <p class="loading-grid">Carregando...</p>
+      </div>
     </main>
     <script src="script.js"></script>
   </body>

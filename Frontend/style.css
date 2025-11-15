@@ -92,9 +92,11 @@ main {
   padding: 12px 15px;
   border-bottom: 1px solid #eee; /* Linha sutil separando as linhas */
   font-size: 15px;
+  /* Garante que as células da tabela alinhem verticalmente no topo */
+  vertical-align: middle;
 }
 
-/* Coluna das Dezenas (fonte monoespaçada para alinhar) */
+/* Coluna das Dezenas (ESSA REGRA NÃO É MAIS TÃO NECESSÁRIA, MAS MANTIVE) */
 #tabela-resultados td:nth-child(3) {
   font-family: "Courier New", Courier, monospace;
   font-weight: 600;
@@ -117,4 +119,186 @@ main {
   font-style: italic;
   color: #888;
   padding: 20px;
+}
+
+/* --- NOVOS ESTILOS PARA O GRID DE DEZENAS --- */
+
+.dezenas-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px; /* Espaço entre as bolinhas */
+  padding: 5px 0;
+  /* Limita a largura para ajudar na quebra de linha */
+  max-width: 850px;
+}
+
+/* Estilo base de cada bolinha (dezena) */
+.dezena-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px; /* Largura da bolinha */
+  height: 30px; /* Altura da bolinha */
+  border-radius: 50%; /* Para ficar redonda */
+  font-size: 0.85rem;
+  font-weight: bold;
+  box-sizing: border-box;
+  /* Resetamos a fonte para a padrão, 
+     cancelando o "Courier New" da regra antiga */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+/* Estilo para dezenas NÃO sorteadas */
+.nao-sorteada {
+  background-color: #f0f0f0; /* Um cinza claro neutro */
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+/* Estilo para dezenas SORTEADAS (Roxo) */
+.sorteada {
+  background-color: #6f42c1;
+  color: #ffffff;
+  border: 1px solid #5a359e;
+}
+
+/* --- ESTILOS DAS ABAS DE VISUALIZAÇÃO --- */
+.view-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.tab-button {
+  padding: 10px 15px;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  background-color: #f0f0f0;
+}
+
+.tab-button.active {
+  color: #007bff; /* Mesmo azul do botão */
+  border-bottom-color: #007bff;
+}
+
+/* --- Classe para esconder/mostrar o conteúdo da aba --- */
+.view-content.hidden {
+  display: none;
+}
+
+/* --- ESTILOS DA NOVA VISUALIZAÇÃO EM GRADE --- */
+
+/* Mensagem de "Carregando..." da grade */
+.loading-grid {
+  text-align: center;
+  font-style: italic;
+  color: #888;
+  padding: 20px;
+  width: 100%;
+}
+
+/* O container dos cards */
+#view-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center; /* Centraliza os cards */
+}
+
+/* O card de cada concurso */
+.concurso-card {
+  width: 340px; /* Largura fixa para cada card */
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+/* O cabeçalho do card (ex: "CONCURSO 3539") */
+.card-header {
+  background-color: #004a99; /* Azul do seu título H1 */
+  color: #ffffff;
+  padding: 12px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border-radius: 8px 8px 0 0;
+}
+.card-header span {
+  font-weight: normal;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-left: 8px;
+}
+
+/* O container do grid 5x5 */
+.card-grid-container {
+  padding: 15px;
+}
+
+/* O grid 5x5 */
+.card-dezenas-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 colunas */
+  gap: 5px;
+}
+
+/* Cada item (dezena) do grid 5x5 */
+.card-dezena-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Para manter o item quadrado */
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px; /* Quadrados com borda levemente arredondada */
+  box-sizing: border-box;
+}
+
+/* Estilo "no mesmo estilo" (roxo e cinza) para o grid */
+.card-dezena-item.sorteada {
+  background-color: #38b000;
+  color: #ffffff;
+  border: 1px solid #008000;
+}
+
+.card-dezena-item.nao-sorteada {
+  background-color: #f0f0f0;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+/* style.css (adicione ao final) */
+
+/* Estilo para o botão de Sair */
+.btn-logout {
+  padding: 9px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #dc3545; /* Vermelho (perigo/sair) */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-left: auto; /* Joga o botão para a direita */
+}
+
+.btn-logout:hover {
+  background-color: #c82333; /* Vermelho mais escuro */
 }
