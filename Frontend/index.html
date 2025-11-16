@@ -8,12 +8,12 @@
   </head>
   <body>
     <header>
-      <h1>Últimos Resultados da Lotofácil</h1>
+      <h1>APLICATIVO</h1>
     </header>
 
     <main>
       <div class="controles">
-        <label for="num-concursos">Exibir os últimos:</label>
+        <label for="num-concursos">Exibir:</label>
         <select id="num-concursos">
           <option value="10" selected>10 concursos</option>
           <option value="25">25 concursos</option>
@@ -30,20 +30,20 @@
           class="tab-button active"
           data-target="view-tabela"
         >
-          Resultados (Tabela)
+          📊
         </button>
         <button id="btn-view-grid" class="tab-button" data-target="view-grid">
-          Resultados (Grade)
+          📈
         </button>
         <button
           id="btn-view-gerador"
           class="tab-button"
           data-target="view-gerador"
         >
-          Gerador de Jogos
+          🤖
         </button>
         <button id="btn-view-jogos" class="tab-button" data-target="view-jogos">
-          Meus Jogos Salvos
+          🚀
         </button>
       </nav>
 
@@ -71,12 +71,11 @@
       <div id="view-gerador" class="view-content hidden">
         <h2>Gerador de Fechamentos</h2>
 
-        <h3>Passo 1: Selecione suas dezenas</h3>
+        <h3>Selecione suas dezenas</h3>
         <p id="contador">Dezenas selecionadas: 0</p>
         <div id="grid-dezenas"></div>
 
         <div class="gerador-controles" style="margin-top: 20px">
-          <h3>Passo 2: Escolha o Fechamento</h3>
           <select id="menu-fechamentos" disabled>
             <option value="">Selecione dezenas no grid...</option>
           </select>
@@ -90,27 +89,31 @@
       <!-- ======================================================= -->
       <!-- INÍCIO: NOVO PAINEL DO CONFERIDOR                     -->
       <!-- ======================================================= -->
-      <div id="conferidor-ui">
-        <h3>Conferidor Automático</h3>
-        <div class="conferidor-controles">
-          <button id="check-prev" title="Concurso Anterior">◀</button>
-          <span id="check-concurso-display">Carregando resultados...</span>
-          <button id="check-next" title="Próximo Concurso">▶</button>
-        </div>
-      </div>
-      <!-- ======================================================= -->
-      <!-- FIM: NOVO PAINEL DO CONFERIDOR                         -->
-      <!-- ======================================================= -->
-
       <div id="view-jogos" class="view-content hidden">
-        <h2>Meus Jogos Salvos</h2>
+        <!-- <h2>Meus Jogos Salvos</h2> -->
+
+        <!-- 
+          O CONFERIDOR FOI MOVIDO PARA DENTRO DA ABA
+          Este é o local correto.
+        -->
+        <div id="conferidor-ui">
+          <h3>Conferidor Automático</h3>
+          <div class="conferidor-controles">
+            <button id="check-prev" title="Concurso Anterior">◀</button>
+            <span id="check-concurso-display">Carregando resultados...</span>
+            <button id="check-next" title="Próximo Concurso">▶</button>
+          </div>
+        </div>
+        <!-- ======================================================= -->
+        <!-- FIM: NOVO PAINEL DO CONFERIDOR                         -->
+        <!-- ======================================================= -->
 
         <div class="jogos-controles">
           <button id="btn-selecionar-todos" class="btn-jogo-acao">
-            Selecionar Todos
+            Selecionar
           </button>
           <button id="btn-apagar-selecionados" class="btn-jogo-acao danger">
-            Apagar Selecionados
+            Apagar Jogos
           </button>
         </div>
 
@@ -118,6 +121,9 @@
           <p>Carregando jogos salvos...</p>
         </div>
       </div>
+      <!-- ======================================================= -->
+      <!-- FIM DA ABA MEUS JOGOS SALVOS                         -->
+      <!-- ======================================================= -->
     </main>
     <script src="script.js"></script>
   </body>

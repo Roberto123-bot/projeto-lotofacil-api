@@ -11,7 +11,7 @@ body {
 /* --- Cabeçalho --- */
 header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
 }
 
 header h1 {
@@ -298,7 +298,7 @@ main {
 
 /* Estilo para o botão de Sair */
 .btn-logout {
-  padding: 9px 16px;
+  padding: 9px 20px;
   font-size: 16px;
   font-weight: 600;
   color: #fff;
@@ -355,31 +355,37 @@ main {
   flex-direction: column;
 }
 
-/* O container das bolinhas */
+/* =================================== */
+/* === ESTILO BOLINHA (JOGOS SALVOS) === */
+/* =================================== */
+
+/* O container das dezenas (para garantir a quebra de linha) */
 .jogo-gerado-dezenas {
   display: flex;
-  flex-wrap: wrap; /* <<< A MÁGICA: Quebra a linha, "bem distribuída" */
-  gap: 6px; /* Espaço entre os números */
-  padding-top: 5px;
+  flex-wrap: wrap; /* Garante que as bolinhas quebrem a linha */
+  gap: 6px; /* Espaço entre as bolinhas */
+  padding-top: 5px; /* Espaço do texto de pontos acima */
 }
 
-/* A "BOLINHA" (AGORA É SÓ TEXTO) */
+/* A "bolinha" de dezena PADRÃO (cinza) */
 .jogo-gerado-item {
-  /* Removemos todo o estilo de "bolinha" */
-  font-size: 0.95rem; /* Tamanho de fonte elegante */
-  color: #444; /* Cor de texto padrão */
-  min-width: 28px;
-  text-align: center;
-  padding: 4px;
+  width: 35px;
+  height: 35px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #555;
+  background-color: #e9ecef; /* Fundo cinza claro */
+  border: 1px solid #dee2e6;
+  border-radius: 50%; /* A mágica para o CÍRCULO */
 
-  /* Reset de estilos de bolinha (caso existam) */
-  width: auto !important;
-  height: auto !important;
-  border-radius: 4px !important; /* Um leve arredondado */
-  border: 1px solid #ddd !important;
-  background-color: #f8f8f8 !important;
-  color: #333 !important;
-  font-weight: normal !important;
+  /* Centraliza o número dentro da bolinha */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Remove estilos de texto antigos */
+  padding: 0;
+  min-width: 35px;
 }
 
 /* Botão de Salvar Jogo */
@@ -398,11 +404,28 @@ main {
   cursor: not-allowed;
 }
 
-/* Container de Jogos Salvos */
 #jogos-salvos-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  /* Passo 1: Definimos uma altura máxima. 
+    Use a altura que fizer sentido para você (ex: 600px).
+    "vh" significa "viewport height" (altura da tela). 
+    50vh = 50% da altura da tela do navegador.
+  */
+  max-height: 60vh;
+
+  /* Passo 2: A MÁGICA.
+    'overflow-y: auto;' diz: "Se o conteúdo (os cards)
+    passar da altura máxima, adicione uma barra de 
+    rolagem vertical".
+  */
+  overflow-y: auto;
+
+  /* Passo 3: (Opcional) Estilo para deixar a caixa
+    de rolagem mais bonita.
+  */
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fafafa;
 }
 
 .jogo-salvo-card {
@@ -755,12 +778,13 @@ main {
   flex-grow: 1;
 }
 
-/* O novo contador de pontos (só texto) */
+/* O texto de "Pontos" (mantém o estilo de texto) */
 .pontuacao-display {
-  font-size: 1.1rem; /* Fonte maior, como na foto */
+  font-size: 1.1rem;
   font-weight: bold;
   color: #333;
-  margin-bottom: 2px;
+  margin-bottom: 8px; /* Espaço para as bolinhas abaixo */
+  padding-left: 5px;
 }
 
 /* Contador de pontos premiado */
@@ -787,7 +811,7 @@ main {
 }
 
 /* A "BOLINHA" (AGORA É SÓ TEXTO) */
-.jogo-gerado-item {
+/* .jogo-gerado-item {
   font-size: 0.95rem;
   color: #444;
   min-width: 28px;
@@ -800,7 +824,7 @@ main {
   background-color: #f8f8f8 !important;
   color: #333 !important;
   font-weight: normal !important;
-}
+} */
 
 /* O texto da data */
 .jogo-salvo-data {
@@ -820,12 +844,11 @@ main {
   border-radius: 5px;
 }
 
-/* O NÚMERO ACERTADO (HIT) */
+/* A "bolinha" de dezena ACERTADA (verde) */
 .jogo-gerado-item.hit {
-  background-color: #d1e7dd !important;
-  border-color: #a3cfbb !important;
-  color: #0f5132 !important;
-  font-weight: bold !important;
+  background-color: #198754 !important; /* Verde */
+  color: white !important;
+  border-color: #146c43 !important;
 }
 
 /* Contador de pontos premiado */
@@ -884,7 +907,7 @@ main {
   main {
     /* Remove margens e preenchimentos laterais */
     margin: 0;
-    padding: 10px 8px; /* 10px topo/baixo, 8px laterais (bem pequeno) */
+    padding: 10px 15px; /* 10px topo/baixo, 8px laterais (bem pequeno) */
 
     /* Remove bordas e sombras que prendem o layout */
     border: none;
@@ -920,11 +943,12 @@ main {
     gap: 4px;
   }
 
-  /* A "bolinha" de texto (O MAIS IMPORTANTE) */
+  /* A "bolinha" no telemóvel (um pouco menor) */
   .jogo-gerado-item {
+    width: 30px;
+    height: 30px;
     font-size: 0.85rem;
-    min-width: 24px;
-    padding: 3px;
+    min-width: 30px;
   }
 
   /* Ajusta o grid do GERADOR também */
@@ -941,12 +965,11 @@ main {
 
   /* Ajusta os botões de seleção de jogos */
   .jogos-controles {
-    flex-direction: column;
     gap: 10px;
   }
 
   .jogos-controles .btn-jogo-acao {
-    width: 100%;
+    flex: 1;
   }
 
   /* Ajusta o layout do conferidor */
@@ -960,4 +983,14 @@ main {
     font-size: 1rem;
     padding: 0 5px;
   }
+}
+
+#grid-dezenas {
+  display: grid;
+  grid-template-columns: repeat(5, 45px); /* 5 colunas */
+  gap: 8px;
+  margin-bottom: 20px;
+  max-width: 250px; /* (45px * 5) + (8px * 4) */
+  margin-left: auto;
+  margin-right: auto;
 }

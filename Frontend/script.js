@@ -518,6 +518,9 @@ document.addEventListener("DOMContentLoaded", () => {
       menuFechamentos.disabled = false;
     }
   }
+  // ===================================
+  // === FUNÇÃO CORRIGIDA
+  // ===================================
   function gerarFechamento() {
     const idSelecionado = menuFechamentos.value;
     if (!idSelecionado) {
@@ -529,9 +532,17 @@ document.addEventListener("DOMContentLoaded", () => {
       (a, b) => a - b
     );
     const jogosFinais = [];
+
+    // Loop 1: Passa por cada JOGO na matriz (ex: 6 vezes)
     for (const jogoMatriz of matrizEscolhida.jogos) {
       const jogoTraduzido = [];
-      for (const indice of matrizEscolhida.jogos) {
+
+      // Loop 2: Passa por cada NÚMERO (índice) dentro do jogoMatriz (ex: 15 vezes)
+      // ESTA LINHA FOI CORRIGIDA
+      for (const indice of jogoMatriz) {
+        // <-- A CORREÇÃO ESTÁ AQUI
+
+        // Converte o índice (1, 2, 3...) para a dezena real ("01", "02", "03"...)
         const dezenaReal = dezenasOrdenadas[indice - 1];
         jogoTraduzido.push(dezenaReal);
       }
