@@ -27,18 +27,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // =======================================================
   // === INÍCIO: NOVAS REFERÊNCIAS DO GERADOR DE FECHAMENTOS
   // =======================================================
-  // Variáveis globais para o novo gerador
   let fechamentosDisponiveis = {};
-  let dezenasSelecionadas = new Set(); // Usar Set é mais fácil
+  let dezenasSelecionadas = new Set();
 
-  // Referências aos elementos do HTML
   const gridDezenas = document.getElementById("grid-dezenas");
   const contadorDezenas = document.getElementById("contador");
   const menuFechamentos = document.getElementById("menu-fechamentos");
   const btnGerarFechamento = document.getElementById("btn-gerar");
   const jogosGeradosContainer = document.getElementById("jogos-gerados");
-  // =======================================================
-  // === FIM: NOVAS REFERÊNCIAS
   // =======================================================
 
   // --- REFERÊNCIAS DOS JOGOS SALVOS ---
@@ -61,17 +57,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =======================================================
-  // === INÍCIO: INICIALIZAÇÃO DO NOVO GERADOR
+  // === INICIALIZAÇÃO DO NOVO GERADOR
   // =======================================================
-  // Só executa se os elementos existirem (evita erros em outras páginas)
   if (gridDezenas && menuFechamentos && btnGerarFechamento) {
-    carregarMatrizes(); // Carrega o fechamentos.json
-    configurarGrid(); // Cria os 25 botões na tela
+    carregarMatrizes();
+    configurarGrid();
     btnGerarFechamento.addEventListener("click", gerarFechamento);
   }
-  // =======================================================
-  // === FIM: INICIALIZAÇÃO DO NOVO GERADOR
-  // =======================================================
 
   // --- LÓGICA DE ABAS ---
   tabButtons.forEach((button) => {
@@ -97,61 +89,95 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ===================================
-  // === FUNÇÕES: JOGOS SALVOS ===
-  // (A lógica do gerador aleatório foi removida daqui)
-  // ===================================
-
   // =======================================================
-  // === INÍCIO: LÓGICA DE SALVAMENTO EM LOTE (NOVA)
+  // === SALVAMENTO EM LOTE - VERSÃO CORRIGIDA
   // =======================================================
-  // Esta função substitui a 'handleSalvarTodos' anterior e a '_apiSalvarJogo'
   async function handleSalvarTodos(jogos, btn) {
-    // 'jogos' é o array de arrays, ex: [["01", "02"], ["03", "04"]]
-    btn.disabled = true;
-    btn.textContent = `Salvando ${jogos.length} jogos...`;
+    if (!jogos || jogos.length === 0) {
+      alert("Nenhum jogo para salvar!");
+      return;
+    }
 
-    // 1. Converter o array de arrays em um array de strings
-    // Ex: [["01", "02"], ["03", "04"]] -> ["01 02", "03 04"]
-    const jogosStringArray = jogos.map((jogo) => jogo.join(" "));
+    const textoOriginal = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = `Salvando ${jogos.length} jogo(s)...`;
 
     try {
-      // 2. Fazer UMA ÚNICA chamada de API para a nova rota
+      // Converter array de arrays em array de strings
+      const jogosStringArray = jogos.map((jogo) => jogo.join(" "));
+
+      console.log(`📤 Enviando ${jogosStringArray.length} jogos...`);
+      console.log("Token:", token ? "✓" : "✗");
+
       const response = await fetch(`${API_URL}/api/jogos/salvar-lote`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        // 3. Enviar o array de strings no corpo
         body: JSON.stringify({ jogos: jogosStringArray }),
       });
+
+      console.log("Status:", response.status);
+      console.log("Content-Type:", response.headers.get("content-type"));
+
+      // CORREÇÃO PRINCIPAL: Verificar se é JSON antes de parsear
+      const contentType = response.headers.get("content-type");
+
+      if (!contentType || !contentType.includes("application/json")) {
+        const textoResposta = await response.text();
+        console.error("❌ API retornou HTML:", textoResposta.substring(0, 300));
+
+        throw new Error(
+          "A API não está respondendo corretamente.\n" +
+            "Verifique se a API está online e se a rota existe.\n\n" +
+            `Status: ${response.status}`
+        );
+      }
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Erro ao salvar em lote.");
+        if (response.status === 401 || response.status === 403) {
+          alert("⚠️ Sessão expirada. Faça login novamente.");
+          localStorage.removeItem("meu-token-lotofacil");
+          window.location.href = "welcome.html";
+          return;
+        }
+
+        throw new Error(result.error || `Erro ${response.status}`);
       }
 
-      // 4. Sucesso!
-      btn.textContent = result.message; // Ex: "24 jogo(s) salvo(s) com sucesso."
-      jogosJaCarregados = false; // Força recarregar a aba "Meus Jogos"
-    } catch (error) {
-      console.error("Erro no salvamento em lote:", error);
-      btn.textContent = "Erro ao salvar. Tente novamente.";
-      alert("Erro: " + error.message);
-      // Habilita para tentar de novo
+      // SUCESSO!
+      console.log(`✅ ${result.jogosSalvos} jogo(s) salvo(s)!`);
+      btn.textContent = `✓ ${result.message}`;
+      jogosJaCarregados = false;
+
       setTimeout(() => {
         btn.disabled = false;
-        btn.textContent = `Salvar todos os ${jogos.length} jogos`;
+        btn.textContent = textoOriginal;
+      }, 3000);
+    } catch (error) {
+      console.error("❌ Erro:", error);
+      btn.textContent = "✗ Erro ao salvar";
+
+      let mensagem = error.message;
+      if (error.message.includes("Failed to fetch")) {
+        mensagem = "Não foi possível conectar à API.\nVerifique sua conexão.";
+      }
+
+      alert("❌ " + mensagem);
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
       }, 2000);
     }
   }
-  // =======================================================
-  // === FIM: LÓGICA DE SALVAMENTO EM LOTE (NOVA)
-  // =======================================================
 
-  // 3. BUSCAR JOGOS SALVOS (API)
+  // =======================================================
+  // === BUSCAR JOGOS SALVOS
+  // =======================================================
   async function buscarJogosSalvos() {
     jogosSalvosContainer.innerHTML = "<p>Carregando jogos salvos...</p>";
 
@@ -165,12 +191,15 @@ document.addEventListener("DOMContentLoaded", () => {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (response.status === 401 || response.status === 403) {
         throw new Error("Sessão expirada. Faça login novamente.");
       }
+
       if (!response.ok) {
         throw new Error("Erro ao buscar seus jogos.");
       }
+
       const jogos = await response.json();
       jogosSalvosContainer.innerHTML = "";
 
@@ -229,6 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         jogosSalvosContainer.appendChild(card);
       });
+
       jogosJaCarregados = true;
     } catch (error) {
       console.error(error);
@@ -236,7 +266,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 4. FUNÇÕES DE DELEÇÃO
+  // =======================================================
+  // === FUNÇÕES DE DELEÇÃO
+  // =======================================================
   if (btnSelecionarTodos) {
     btnSelecionarTodos.addEventListener("click", () => {
       const checkboxes = document.querySelectorAll(".jogo-select-checkbox");
@@ -305,18 +337,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return await response.json();
   }
 
-  // ===================================
-  // === FUNÇÕES DOS RESULTADOS ===
-  // ===================================
-
+  // =======================================================
+  // === FUNÇÕES DOS RESULTADOS
+  // =======================================================
   async function buscarResultados(limit = 10) {
     corpoTabela.innerHTML = '<tr><td colspan="3">Carregando...</td></tr>';
     if (gridLoadingMsg) gridLoadingMsg.style.display = "block";
 
     try {
-      console.log("🔍 Iniciando requisição para a API...");
-      console.log("Token usado:", token ? "Token presente" : "SEM TOKEN!");
-      console.log("URL:", `${API_URL}/api/resultados?limit=${Number(limit)}`);
+      console.log("🔍 Buscando resultados...");
 
       const response = await fetch(
         `${API_URL}/api/resultados?limit=${Number(limit)}`,
@@ -329,17 +358,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       );
 
-      console.log("📡 Status da resposta:", response.status);
-
-      if (response.status === 401) {
-        alert("⚠️ Sua sessão expirou. Por favor, faça login novamente.");
-        localStorage.removeItem("meu-token-lotofacil");
-        window.location.href = "welcome.html";
-        return;
-      }
-
-      if (response.status === 403) {
-        alert("⚠️ Token inválido. Por favor, faça login novamente.");
+      if (response.status === 401 || response.status === 403) {
+        alert("⚠️ Sessão expirada. Faça login novamente.");
         localStorage.removeItem("meu-token-lotofacil");
         window.location.href = "welcome.html";
         return;
@@ -347,28 +367,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error("❌ Erro da API:", errorData);
         throw new Error(
           errorData.error || `Erro da API: ${response.statusText}`
         );
       }
 
       const resultados = await response.json();
-      console.log("✅ Resultados recebidos:", resultados.length, "concursos");
+      console.log("✅ Resultados:", resultados.length, "concursos");
 
       if (gridLoadingMsg) gridLoadingMsg.style.display = "none";
       popularTabela(resultados);
       popularGrid(resultados);
     } catch (error) {
-      console.error("❌ Erro ao buscar dados da API:", error.message);
+      console.error("❌ Erro:", error.message);
 
       let mensagemErro = "Erro ao carregar os resultados.";
 
       if (error.message.includes("Failed to fetch")) {
-        mensagemErro =
-          "❌ Não foi possível conectar à API. Verifique sua conexão.";
+        mensagemErro = "❌ Não foi possível conectar à API.";
       } else if (error.message.includes("Token")) {
-        mensagemErro = "❌ Problema de autenticação. Faça login novamente.";
+        mensagemErro = "❌ Problema de autenticação.";
       }
 
       corpoTabela.innerHTML = `<tr><td colspan="3" style="color: red; padding: 20px;">${mensagemErro}</td></tr>`;
@@ -382,20 +400,22 @@ document.addEventListener("DOMContentLoaded", () => {
       const tr = document.createElement("tr");
       const dataFormatada = new Date(concurso.data).toLocaleDateString(
         "pt-BR",
-        {
-          timeZone: "UTC",
-        }
+        { timeZone: "UTC" }
       );
+
       const tdConcurso = document.createElement("td");
       tdConcurso.textContent = concurso.concurso;
       tr.appendChild(tdConcurso);
+
       const tdData = document.createElement("td");
       tdData.textContent = dataFormatada;
       tr.appendChild(tdData);
+
       const tdDezenas = document.createElement("td");
       const gridBolinhas = criarGridDeBolinhas(concurso.dezenas);
       tdDezenas.appendChild(gridBolinhas);
       tr.appendChild(tdDezenas);
+
       corpoTabela.appendChild(tr);
     });
   }
@@ -406,31 +426,37 @@ document.addEventListener("DOMContentLoaded", () => {
       const dezenasSorteadas = concurso.dezenas.split(" ").map(Number);
       const dataFormatada = new Date(concurso.data).toLocaleDateString(
         "pt-BR",
-        {
-          timeZone: "UTC",
-        }
+        { timeZone: "UTC" }
       );
+
       const card = document.createElement("div");
       card.className = "concurso-card";
+
       const header = document.createElement("div");
       header.className = "card-header";
       header.innerHTML = `CONCURSO ${concurso.concurso} <span>(${dataFormatada})</span>`;
       card.appendChild(header);
+
       const gridContainer = document.createElement("div");
       gridContainer.className = "card-grid-container";
+
       const grid5x5 = document.createElement("div");
       grid5x5.className = "card-dezenas-grid";
+
       for (let i = 1; i <= 25; i++) {
         const dezenaItem = document.createElement("div");
         dezenaItem.className = "card-dezena-item";
         dezenaItem.textContent = i.toString().padStart(2, "0");
+
         if (dezenasSorteadas.includes(i)) {
           dezenaItem.classList.add("sorteada");
         } else {
           dezenaItem.classList.add("nao-sorteada");
         }
+
         grid5x5.appendChild(dezenaItem);
       }
+
       gridContainer.appendChild(grid5x5);
       card.appendChild(gridContainer);
       viewGrid.appendChild(card);
@@ -441,18 +467,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const dezenasSorteadas = dezenasString.split(" ").map(Number);
     const gridContainer = document.createElement("div");
     gridContainer.className = "dezenas-grid";
+
     for (let i = 1; i <= 25; i++) {
       const dezenaItem = document.createElement("span");
       dezenaItem.className = "dezena-item";
       const numFormatado = i.toString().padStart(2, "0");
       dezenaItem.textContent = numFormatado;
+
       if (dezenasSorteadas.includes(i)) {
         dezenaItem.classList.add("sorteada");
       } else {
         dezenaItem.classList.add("nao-sorteada");
       }
+
       gridContainer.appendChild(dezenaItem);
     }
+
     return gridContainer;
   }
 
@@ -468,35 +498,31 @@ document.addEventListener("DOMContentLoaded", () => {
   buscarResultados(10);
 
   // =======================================================
-  // === LÓGICA DO NOVO GERADOR DE FECHAMENTOS (COLADO AQUI)
+  // === LÓGICA DO GERADOR DE FECHAMENTOS
   // =======================================================
-
-  // 1. Carrega o JSON
   async function carregarMatrizes() {
     try {
-      const response = await fetch("./fechamentos.json"); // Busca o arquivo local
+      const response = await fetch("./fechamentos.json");
       if (!response.ok) {
         throw new Error(`Erro HTTP! Status: ${response.status}`);
       }
       fechamentosDisponiveis = await response.json();
-      console.log("Matrizes de fechamento carregadas:", fechamentosDisponiveis);
-    } catch (error) {
-      console.error(
-        "Não foi possível carregar o arquivo fechamentos.json:",
-        error
+      console.log(
+        "✅ Matrizes carregadas:",
+        Object.keys(fechamentosDisponiveis).length
       );
-      alert("Erro fatal ao carregar o gerador. Verifique o console.");
+    } catch (error) {
+      console.error("❌ Erro ao carregar fechamentos.json:", error);
+      alert("Erro ao carregar o gerador. Verifique o console.");
     }
   }
 
-  // 2. Cria os 25 botões do grid
   function configurarGrid() {
     for (let i = 1; i <= 25; i++) {
-      const dezena = i.toString().padStart(2, "0"); // "01", "02", etc.
+      const dezena = i.toString().padStart(2, "0");
       const btn = document.createElement("div");
-      // ATENÇÃO: Adicione estilos para '.dezena-btn' no seu style.css!
       btn.textContent = dezena;
-      btn.className = "dezena-btn"; // Classe para estilização
+      btn.className = "dezena-btn";
       btn.dataset.dezena = dezena;
 
       btn.addEventListener("click", () => toggleDezena(btn));
@@ -504,30 +530,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 3. Ação de clicar em uma dezena
   function toggleDezena(btn) {
     const dezena = btn.dataset.dezena;
+
     if (dezenasSelecionadas.has(dezena)) {
       dezenasSelecionadas.delete(dezena);
-      btn.classList.remove("selecionada"); // Classe para estilização
+      btn.classList.remove("selecionada");
     } else {
       dezenasSelecionadas.add(dezena);
-      btn.classList.add("selecionada"); // Classe para estilização
+      btn.classList.add("selecionada");
     }
 
-    // Atualiza o contador
     if (contadorDezenas) {
       contadorDezenas.textContent = `Dezenas selecionadas: ${dezenasSelecionadas.size}`;
     }
 
-    // Atualiza o menu dropdown
     atualizarMenuFechamentos();
   }
 
-  // 4. Filtra e atualiza o menu <select>
   function atualizarMenuFechamentos() {
     const totalSelecionadas = dezenasSelecionadas.size;
-    menuFechamentos.innerHTML = ""; // Limpa opções antigas
+    menuFechamentos.innerHTML = "";
 
     let opcoesEncontradas = 0;
 
@@ -556,7 +579,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 5. O "Motor" - Gera os jogos
   function gerarFechamento() {
     const idSelecionado = menuFechamentos.value;
     if (!idSelecionado) {
@@ -570,11 +592,10 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     const jogosFinais = [];
 
-    // Loop de "Tradução"
     for (const jogoMatriz of matrizEscolhida.jogos) {
       const jogoTraduzido = [];
       for (const indice of jogoMatriz) {
-        const dezenaReal = dezenasOrdenadas[indice - 1]; // -1 para 'traduzir' de 1-based para 0-based
+        const dezenaReal = dezenasOrdenadas[indice - 1];
         jogoTraduzido.push(dezenaReal);
       }
       jogosFinais.push(jogoTraduzido);
@@ -583,15 +604,13 @@ document.addEventListener("DOMContentLoaded", () => {
     exibirJogos(jogosFinais);
   }
 
-  // 6. Mostra os jogos gerados na tela (COM BOTÃO "SALVAR TODOS")
   function exibirJogos(jogos) {
-    jogosGeradosContainer.innerHTML = ""; // Limpa resultados antigos
+    jogosGeradosContainer.innerHTML = "";
     jogosGeradosContainer.innerHTML += `<p><b>${jogos.length} jogos gerados:</b></p>`;
 
     const lista = document.createElement("div");
     lista.className = "lista-jogos-gerados";
 
-    // Loop para mostrar as bolinhas
     jogos.forEach((jogo) => {
       const item = document.createElement("div");
       item.className = "jogo-gerado-card";
@@ -607,24 +626,22 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       item.appendChild(bolinhasContainer);
-
       lista.appendChild(item);
     });
 
     jogosGeradosContainer.appendChild(lista);
 
-    // --- ADICIONA O BOTÃO "SALVAR TODOS" NO FINAL ---
+    // Botão "SALVAR TODOS"
     if (jogos.length > 0) {
       const btnSalvarTodos = document.createElement("button");
-      btnSalvarTodos.className = "btn-salvar-todos"; // Nova classe CSS
+      btnSalvarTodos.className = "btn-salvar-todos";
       btnSalvarTodos.textContent = `Salvar todos os ${jogos.length} jogos`;
 
       btnSalvarTodos.onclick = () => {
-        // Passa a lista de jogos e o próprio botão
         handleSalvarTodos(jogos, btnSalvarTodos);
       };
 
-      jogosGeradosContainer.appendChild(btnSalvarTodos); // Adiciona o botão
+      jogosGeradosContainer.appendChild(btnSalvarTodos);
     }
   }
 }); // FIM DO DOMCONTENTLOADED
