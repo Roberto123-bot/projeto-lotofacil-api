@@ -355,25 +355,31 @@ main {
   flex-direction: column;
 }
 
-/* Dezenas do jogo gerado (reaproveitando o estilo) */
+/* O container das bolinhas */
 .jogo-gerado-dezenas {
   display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  justify-content: center;
-  margin-bottom: 15px;
+  flex-wrap: wrap; /* <<< A MÁGICA: Quebra a linha, "bem distribuída" */
+  gap: 6px; /* Espaço entre os números */
+  padding-top: 5px;
 }
+
+/* A "BOLINHA" (AGORA É SÓ TEXTO) */
 .jogo-gerado-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  font-weight: bold;
-  background-color: #007bff; /* Azul */
-  color: white;
-  font-size: 0.9rem;
+  /* Removemos todo o estilo de "bolinha" */
+  font-size: 0.95rem; /* Tamanho de fonte elegante */
+  color: #444; /* Cor de texto padrão */
+  min-width: 28px;
+  text-align: center;
+  padding: 4px;
+
+  /* Reset de estilos de bolinha (caso existam) */
+  width: auto !important;
+  height: auto !important;
+  border-radius: 4px !important; /* Um leve arredondado */
+  border: 1px solid #ddd !important;
+  background-color: #f8f8f8 !important;
+  color: #333 !important;
+  font-weight: normal !important;
 }
 
 /* Botão de Salvar Jogo */
@@ -422,9 +428,10 @@ main {
   letter-spacing: 1px;
 }
 
+/* O texto da data */
 .jogo-salvo-data {
-  font-size: 0.85rem;
-  color: #555;
+  font-size: 0.8rem;
+  color: #6c757d;
 }
 
 .btn-deletar-jogo {
@@ -608,9 +615,9 @@ main {
   border-radius: 5px;
 }
 
-/* O card de cada jogo individual (reutilizando estilos) */
+/* O card de cada jogo gerado (na aba Gerador) */
 .jogo-gerado-card {
-  padding: 5px;
+  padding: 5px 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
   background: #fafafa;
@@ -654,4 +661,280 @@ main {
   border: 1px solid #ddd;
   border-radius: 5px;
   background: #fafafa;
+}
+
+/* =================================== */
+/* === CSS PARA O CONFERIDOR DE JOGOS === */
+/* =================================== */
+
+/* O painel do conferidor */
+#conferidor-ui {
+  background-color: #f4f7f6;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+#conferidor-ui h3 {
+  margin: 0 0 10px 0;
+  text-align: center;
+  color: #333;
+}
+
+.conferidor-controles {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Botões de seta do conferidor */
+#check-prev,
+#check-next {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#check-prev:hover,
+#check-next:hover {
+  background-color: #0a58ca;
+}
+
+#check-prev:disabled,
+#check-next:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Display do concurso (ex: Concurso 3539) */
+#check-concurso-display {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #1a1a1a;
+  text-align: center;
+  flex-grow: 1;
+}
+
+/* =================================== */
+/* === CSS PARA MEUS JOGOS SALVOS (Layout Elegante) === */
+/* =================================== */
+
+/* O card principal na aba "Meus Jogos Salvos" */
+.jogo-salvo-card {
+  display: flex;
+  flex-direction: column; /* Organiza o header e o grid de dezenas verticalmente */
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* O cabeçalho (Checkbox + Infos) */
+.card-header-jogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border-bottom: 1px solid #eee; /* Linha separadora */
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+/* O bloco de informações (Pontos + Data) */
+.jogo-info-bloco {
+  flex-grow: 1;
+}
+
+/* O novo contador de pontos (só texto) */
+.pontuacao-display {
+  font-size: 1.1rem; /* Fonte maior, como na foto */
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+/* Contador de pontos premiado */
+.pontuacao-display.premiado {
+  color: #198754 !important; /* Verde */
+}
+
+/* O container do meio (bolinhas + data) */
+.jogo-salvo-info {
+  flex-grow: 1; /* Faz ele ocupar o espaço do meio */
+  min-width: 0; /* MUITO IMPORTANTE: Permite que o flex-item encolha */
+}
+
+/* O container das bolinhas
+  ESTA É A CORREÇÃO PRINCIPAL
+*/
+.jogo-gerado-dezenas {
+  display: flex;
+  flex-wrap: wrap; /* <<< A MÁGICA CORRETA: Quebra a linha */
+  gap: 6px; /* Espaço entre os números */
+  padding-top: 5px;
+  /* Garante que não tenha scroll horizontal */
+  overflow-x: hidden;
+}
+
+/* A "BOLINHA" (AGORA É SÓ TEXTO) */
+.jogo-gerado-item {
+  font-size: 0.95rem;
+  color: #444;
+  min-width: 28px;
+  text-align: center;
+  padding: 4px;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 4px !important;
+  border: 1px solid #ddd !important;
+  background-color: #f8f8f8 !important;
+  color: #333 !important;
+  font-weight: normal !important;
+}
+
+/* O texto da data */
+.jogo-salvo-data {
+  font-size: 0.8rem; /* Fonte menor */
+  color: #6c757d;
+}
+
+/* O contador de pontos */
+.score-display {
+  font-size: 1rem; /* Fonte menor */
+  padding: 5px 8px;
+  min-width: 80px; /* Largura menor */
+  text-align: center;
+  font-weight: bold;
+  color: #555;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
+
+/* O NÚMERO ACERTADO (HIT) */
+.jogo-gerado-item.hit {
+  background-color: #d1e7dd !important;
+  border-color: #a3cfbb !important;
+  color: #0f5132 !important;
+  font-weight: bold !important;
+}
+
+/* Contador de pontos premiado */
+.score-display.premiado {
+  background-color: #d1e7dd !important; /* Verde claro */
+  color: #0f5132 !important;
+  border: 1px solid #a3cfbb !important;
+}
+
+/*
+  Para o GERADOR DE JOGOS não quebrar (ele usava as mesmas classes),
+  vamos dar a ele classes únicas.
+*/
+
+/* No Gerador: container */
+.jogo-gerado-dezenas-no-gerador {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+/* No Gerador: bolinha azul */
+.jogo-gerado-item-no-gerador {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid #0d6efd;
+  background-color: #0d6efd;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* =================================== */
+/* === AJUSTES PARA CELULAR (Responsivo) === */
+/* =================================== */
+
+/* SUBSTITUA QUALQUER BLOCO @media (max-width: 600px)
+  QUE VOCÊ TENHA POR ESTE BLOCO COMPLETO.
+*/
+@media (max-width: 600px) {
+  /* O card principal */
+  .jogo-salvo-card {
+    padding: 10px 8px; /* Menos preenchimento lateral */
+    margin-bottom: 8px;
+  }
+
+  /* O cabeçalho (checkbox + infos) */
+  .card-header-jogo {
+    gap: 8px; /* Menos espaço */
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+
+  /* O texto de "Pontos" */
+  .pontuacao-display {
+    font-size: 1rem; /* Um pouco menor */
+  }
+
+  /* O container das dezenas */
+  .jogo-gerado-dezenas {
+    gap: 4px; /* Espaço entre os números BEM menor */
+  }
+
+  /* A "bolinha" de texto (O MAIS IMPORTANTE) */
+  .jogo-gerado-item {
+    font-size: 0.85rem; /* Fonte menor */
+    min-width: 24px; /* Caixa menor */
+    padding: 3px; /* Menos preenchimento */
+  }
+
+  /* Ajusta o grid do GERADOR também */
+  #grid-dezenas {
+    max-width: 100%; /* Ocupar a largura total */
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(40px, 1fr)
+    ); /* Grid automático */
+    gap: 5px;
+  }
+
+  .dezena-btn {
+    width: 100%; /* Ocupar o espaço do grid */
+    height: 45px; /* Manter altura */
+  }
+
+  /* Ajusta os botões de seleção de jogos */
+  .jogos-controles {
+    flex-direction: column; /* Coloca um botão em cima do outro */
+    gap: 10px;
+  }
+
+  .jogos-controles .btn-jogo-acao {
+    width: 100%; /* Ocupa a largura toda */
+  }
+
+  /* Ajusta o layout do conferidor */
+  #check-prev,
+  #check-next {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  #check-concurso-display {
+    font-size: 1rem;
+    padding: 0 5px; /* Evita que o texto cole nas setas */
+  }
 }
