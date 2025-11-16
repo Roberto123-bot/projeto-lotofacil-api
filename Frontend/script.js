@@ -65,50 +65,52 @@ document.addEventListener("DOMContentLoaded", () => {
     btnGerarFechamento.addEventListener("click", gerarFechamento);
   }
 
-  // --- LÓGICA DE ABAS ---
+  // --- LÓGICA DE ABAS (REFATORADA) ---
+
+  // (NOVA FUNÇÃO) Move a lógica de troca para uma função reutilizável
+  function switchTab(targetId) {
+    if (!targetId) return;
+
+    // 1. Esconde tudo
+    tabButtons.forEach((btn) => btn.classList.remove("active"));
+    tabContents.forEach((content) => content.classList.add("hidden"));
+
+    // 2. Encontra e mostra o alvo
+    const targetButton = document.querySelector(`[data-target="${targetId}"]`);
+    const targetContent = document.getElementById(targetId);
+
+    if (targetButton) targetButton.classList.add("active");
+    if (targetContent) targetContent.classList.remove("hidden");
+
+    // 3. A lógica especial de carregar jogos
+    if (targetId === "view-jogos" && !jogosJaCarregados) {
+      buscarJogosSalvos();
+    }
+  }
+
+  // O Event Listener agora só chama a função
   tabButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const targetId = button.dataset.target;
-      if (!targetId) return;
-
-      tabButtons.forEach((btn) => btn.classList.remove("active"));
-      button.classList.add("active");
-
-      tabContents.forEach((content) => {
-        content.classList.add("hidden");
-      });
-
-      const targetContent = document.getElementById(targetId);
-      if (targetContent) {
-        targetContent.classList.remove("hidden");
-      }
-
-      if (targetId === "view-jogos" && !jogosJaCarregados) {
-        buscarJogosSalvos();
-      }
+      switchTab(targetId); // Chama a nova função
     });
   });
+
+  // =======================================================
+  // === FIM: NOVAS FUNÇÕES DE LIMPEZA E NAVEGAÇÃO
+  // =======================================================
 
   // =======================================================
   // === SALVAMENTO EM LOTE - VERSÃO CORRIGIDA
   // =======================================================
   async function handleSalvarTodos(jogos, btn) {
-    if (!jogos || jogos.length === 0) {
-      alert("Nenhum jogo para salvar!");
-      return;
-    }
-
-    const textoOriginal = btn.textContent;
+    // 'jogos' é o array de arrays, ex: [["01", "02"], ["03", "04"]]
     btn.disabled = true;
-    btn.textContent = `Salvando ${jogos.length} jogo(s)...`;
+    btn.textContent = `Salvando ${jogos.length} jogos...`;
+
+    const jogosStringArray = jogos.map((jogo) => jogo.join(" "));
 
     try {
-      // Converter array de arrays em array de strings
-      const jogosStringArray = jogos.map((jogo) => jogo.join(" "));
-
-      console.log(`📤 Enviando ${jogosStringArray.length} jogos...`);
-      console.log("Token:", token ? "✓" : "✗");
-
       const response = await fetch(`${API_URL}/api/jogos/salvar-lote`, {
         method: "POST",
         headers: {
@@ -118,59 +120,34 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ jogos: jogosStringArray }),
       });
 
-      console.log("Status:", response.status);
-      console.log("Content-Type:", response.headers.get("content-type"));
-
-      // CORREÇÃO PRINCIPAL: Verificar se é JSON antes de parsear
-      const contentType = response.headers.get("content-type");
-
-      if (!contentType || !contentType.includes("application/json")) {
-        const textoResposta = await response.text();
-        console.error("❌ API retornou HTML:", textoResposta.substring(0, 300));
-
-        throw new Error(
-          "A API não está respondendo corretamente.\n" +
-            "Verifique se a API está online e se a rota existe.\n\n" +
-            `Status: ${response.status}`
-        );
-      }
-
       const result = await response.json();
-
       if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          alert("⚠️ Sessão expirada. Faça login novamente.");
-          localStorage.removeItem("meu-token-lotofacil");
-          window.location.href = "welcome.html";
-          return;
-        }
-
-        throw new Error(result.error || `Erro ${response.status}`);
+        throw new Error(result.error || "Erro ao salvar em lote.");
       }
 
-      // SUCESSO!
-      console.log(`✅ ${result.jogosSalvos} jogo(s) salvo(s)!`);
-      btn.textContent = `✓ ${result.message}`;
-      jogosJaCarregados = false;
+      // --- SUCESSO! ---
+      btn.textContent = result.message; // Ex: "24 jogo(s) salvo(s) com sucesso."
+      jogosJaCarregados = false; // Força recarregar a aba "Meus Jogos"
 
+      // =======================================================
+      // === INÍCIO: LÓGICA DE LIMPEZA E MUDANÇA DE ABA (NOVO)
+      // =======================================================
+      // Dá 1 segundo para o usuário ler a msg de sucesso
       setTimeout(() => {
-        btn.disabled = false;
-        btn.textContent = textoOriginal;
-      }, 3000);
+        resetGeradorTab(); // Limpa a aba do gerador
+        switchTab("view-jogos"); // Muda para a aba "Meus Jogos"
+      }, 1000); // 1000ms = 1 segundo
+      // =======================================================
+      // === FIM: LÓGICA DE LIMPEZA
+      // =======================================================
     } catch (error) {
-      console.error("❌ Erro:", error);
-      btn.textContent = "✗ Erro ao salvar";
-
-      let mensagem = error.message;
-      if (error.message.includes("Failed to fetch")) {
-        mensagem = "Não foi possível conectar à API.\nVerifique sua conexão.";
-      }
-
-      alert("❌ " + mensagem);
+      console.error("Erro no salvamento em lote:", error);
+      btn.textContent = "Erro ao salvar. Tente novamente.";
+      alert("Erro: " + error.message);
 
       setTimeout(() => {
         btn.disabled = false;
-        btn.textContent = textoOriginal;
+        btn.textContent = `Salvar todos os ${jogos.length} jogos`;
       }, 2000);
     }
   }
@@ -642,6 +619,33 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       jogosGeradosContainer.appendChild(btnSalvarTodos);
+    }
+  }
+
+  // =======================================================
+  // === INÍCIO: NOVAS FUNÇÕES DE LIMPEZA E NAVEGAÇÃO
+  // =======================================================
+
+  // 7. (NOVA) Reseta a aba do gerador
+  function resetGeradorTab() {
+    // 1. Limpa o Set de dezenas
+    dezenasSelecionadas.clear();
+
+    // 2. Remove a classe 'selecionada' de todos os botões do grid
+    const todosBotoes = gridDezenas.querySelectorAll(".dezena-btn");
+    todosBotoes.forEach((btn) => btn.classList.remove("selecionada"));
+
+    // 3. Reseta o contador
+    if (contadorDezenas) {
+      contadorDezenas.textContent = "Dezenas selecionadas: 0";
+    }
+
+    // 4. Limpa e desabilita o menu dropdown
+    atualizarMenuFechamentos();
+
+    // 5. Limpa a lista de jogos gerados
+    if (jogosGeradosContainer) {
+      jogosGeradosContainer.innerHTML = "";
     }
   }
 }); // FIM DO DOMCONTENTLOADED
