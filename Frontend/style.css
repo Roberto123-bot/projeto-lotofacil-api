@@ -222,10 +222,26 @@ main {
 
 /* O container dos cards */
 #view-grid {
-  display: flex;
-  flex-wrap: wrap;
+  /* 1. Usamos o sistema de Grelha (Grid) */
+  display: grid;
+
+  /* 2. Definimos as colunas:
+     - auto-fit: Cria quantas colunas couberem.
+     - minmax(340px, 1fr): Cada coluna tem no MÍNIMO 340px
+       e no MÁXIMO 1 fração (para esticar).
+  */
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+
+  /* 3. A MÁGICA: Centraliza os items (os cards)
+     horizontalmente dentro das suas colunas.
+  */
+  justify-items: center;
+
+  /* 4. Espaçamento entre os cards */
   gap: 20px;
-  justify-content: center; /* Centraliza os cards */
+
+  /* (Oculta o flex-wrap, já não é necessário) */
+  /* flex-wrap: wrap; */
 }
 
 /* O card de cada concurso */
@@ -256,9 +272,10 @@ main {
   margin-left: 8px;
 }
 
-/* O container do grid 5x5 */
 .card-grid-container {
-  padding: 15px;
+  display: flex;
+  justify-content: center; /* Centraliza o grid 5x5 */
+  padding: 10px 0;
 }
 
 /* O grid 5x5 */
