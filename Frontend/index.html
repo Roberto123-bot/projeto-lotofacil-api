@@ -25,11 +25,25 @@
       </div>
 
       <nav class="view-tabs">
-        <button id="btn-view-tabela" class="tab-button active">
-          Visualização em Tabela
+        <button
+          id="btn-view-tabela"
+          class="tab-button active"
+          data-target="view-tabela"
+        >
+          Resultados (Tabela)
         </button>
-        <button id="btn-view-grid" class="tab-button">
-          Visualização em Grade
+        <button id="btn-view-grid" class="tab-button" data-target="view-grid">
+          Resultados (Grade)
+        </button>
+        <button
+          id="btn-view-gerador"
+          class="tab-button"
+          data-target="view-gerador"
+        >
+          Gerador de Jogos
+        </button>
+        <button id="btn-view-jogos" class="tab-button" data-target="view-jogos">
+          Meus Jogos Salvos
         </button>
       </nav>
 
@@ -52,6 +66,30 @@
 
       <div id="view-grid" class="view-content hidden">
         <p class="loading-grid">Carregando...</p>
+      </div>
+
+      <div id="view-gerador" class="view-content hidden">
+        <h2>Gerador de Jogos</h2>
+        <p>Em breve, um gerador de jogos aleatórios aqui.</p>
+        <button id="btn-gerar-jogo">Gerar Jogo Aleatório</button>
+        <div id="jogo-gerado-container"></div>
+      </div>
+
+      <div id="view-jogos" class="view-content hidden">
+        <h2>Meus Jogos Salvos</h2>
+
+        <div class="jogos-controles">
+          <button id="btn-selecionar-todos" class="btn-jogo-acao">
+            Selecionar Todos
+          </button>
+          <button id="btn-apagar-selecionados" class="btn-jogo-acao danger">
+            Apagar Selecionados
+          </button>
+        </div>
+
+        <div id="jogos-salvos-container">
+          <p>Carregando jogos salvos...</p>
+        </div>
       </div>
     </main>
     <script src="script.js"></script>

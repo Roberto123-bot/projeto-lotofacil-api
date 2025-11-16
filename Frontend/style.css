@@ -193,9 +193,20 @@ main {
   border-bottom-color: #007bff;
 }
 
-/* --- Classe para esconder/mostrar o conteúdo da aba --- */
+/* === CORREÇÃO PARA A CLASSE .hidden === */
+
+/* Substitua a regra existente (linha ~168) por esta versão mais forte: */
+
 .view-content.hidden {
-  display: none;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Garanta também que a view ativa esteja sempre visível: */
+.view-content:not(.hidden) {
+  display: block !important;
 }
 
 /* --- ESTILOS DA NOVA VISUALIZAÇÃO EM GRADE --- */
@@ -302,3 +313,207 @@ main {
 .btn-logout:hover {
   background-color: #c82333; /* Vermelho mais escuro */
 }
+
+/* --- ESTILOS PARA AS NOVAS ABAS (GERADOR / MEUS JOGOS) --- */
+
+/* Ajuste no container das abas para caberem todas */
+.view-tabs {
+  flex-wrap: wrap; /* Permite que as abas quebrem a linha em telas pequenas */
+}
+
+/* Container do gerador */
+#view-gerador {
+  padding: 20px;
+  text-align: center;
+}
+
+#btn-gerar-jogo {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #28a745; /* Verde */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-bottom: 20px;
+}
+#btn-gerar-jogo:hover {
+  background-color: #218838;
+}
+
+/* Jogo Gerado */
+#jogo-gerado-container {
+  padding: 15px;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  min-height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* Dezenas do jogo gerado (reaproveitando o estilo) */
+.jogo-gerado-dezenas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+.jogo-gerado-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  font-weight: bold;
+  background-color: #007bff; /* Azul */
+  color: white;
+  font-size: 0.9rem;
+}
+
+/* Botão de Salvar Jogo */
+.btn-salvar-jogo {
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #007bff; /* Azul */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-salvar-jogo:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Container de Jogos Salvos */
+#jogos-salvos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.jogo-salvo-card {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.jogo-salvo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.jogo-salvo-dezenas {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.jogo-salvo-data {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.btn-deletar-jogo {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  color: #fff;
+  background-color: #dc3545; /* Vermelho */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* --- ESTILOS PARA DELEÇÃO DE JOGOS SALVOS --- */
+
+/* Container dos botões de ação */
+.jogos-controles {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.btn-jogo-acao {
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-jogo-acao.danger {
+  background-color: #dc3545; /* Vermelho */
+  color: white;
+}
+.btn-jogo-acao.danger:hover {
+  background-color: #c82333;
+}
+.btn-jogo-acao:not(.danger) {
+  background-color: #007bff; /* Azul */
+  color: white;
+}
+.btn-jogo-acao:not(.danger):hover {
+  background-color: #0056b3;
+}
+.btn-jogo-acao:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Ajuste no Card do Jogo Salvo para incluir o Checkbox */
+.jogo-salvo-card {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  /* justify-content: space-between; (removido) */
+  align-items: center;
+  gap: 15px; /* Espaço entre o checkbox e o jogo */
+}
+
+/* Estilo do Checkbox de seleção */
+.jogo-select-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+/* Ocupa o espaço restante */
+.jogo-salvo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-grow: 1; /* Faz esta div ocupar o espaço */
+}
+
+.jogo-salvo-dezenas {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.jogo-salvo-data {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* (O btn-deletar-jogo individual não será mais usado, 
+   mas pode deixar o estilo se quiser) */
