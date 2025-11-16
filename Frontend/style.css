@@ -517,3 +517,141 @@ main {
 
 /* (O btn-deletar-jogo individual não será mais usado, 
    mas pode deixar o estilo se quiser) */
+
+/* =================================== */
+/* === CSS PARA O GERADOR DE FECHAMENTOS === */
+/* =================================== */
+
+/* O container do grid de 25 dezenas */
+#grid-dezenas {
+  display: grid;
+  grid-template-columns: repeat(5, 45px); /* 5 colunas */
+  gap: 8px;
+  margin-bottom: 20px;
+  max-width: 250px; /* (45px * 5) + (8px * 4) */
+}
+
+/* O estilo de cada botão (de 01 a 25) */
+.dezena-btn {
+  width: 45px;
+  height: 45px;
+  border: 2px solid #ccc;
+  border-radius: 50%; /* Bolinha */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: #f0f0f0;
+  color: #333;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+/* Quando o mouse passa por cima */
+.dezena-btn:hover {
+  background-color: #e0e0e0;
+}
+
+/* O estilo da bolinha QUANDO SELECIONADA */
+.dezena-btn.selecionada {
+  background-color: #0d6efd; /* Azul (pode mudar para seu tema) */
+  color: white;
+  border-color: #0a58ca;
+}
+
+/* Estilo para os controles (menu e botão) */
+.gerador-controles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Estilo para o menu dropdown */
+#menu-fechamentos {
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  flex-grow: 1; /* Faz o menu ocupar o espaço */
+  max-width: 400px;
+}
+
+/* Estilo para o botão Gerar */
+#btn-gerar {
+  padding: 9px 15px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #198754; /* Verde */
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+#btn-gerar:hover {
+  background-color: #157347;
+}
+
+/* Container para a lista de jogos gerados */
+.lista-jogos-gerados {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px; /* Limita a altura para não ficar gigante */
+  overflow-y: auto; /* Adiciona scroll se passar da altura */
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* O card de cada jogo individual (reutilizando estilos) */
+.jogo-gerado-card {
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #fafafa;
+}
+
+/* Reutilização de Classes:
+  Note que para exibir os jogos gerados, eu usei as classes
+  'jogo-gerado-dezenas' e 'jogo-gerado-item', que você
+  JÁ TINHA DEFINIDO para a aba "Meus Jogos Salvos". 
+  Isso é ótimo e mantém o visual consistente.
+*/
+
+/* --- Estilo para o novo botão Salvar Todos --- */
+
+.btn-salvar-todos {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #0d6efd; /* Azul */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+  width: 100%; /* Ocupa a largura toda */
+  margin-top: 20px; /* Espaço acima */
+}
+
+.btn-salvar-todos:hover {
+  background-color: #0b5ed7;
+}
+
+.btn-salvar-todos:disabled {
+  background-color: #198754; /* Verde quando está salvando/salvo */
+  cursor: not-allowed;
+}
+
+/* Ajuste no card (removemos o 'flex' que não é mais necessário) */
+.jogo-gerado-card {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #fafafa;
+}

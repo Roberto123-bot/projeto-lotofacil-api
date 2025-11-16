@@ -24,16 +24,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const viewGrid = document.getElementById("view-grid");
   const gridLoadingMsg = document.querySelector("#view-grid .loading-grid");
 
-  // --- REFERÊNCIAS DO GERADOR ---
-  const btnGerarJogo = document.getElementById("btn-gerar-jogo");
-  const jogoGeradoContainer = document.getElementById("jogo-gerado-container");
+  // =======================================================
+  // === INÍCIO: NOVAS REFERÊNCIAS DO GERADOR DE FECHAMENTOS
+  // =======================================================
+  // Variáveis globais para o novo gerador
+  let fechamentosDisponiveis = {};
+  let dezenasSelecionadas = new Set(); // Usar Set é mais fácil
+
+  // Referências aos elementos do HTML
+  const gridDezenas = document.getElementById("grid-dezenas");
+  const contadorDezenas = document.getElementById("contador");
+  const menuFechamentos = document.getElementById("menu-fechamentos");
+  const btnGerarFechamento = document.getElementById("btn-gerar");
+  const jogosGeradosContainer = document.getElementById("jogos-gerados");
+  // =======================================================
+  // === FIM: NOVAS REFERÊNCIAS
+  // =======================================================
 
   // --- REFERÊNCIAS DOS JOGOS SALVOS ---
   const jogosSalvosContainer = document.getElementById(
     "jogos-salvos-container"
   );
-
-  // ⚠️ CORREÇÃO: Declarar os botões (mesmo que não existam no HTML ainda)
   const btnSelecionarTodos = document.getElementById("btn-selecionar-todos");
   const btnApagarSelecionados = document.getElementById(
     "btn-apagar-selecionados"
@@ -50,8 +61,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =======================================================
-  // === LÓGICA DE ABAS (VERSÃO CORRIGIDA E ROBUSTA) ===
+  // === INÍCIO: INICIALIZAÇÃO DO NOVO GERADOR
   // =======================================================
+  // Só executa se os elementos existirem (evita erros em outras páginas)
+  if (gridDezenas && menuFechamentos && btnGerarFechamento) {
+    carregarMatrizes(); // Carrega o fechamentos.json
+    configurarGrid(); // Cria os 25 botões na tela
+    btnGerarFechamento.addEventListener("click", gerarFechamento);
+  }
+  // =======================================================
+  // === FIM: INICIALIZAÇÃO DO NOVO GERADOR
+  // =======================================================
+
+  // --- LÓGICA DE ABAS ---
   tabButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const targetId = button.dataset.target;
@@ -76,78 +98,63 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ===================================
-  // === FUNÇÕES: GERADOR E JOGOS SALVOS ===
+  // === FUNÇÕES: JOGOS SALVOS ===
+  // (A lógica do gerador aleatório foi removida daqui)
   // ===================================
 
-  if (btnGerarJogo) {
-    btnGerarJogo.addEventListener("click", handleGerarJogo);
-  }
+  // =======================================================
+  // === INÍCIO: LÓGICA DE SALVAMENTO EM LOTE (NOVA)
+  // =======================================================
+  // Esta função substitui a 'handleSalvarTodos' anterior e a '_apiSalvarJogo'
+  async function handleSalvarTodos(jogos, btn) {
+    // 'jogos' é o array de arrays, ex: [["01", "02"], ["03", "04"]]
+    btn.disabled = true;
+    btn.textContent = `Salvando ${jogos.length} jogos...`;
 
-  function handleGerarJogo() {
-    const dezenas = gerarJogoAleatorio();
-    const dezenasString = dezenas
-      .map((d) => d.toString().padStart(2, "0"))
-      .join(" ");
-    jogoGeradoContainer.innerHTML = "";
-    const dezenasContainer = document.createElement("div");
-    dezenasContainer.className = "jogo-gerado-dezenas";
-    dezenas.forEach((dezena) => {
-      const item = document.createElement("span");
-      item.className = "jogo-gerado-item";
-      item.textContent = dezena.toString().padStart(2, "0");
-      dezenasContainer.appendChild(item);
-    });
-    const btnSalvar = document.createElement("button");
-    btnSalvar.className = "btn-salvar-jogo";
-    btnSalvar.textContent = "Salvar este Jogo";
-    btnSalvar.onclick = () => {
-      salvarJogo(dezenasString, btnSalvar);
-    };
-    jogoGeradoContainer.appendChild(dezenasContainer);
-    jogoGeradoContainer.appendChild(btnSalvar);
-  }
+    // 1. Converter o array de arrays em um array de strings
+    // Ex: [["01", "02"], ["03", "04"]] -> ["01 02", "03 04"]
+    const jogosStringArray = jogos.map((jogo) => jogo.join(" "));
 
-  function gerarJogoAleatorio() {
-    const dezenas = new Set();
-    while (dezenas.size < 15) {
-      const num = Math.floor(Math.random() * 25) + 1;
-      dezenas.add(num);
-    }
-    return Array.from(dezenas).sort((a, b) => a - b);
-  }
-
-  async function salvarJogo(dezenasString, btnSalvar) {
-    btnSalvar.disabled = true;
-    btnSalvar.textContent = "Salvando...";
     try {
-      const response = await fetch(`${API_URL}/api/jogos/salvar`, {
+      // 2. Fazer UMA ÚNICA chamada de API para a nova rota
+      const response = await fetch(`${API_URL}/api/jogos/salvar-lote`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ dezenas: dezenasString }),
+        // 3. Enviar o array de strings no corpo
+        body: JSON.stringify({ jogos: jogosStringArray }),
       });
+
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error("Erro ao salvar o jogo.");
+        throw new Error(result.error || "Erro ao salvar em lote.");
       }
-      btnSalvar.textContent = "Salvo com Sucesso!";
-      jogosJaCarregados = false;
+
+      // 4. Sucesso!
+      btn.textContent = result.message; // Ex: "24 jogo(s) salvo(s) com sucesso."
+      jogosJaCarregados = false; // Força recarregar a aba "Meus Jogos"
     } catch (error) {
-      console.error(error);
-      btnSalvar.textContent = "Erro ao Salvar";
+      console.error("Erro no salvamento em lote:", error);
+      btn.textContent = "Erro ao salvar. Tente novamente.";
+      alert("Erro: " + error.message);
+      // Habilita para tentar de novo
       setTimeout(() => {
-        btnSalvar.disabled = false;
-        btnSalvar.textContent = "Salvar este Jogo";
+        btn.disabled = false;
+        btn.textContent = `Salvar todos os ${jogos.length} jogos`;
       }, 2000);
     }
   }
+  // =======================================================
+  // === FIM: LÓGICA DE SALVAMENTO EM LOTE (NOVA)
+  // =======================================================
 
-  // 3. BUSCAR JOGOS SALVOS (API) - CORRIGIDO
+  // 3. BUSCAR JOGOS SALVOS (API)
   async function buscarJogosSalvos() {
     jogosSalvosContainer.innerHTML = "<p>Carregando jogos salvos...</p>";
 
-    // ⚠️ CORREÇÃO: Só desabilita se os botões existirem
     if (btnSelecionarTodos) btnSelecionarTodos.disabled = true;
     if (btnApagarSelecionados) btnApagarSelecionados.disabled = true;
 
@@ -179,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
       jogos.forEach((jogo) => {
         const card = document.createElement("div");
         card.className = "jogo-salvo-card";
+
         const dataFormatada = new Date(jogo.data_criacao).toLocaleDateString(
           "pt-BR",
           {
@@ -189,13 +197,36 @@ document.addEventListener("DOMContentLoaded", () => {
             minute: "2-digit",
           }
         );
-        card.innerHTML = `
-          <input type="checkbox" class="jogo-select-checkbox" data-id="${jogo.id}">
-          <div class="jogo-salvo-info">
-            <span class="jogo-salvo-dezenas">${jogo.dezenas}</span>
-            <span class="jogo-salvo-data">Salvo em: ${dataFormatada}</span>
-          </div>
-        `;
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "jogo-select-checkbox";
+        checkbox.dataset.id = jogo.id;
+
+        const infoDiv = document.createElement("div");
+        infoDiv.className = "jogo-salvo-info";
+
+        const bolinhasContainer = document.createElement("div");
+        bolinhasContainer.className = "jogo-gerado-dezenas";
+
+        const dezenasArray = jogo.dezenas.split(" ");
+        dezenasArray.forEach((dezenaStr) => {
+          const bolinha = document.createElement("span");
+          bolinha.className = "jogo-gerado-item";
+          bolinha.textContent = dezenaStr;
+          bolinhasContainer.appendChild(bolinha);
+        });
+
+        const dataSpan = document.createElement("span");
+        dataSpan.className = "jogo-salvo-data";
+        dataSpan.textContent = `Salvo em: ${dataFormatada}`;
+
+        infoDiv.appendChild(bolinhasContainer);
+        infoDiv.appendChild(dataSpan);
+
+        card.appendChild(checkbox);
+        card.appendChild(infoDiv);
+
         jogosSalvosContainer.appendChild(card);
       });
       jogosJaCarregados = true;
@@ -435,4 +466,165 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Carrega os dados iniciais
   buscarResultados(10);
-});
+
+  // =======================================================
+  // === LÓGICA DO NOVO GERADOR DE FECHAMENTOS (COLADO AQUI)
+  // =======================================================
+
+  // 1. Carrega o JSON
+  async function carregarMatrizes() {
+    try {
+      const response = await fetch("./fechamentos.json"); // Busca o arquivo local
+      if (!response.ok) {
+        throw new Error(`Erro HTTP! Status: ${response.status}`);
+      }
+      fechamentosDisponiveis = await response.json();
+      console.log("Matrizes de fechamento carregadas:", fechamentosDisponiveis);
+    } catch (error) {
+      console.error(
+        "Não foi possível carregar o arquivo fechamentos.json:",
+        error
+      );
+      alert("Erro fatal ao carregar o gerador. Verifique o console.");
+    }
+  }
+
+  // 2. Cria os 25 botões do grid
+  function configurarGrid() {
+    for (let i = 1; i <= 25; i++) {
+      const dezena = i.toString().padStart(2, "0"); // "01", "02", etc.
+      const btn = document.createElement("div");
+      // ATENÇÃO: Adicione estilos para '.dezena-btn' no seu style.css!
+      btn.textContent = dezena;
+      btn.className = "dezena-btn"; // Classe para estilização
+      btn.dataset.dezena = dezena;
+
+      btn.addEventListener("click", () => toggleDezena(btn));
+      gridDezenas.appendChild(btn);
+    }
+  }
+
+  // 3. Ação de clicar em uma dezena
+  function toggleDezena(btn) {
+    const dezena = btn.dataset.dezena;
+    if (dezenasSelecionadas.has(dezena)) {
+      dezenasSelecionadas.delete(dezena);
+      btn.classList.remove("selecionada"); // Classe para estilização
+    } else {
+      dezenasSelecionadas.add(dezena);
+      btn.classList.add("selecionada"); // Classe para estilização
+    }
+
+    // Atualiza o contador
+    if (contadorDezenas) {
+      contadorDezenas.textContent = `Dezenas selecionadas: ${dezenasSelecionadas.size}`;
+    }
+
+    // Atualiza o menu dropdown
+    atualizarMenuFechamentos();
+  }
+
+  // 4. Filtra e atualiza o menu <select>
+  function atualizarMenuFechamentos() {
+    const totalSelecionadas = dezenasSelecionadas.size;
+    menuFechamentos.innerHTML = ""; // Limpa opções antigas
+
+    let opcoesEncontradas = 0;
+
+    for (const idDaMatriz in fechamentosDisponiveis) {
+      const fechamento = fechamentosDisponiveis[idDaMatriz];
+      if (fechamento.universo === totalSelecionadas) {
+        const novaOpcao = document.createElement("option");
+        novaOpcao.value = idDaMatriz;
+        novaOpcao.textContent = fechamento.descricao;
+        menuFechamentos.appendChild(novaOpcao);
+        opcoesEncontradas++;
+      }
+    }
+
+    if (opcoesEncontradas === 0) {
+      const semOpcao = document.createElement("option");
+      semOpcao.value = "";
+      semOpcao.textContent =
+        totalSelecionadas === 0
+          ? "Selecione dezenas..."
+          : "Nenhum fechamento para esta qtde.";
+      menuFechamentos.appendChild(semOpcao);
+      menuFechamentos.disabled = true;
+    } else {
+      menuFechamentos.disabled = false;
+    }
+  }
+
+  // 5. O "Motor" - Gera os jogos
+  function gerarFechamento() {
+    const idSelecionado = menuFechamentos.value;
+    if (!idSelecionado) {
+      alert("Por favor, selecione um tipo de fechamento válido.");
+      return;
+    }
+
+    const matrizEscolhida = fechamentosDisponiveis[idSelecionado];
+    const dezenasOrdenadas = Array.from(dezenasSelecionadas).sort(
+      (a, b) => a - b
+    );
+    const jogosFinais = [];
+
+    // Loop de "Tradução"
+    for (const jogoMatriz of matrizEscolhida.jogos) {
+      const jogoTraduzido = [];
+      for (const indice of jogoMatriz) {
+        const dezenaReal = dezenasOrdenadas[indice - 1]; // -1 para 'traduzir' de 1-based para 0-based
+        jogoTraduzido.push(dezenaReal);
+      }
+      jogosFinais.push(jogoTraduzido);
+    }
+
+    exibirJogos(jogosFinais);
+  }
+
+  // 6. Mostra os jogos gerados na tela (COM BOTÃO "SALVAR TODOS")
+  function exibirJogos(jogos) {
+    jogosGeradosContainer.innerHTML = ""; // Limpa resultados antigos
+    jogosGeradosContainer.innerHTML += `<p><b>${jogos.length} jogos gerados:</b></p>`;
+
+    const lista = document.createElement("div");
+    lista.className = "lista-jogos-gerados";
+
+    // Loop para mostrar as bolinhas
+    jogos.forEach((jogo) => {
+      const item = document.createElement("div");
+      item.className = "jogo-gerado-card";
+
+      const bolinhasContainer = document.createElement("div");
+      bolinhasContainer.className = "jogo-gerado-dezenas";
+
+      jogo.forEach((dezenaStr) => {
+        const bolinha = document.createElement("span");
+        bolinha.className = "jogo-gerado-item";
+        bolinha.textContent = dezenaStr;
+        bolinhasContainer.appendChild(bolinha);
+      });
+
+      item.appendChild(bolinhasContainer);
+
+      lista.appendChild(item);
+    });
+
+    jogosGeradosContainer.appendChild(lista);
+
+    // --- ADICIONA O BOTÃO "SALVAR TODOS" NO FINAL ---
+    if (jogos.length > 0) {
+      const btnSalvarTodos = document.createElement("button");
+      btnSalvarTodos.className = "btn-salvar-todos"; // Nova classe CSS
+      btnSalvarTodos.textContent = `Salvar todos os ${jogos.length} jogos`;
+
+      btnSalvarTodos.onclick = () => {
+        // Passa a lista de jogos e o próprio botão
+        handleSalvarTodos(jogos, btnSalvarTodos);
+      };
+
+      jogosGeradosContainer.appendChild(btnSalvarTodos); // Adiciona o botão
+    }
+  }
+}); // FIM DO DOMCONTENTLOADED

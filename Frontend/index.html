@@ -69,10 +69,22 @@
       </div>
 
       <div id="view-gerador" class="view-content hidden">
-        <h2>Gerador de Jogos</h2>
-        <p>Em breve, um gerador de jogos aleatórios aqui.</p>
-        <button id="btn-gerar-jogo">Gerar Jogo Aleatório</button>
-        <div id="jogo-gerado-container"></div>
+        <h2>Gerador de Fechamentos</h2>
+
+        <h3>Passo 1: Selecione suas dezenas</h3>
+        <p id="contador">Dezenas selecionadas: 0</p>
+        <div id="grid-dezenas"></div>
+
+        <div class="gerador-controles" style="margin-top: 20px">
+          <h3>Passo 2: Escolha o Fechamento</h3>
+          <select id="menu-fechamentos" disabled>
+            <option value="">Selecione dezenas no grid...</option>
+          </select>
+          <button id="btn-gerar" style="margin-left: 10px">Gerar Jogos</button>
+        </div>
+
+        <h3 style="margin-top: 20px">Passo 3: Jogos Gerados</h3>
+        <div id="jogos-gerados"></div>
       </div>
 
       <div id="view-jogos" class="view-content hidden">
