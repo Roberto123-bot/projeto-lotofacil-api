@@ -31,6 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnGerarFechamento = document.getElementById("btn-gerar");
   const jogosGeradosContainer = document.getElementById("jogos-gerados");
 
+  // --- AJUSTADO ---
+  // Esta variável agora guarda apenas os METADADOS (descrições)
+  // dos fechamentos, e não mais a matriz de jogos.
   let fechamentosDisponiveis = {};
   let dezenasSelecionadas = new Set();
 
@@ -69,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (gridDezenas && menuFechamentos && btnGerarFechamento) {
     carregarMatrizes();
     configurarGrid();
+    // O event listener agora chama a nova função 'gerarFechamento' (que é async)
     btnGerarFechamento.addEventListener("click", gerarFechamento);
   }
 
@@ -262,6 +266,8 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Nenhum jogo selecionado.");
       return;
     }
+    // NOTA: 'confirm' pode não funcionar bem em todos os ambientes.
+    // Se esta for uma webview ou PWA, considere um modal customizado.
     if (
       !confirm(
         `Tem certeza que deseja apagar ${idsParaDeletar.length} jogo(s)?`
@@ -447,22 +453,45 @@ document.addEventListener("DOMContentLoaded", () => {
   // Carrega os dados iniciais
   buscarResultados(10);
 
-  // --- LÓGICA DO GERADOR DE FECHAMENTOS ---
-  async function carregarMatrizes() {
-    try {
-      const response = await fetch("./fechamentos.json");
-      if (!response.ok)
-        throw new Error(`Erro HTTP! Status: ${response.status}`);
-      fechamentosDisponiveis = await response.json();
-      console.log("Matrizes de fechamento carregadas:", fechamentosDisponiveis);
-    } catch (error) {
-      console.error(
-        "Não foi possível carregar o arquivo fechamentos.json:",
-        error
-      );
-      alert("Erro fatal ao carregar o gerador. Verifique o console.");
-    }
+  // ===================================
+  // === LÓGICA DO GERADOR DE FECHAMENTOS ===
+  // ===================================
+
+  // --- AJUSTADO ---
+  // Não faz mais 'fetch' do fechamentos.json.
+  // Apenas define os METADADOS (opções do menu)
+  function carregarMatrizes() {
+    // NOTA: Esta lista agora é manual.
+    // Se você adicionar novos fechamentos no banco, precisará
+    // adicionar a 'descricao' e o 'universo' aqui.
+    // A solução ideal no futuro é criar uma rota na API
+    // ex: GET /api/fechamentos/opcoes que retorne esta lista.
+    fechamentosDisponiveis = {
+      // Chave: 'codigo' exato do seu banco de dados
+      "19_18_15_15": {
+        universo: 19, // Número de dezenas que o usuário deve selecionar
+        descricao: "Garantir 15 se acertar 15 (19 jogos)",
+      },
+      "20_15_15_15": {
+        universo: 20,
+        descricao: "Garantir 15 se acertar 15 (20 jogos)",
+      },
+      "21_15_15_15": {
+        universo: 21,
+        descricao: "Garantir 15 se acertar 15 (21 jogos)",
+      },
+      "22_21_15_15": {
+        universo: 22,
+        descricao: "Garantir 15 se acertar 15 (22 jogos)",
+      },
+      // Adicione aqui outros fechamentos do seu banco
+    };
+    console.log(
+      "Opções de fechamento (metadados) carregadas:",
+      fechamentosDisponiveis
+    );
   }
+
   function configurarGrid() {
     if (!gridDezenas) return;
     for (let i = 1; i <= 25; i++) {
@@ -475,6 +504,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gridDezenas.appendChild(btn);
     }
   }
+
   function toggleDezena(btn) {
     const dezena = btn.dataset.dezena;
     if (dezenasSelecionadas.has(dezena)) {
@@ -489,6 +519,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     atualizarMenuFechamentos();
   }
+
+  // --- AJUSTADO ---
+  // Esta função não precisa de NENHUMA MUDANÇA.
+  // Ela continua lendo 'fechamentosDisponiveis' e filtrando
+  // pelo 'universo', o que ainda funciona.
   function atualizarMenuFechamentos() {
     if (!menuFechamentos) return;
 
@@ -499,7 +534,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const fechamento = fechamentosDisponiveis[idDaMatriz];
       if (fechamento.universo === totalSelecionadas) {
         const novaOpcao = document.createElement("option");
-        novaOpcao.value = idDaMatriz;
+        novaOpcao.value = idDaMatriz; // O valor é o 'codigo' (ex: "18_15_15_14")
         novaOpcao.textContent = fechamento.descricao;
         menuFechamentos.appendChild(novaOpcao);
         opcoesEncontradas++;
@@ -518,38 +553,85 @@ document.addEventListener("DOMContentLoaded", () => {
       menuFechamentos.disabled = false;
     }
   }
+
   // ===================================
-  // === FUNÇÃO CORRIGIDA
+  // === FUNÇÃO PRINCIPAL AJUSTADA
   // ===================================
-  function gerarFechamento() {
+  // Agora é 'async' para buscar dados da API
+  async function gerarFechamento() {
     const idSelecionado = menuFechamentos.value;
     if (!idSelecionado) {
       alert("Por favor, selecione um tipo de fechamento válido.");
       return;
     }
-    const matrizEscolhida = fechamentosDisponiveis[idSelecionado];
-    const dezenasOrdenadas = Array.from(dezenasSelecionadas).sort(
-      (a, b) => a - b
-    );
-    const jogosFinais = [];
 
-    // Loop 1: Passa por cada JOGO na matriz (ex: 6 vezes)
-    for (const jogoMatriz of matrizEscolhida.jogos) {
-      const jogoTraduzido = [];
+    // Desabilita o botão e mostra feedback
+    btnGerarFechamento.disabled = true;
+    btnGerarFechamento.textContent = "Buscando dados...";
+    jogosGeradosContainer.innerHTML = "<p>Carregando fechamento da API...</p>";
 
-      // Loop 2: Passa por cada NÚMERO (índice) dentro do jogoMatriz (ex: 15 vezes)
-      // ESTA LINHA FOI CORRIGIDA
-      for (const indice of jogoMatriz) {
-        // <-- A CORREÇÃO ESTÁ AQUI
+    try {
+      // 1. BUSCA O FECHAMENTO NA API
+      // O 'idSelecionado' é o 'codigo' (ex: "18_15_15_14")
+      const response = await fetch(
+        `${API_URL}/api/fechamento/${idSelecionado}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-        // Converte o índice (1, 2, 3...) para a dezena real ("01", "02", "03"...)
-        const dezenaReal = dezenasOrdenadas[indice - 1];
-        jogoTraduzido.push(dezenaReal);
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("Sessão expirada. Faça login novamente.");
       }
-      jogosFinais.push(jogoTraduzido);
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(
+          err.error || `Erro ao buscar fechamento: ${idSelecionado}`
+        );
+      }
+
+      // A API retorna o objeto: { universo, custo, jogos }
+      const matrizEscolhida = await response.json();
+
+      // 2. PROCESSA A RESPOSTA (Lógica original)
+      // Esta parte do código não muda, pois 'matrizEscolhida'
+      // agora contém os dados que vieram da API.
+      const dezenasOrdenadas = Array.from(dezenasSelecionadas).sort(
+        (a, b) => a - b
+      );
+      const jogosFinais = [];
+
+      for (const jogoMatriz of matrizEscolhida.jogos) {
+        const jogoTraduzido = [];
+        for (const indice of jogoMatriz) {
+          const dezenaReal = dezenasOrdenadas[indice - 1];
+          jogoTraduzido.push(dezenaReal);
+        }
+        jogosFinais.push(jogoTraduzido);
+      }
+
+      // 3. EXIBE OS JOGOS (Função original)
+      exibirJogos(jogosFinais);
+    } catch (error) {
+      console.error("Erro ao gerar fechamento:", error);
+      jogosGeradosContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
+      // Se o token expirou, desloga o usuário
+      if (error.message.includes("Sessão expirada")) {
+        alert(error.message);
+        localStorage.removeItem("meu-token-lotofacil");
+        window.location.href = "welcome.html";
+      }
+    } finally {
+      // Reabilita o botão, independente de sucesso ou falha
+      btnGerarFechamento.disabled = false;
+      btnGerarFechamento.textContent = "Gerar Fechamento";
     }
-    exibirJogos(jogosFinais);
   }
+
   function exibirJogos(jogos) {
     if (!jogosGeradosContainer) return;
 
