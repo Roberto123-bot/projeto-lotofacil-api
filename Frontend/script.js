@@ -468,15 +468,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // ex: GET /api/fechamentos/opcoes que retorne esta lista.
     fechamentosDisponiveis = {
       // Chave: 'codigo' exato do seu banco de dados
-      "19_15_15_15": {
+      "19_18_15_15": {
         universo: 19, // Número de dezenas que o usuário deve selecionar
         descricao: "Garantir 15 se acertar 15 (19 jogos)",
       },
-      "20_15_15_15": {
+      "20_19_15_15": {
         universo: 20,
         descricao: "Garantir 15 se acertar 15 (20 jogos)",
       },
-      "21_15_15_15": {
+      "21_20_15_15": {
         universo: 21,
         descricao: "Garantir 15 se acertar 15 (21 jogos)",
       },
