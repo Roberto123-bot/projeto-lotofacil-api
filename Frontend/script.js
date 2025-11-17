@@ -9,7 +9,7 @@ if (!token) {
 }
 // -------------------------------------------
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // --- REFERÊNCIAS GERAIS ---
   const selectConcursos = document.getElementById("num-concursos");
   const btnAtualizar = document.getElementById("btn-atualizar");
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- INICIALIZAÇÃO GERADOR FECHAMENTOS ---
   if (gridDezenas && menuFechamentos && btnGerarFechamento) {
-    carregarMatrizes(); // Esta função foi modificada
+    await carregarMatrizes(); // <-- adicione await aqui
     configurarGrid();
     // O event listener agora chama a nova função 'gerarFechamento' (que é async)
     btnGerarFechamento.addEventListener("click", gerarFechamento);
@@ -460,36 +460,50 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- AJUSTADO ---
   // Não faz mais 'fetch' do fechamentos.json.
   // Apenas define os METADADOS (opções do menu)
-  function carregarMatrizes() {
-    // NOTA: Esta lista agora é manual.
-    // Se você adicionar novos fechamentos no banco, precisará
-    // adicionar a 'descricao' e o 'universo' aqui.
-    // A solução ideal no futuro é criar uma rota na API
-    // ex: GET /api/fechamentos/opcoes que retorne esta lista.
-    fechamentosDisponiveis = {
-      // Chave: 'codigo' exato do seu banco de dados
-      "19_18_15_15": {
-        universo: 19, // Número de dezenas que o usuário deve selecionar
-        descricao: "Garantir 15 se acertar 15 (19 jogos)",
-      },
-      "20_19_15_15": {
-        universo: 20,
-        descricao: "Garantir 15 se acertar 15 (20 jogos)",
-      },
-      "21_20_15_15": {
-        universo: 21,
-        descricao: "Garantir 15 se acertar 15 (21 jogos)",
-      },
-      "22_21_15_15": {
-        universo: 22,
-        descricao: "Garantir 15 se acertar 15 (22 jogos)",
-      },
-      // Adicione aqui outros fechamentos do seu banco
-    };
-    console.log(
-      "Opções de fechamento (metadados) carregadas:",
-      fechamentosDisponiveis
-    );
+  async function carregarMatrizes() {
+    try {
+      const response = await fetch(`${API_URL}/api/fechamentos/opcoes`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Erro ao carregar fechamentos");
+
+      const opcoes = await response.json();
+
+      fechamentosDisponiveis = {};
+      opcoes.forEach((opcao) => {
+        fechamentosDisponiveis[opcao.codigo] = {
+          universo: opcao.universo,
+          descricao: opcao.descricao,
+        };
+      });
+
+      console.log("Fechamentos carregados da API:", fechamentosDisponiveis);
+    } catch (error) {
+      console.error("Erro ao carregar fechamentos:", error);
+      // Fallback: usa os códigos corretos manualmente
+      fechamentosDisponiveis = {
+        "22_21_15_15": {
+          universo: 22,
+          descricao: "Garantir 15 se acertar 15 (22 jogos)",
+        },
+        "21_20_15_15": {
+          universo: 21,
+          descricao: "Garantir 15 se acertar 15 (21 jogos)",
+        },
+        "20_19_15_15": {
+          universo: 20,
+          descricao: "Garantir 15 se acertar 15 (20 jogos)",
+        },
+        "19_18_15_15": {
+          universo: 19,
+          descricao: "Garantir 15 se acertar 15 (19 jogos)",
+        },
+      };
+    }
   }
 
   function configurarGrid() {
