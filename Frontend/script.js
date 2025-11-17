@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- INICIALIZAÇÃO GERADOR FECHAMENTOS ---
   if (gridDezenas && menuFechamentos && btnGerarFechamento) {
-    carregarMatrizes();
+    carregarMatrizes(); // Esta função foi modificada
     configurarGrid();
     // O event listener agora chama a nova função 'gerarFechamento' (que é async)
     btnGerarFechamento.addEventListener("click", gerarFechamento);
@@ -468,7 +468,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ex: GET /api/fechamentos/opcoes que retorne esta lista.
     fechamentosDisponiveis = {
       // Chave: 'codigo' exato do seu banco de dados
-      "19_18_15_15": {
+      "19_15_15_15": {
         universo: 19, // Número de dezenas que o usuário deve selecionar
         descricao: "Garantir 15 se acertar 15 (19 jogos)",
       },
