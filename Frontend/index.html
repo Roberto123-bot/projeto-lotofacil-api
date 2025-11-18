@@ -162,6 +162,95 @@
         font-size: 1.3rem;
       }
 
+      /* =================================== */
+      /* === ESTILOS MODERNOS DAS ABAS === */
+      /* =================================== */
+
+      .view-tabs {
+        display: flex;
+        gap: 0;
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        padding: 6px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .tab-button {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 12px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        background-color: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #6c757d;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+      }
+
+      .tab-button svg {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .tab-button span {
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .tab-button:hover:not(.active) {
+        background-color: #e9ecef;
+        color: #495057;
+        transform: translateY(-2px);
+      }
+
+      .tab-button:hover:not(.active) svg {
+        stroke-width: 2.5;
+      }
+
+      .tab-button.active {
+        background-color: #007bff;
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      }
+
+      .tab-button.active svg {
+        stroke-width: 2.5;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      }
+
+      /* Animação de clique */
+      .tab-button:active {
+        transform: scale(0.95);
+      }
+
+      /* Responsivo mobile */
+      @media (max-width: 600px) {
+        .view-tabs {
+          gap: 0;
+          padding: 4px;
+        }
+
+        .tab-button {
+          padding: 10px 8px;
+          gap: 4px;
+        }
+
+        .tab-button span {
+          font-size: 11px;
+        }
+
+        .tab-button svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
       /* Remove os botões antigos */
       .jogos-controles {
         display: none;
@@ -191,21 +280,81 @@
           id="btn-view-tabela"
           class="tab-button active"
           data-target="view-tabela"
+          title="Tabela de Resultados"
         >
-          📊
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M3 3h18v18H3z" />
+            <path d="M3 9h18M3 15h18M9 3v18" />
+          </svg>
+          <span>Tabela</span>
         </button>
-        <button id="btn-view-grid" class="tab-button" data-target="view-grid">
-          📈
+        <button
+          id="btn-view-grid"
+          class="tab-button"
+          data-target="view-grid"
+          title="Visualização em Grade"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+          </svg>
+          <span>Grade</span>
         </button>
         <button
           id="btn-view-gerador"
           class="tab-button"
           data-target="view-gerador"
+          title="Gerador de Fechamentos"
         >
-          🤖
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 1v6m0 6v6M1 12h6m6 0h6" />
+            <path
+              d="m4.93 4.93 4.24 4.24m5.66 5.66 4.24 4.24M4.93 19.07l4.24-4.24m5.66-5.66 4.24-4.24"
+            />
+          </svg>
+          <span>Gerador</span>
         </button>
-        <button id="btn-view-jogos" class="tab-button" data-target="view-jogos">
-          🚀
+        <button
+          id="btn-view-jogos"
+          class="tab-button"
+          data-target="view-jogos"
+          title="Meus Jogos"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          </svg>
+          <span>Meus Jogos</span>
         </button>
       </nav>
 
