@@ -252,10 +252,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       const checkboxes = document.querySelectorAll(".jogo-select-checkbox");
       const todosMarcados = Array.from(checkboxes).every((cb) => cb.checked);
       checkboxes.forEach((cb) => (cb.checked = !todosMarcados));
+
+      // Fecha o menu se a função estiver disponível
+      if (typeof window.fecharMenuPopup === "function") {
+        window.fecharMenuPopup();
+      }
     });
   }
+
   if (btnApagarSelecionados) {
-    btnApagarSelecionados.addEventListener("click", handleApagarSelecionados);
+    btnApagarSelecionados.addEventListener("click", () => {
+      // Fecha o menu se a função estiver disponível
+      if (typeof window.fecharMenuPopup === "function") {
+        window.fecharMenuPopup();
+      }
+      handleApagarSelecionados();
+    });
   }
   async function handleApagarSelecionados() {
     const checkboxes = document.querySelectorAll(

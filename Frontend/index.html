@@ -5,6 +5,168 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Resultados da Lotofácil</title>
     <link rel="stylesheet" href="style.css" />
+    <style>
+      /* =================================== */
+      /* === BOTTOM SHEET (MENU POPUP) === */
+      /* =================================== */
+
+      /* Header com o botão de menu */
+      .jogos-header {
+        display: flex;
+        justify-content: flex-end;
+        padding: 10px 0;
+        margin-bottom: 10px;
+      }
+
+      /* Botão de 3 pontinhos */
+      .btn-menu-icon {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        transition: all 0.2s;
+      }
+
+      .btn-menu-icon:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+      }
+
+      /* Overlay escuro de fundo */
+      .bottom-sheet-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .bottom-sheet-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* O painel que sobe de baixo */
+      .bottom-sheet {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: white;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+        max-width: 600px;
+        margin: 0 auto;
+        z-index: 1001;
+      }
+
+      .bottom-sheet-overlay.active .bottom-sheet {
+        transform: translateY(0);
+      }
+
+      /* Cabeçalho do bottom sheet */
+      .bottom-sheet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .bottom-sheet-header h3 {
+        margin: 0;
+        color: #333;
+        font-size: 1.2rem;
+      }
+
+      .btn-fechar-menu {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #666;
+        cursor: pointer;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background-color 0.2s;
+      }
+
+      .btn-fechar-menu:hover {
+        background-color: #f0f0f0;
+      }
+
+      /* Conteúdo do menu */
+      .bottom-sheet-content {
+        padding: 10px;
+      }
+
+      /* Botões de ação do menu */
+      .menu-action-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 18px 20px;
+        margin-bottom: 10px;
+        border: none;
+        border-radius: 12px;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333;
+        transition: all 0.2s;
+      }
+
+      .menu-action-btn:hover {
+        background-color: #e9ecef;
+        transform: translateX(5px);
+      }
+
+      .menu-action-btn.danger {
+        color: #dc3545;
+      }
+
+      .menu-action-btn.danger:hover {
+        background-color: #ffe0e3;
+      }
+
+      .menu-action-btn.success {
+        color: #198754;
+      }
+
+      .menu-action-btn.success:hover {
+        background-color: #d1e7dd;
+      }
+
+      .menu-icon {
+        font-size: 1.3rem;
+      }
+
+      /* Remove os botões antigos */
+      .jogos-controles {
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <header>
@@ -86,16 +248,7 @@
         <div id="jogos-gerados"></div>
       </div>
 
-      <!-- ======================================================= -->
-      <!-- INÍCIO: NOVO PAINEL DO CONFERIDOR                     -->
-      <!-- ======================================================= -->
       <div id="view-jogos" class="view-content hidden">
-        <!-- <h2>Meus Jogos Salvos</h2> -->
-
-        <!-- 
-          O CONFERIDOR FOI MOVIDO PARA DENTRO DA ABA
-          Este é o local correto.
-        -->
         <div id="conferidor-ui">
           <h3>Conferidor Automático</h3>
           <div class="conferidor-controles">
@@ -104,16 +257,11 @@
             <button id="check-next" title="Próximo Concurso">▶</button>
           </div>
         </div>
-        <!-- ======================================================= -->
-        <!-- FIM: NOVO PAINEL DO CONFERIDOR                         -->
-        <!-- ======================================================= -->
 
-        <div class="jogos-controles">
-          <button id="btn-selecionar-todos" class="btn-jogo-acao">
-            Selecionar
-          </button>
-          <button id="btn-apagar-selecionados" class="btn-jogo-acao danger">
-            Apagar Jogos
+        <!-- NOVO: Botão de menu (3 pontinhos) -->
+        <div class="jogos-header">
+          <button id="btn-menu-acoes" class="btn-menu-icon" title="Ações">
+            ⋮
           </button>
         </div>
 
@@ -121,10 +269,175 @@
           <p>Carregando jogos salvos...</p>
         </div>
       </div>
-      <!-- ======================================================= -->
-      <!-- FIM DA ABA MEUS JOGOS SALVOS                         -->
-      <!-- ======================================================= -->
     </main>
+
+    <!-- NOVO: Bottom Sheet (Menu Popup) -->
+    <div id="bottom-sheet-overlay" class="bottom-sheet-overlay">
+      <div id="bottom-sheet" class="bottom-sheet">
+        <div class="bottom-sheet-header">
+          <h3>Ações</h3>
+          <button id="btn-fechar-menu" class="btn-fechar-menu">✕</button>
+        </div>
+        <div class="bottom-sheet-content">
+          <button id="btn-selecionar-todos" class="menu-action-btn">
+            <span class="menu-icon">☑️</span>
+            <span>Selecionar Todos</span>
+          </button>
+          <button id="btn-copiar-selecionados" class="menu-action-btn">
+            <span class="menu-icon">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path
+                  d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                ></path>
+              </svg>
+            </span>
+            <span>Copiar Selecionados</span>
+          </button>
+          <button id="btn-apagar-selecionados" class="menu-action-btn danger">
+            <span class="menu-icon">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                ></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </span>
+            <span>Apagar Selecionados</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Variáveis globais para controle do menu
+      window.fecharMenuPopup = null;
+      window.abrirMenuPopup = null;
+      window.copiarJogosSelecionados = null;
+    </script>
     <script src="script.js"></script>
+    <script>
+      // Integração do controle do Bottom Sheet
+      document.addEventListener("DOMContentLoaded", () => {
+        const btnMenuAcoes = document.getElementById("btn-menu-acoes");
+        const bottomSheetOverlay = document.getElementById(
+          "bottom-sheet-overlay"
+        );
+        const btnFecharMenu = document.getElementById("btn-fechar-menu");
+        const btnCopiarSelecionados = document.getElementById(
+          "btn-copiar-selecionados"
+        );
+
+        function abrirMenu() {
+          if (bottomSheetOverlay) {
+            bottomSheetOverlay.classList.add("active");
+            document.body.style.overflow = "hidden";
+          }
+        }
+
+        function fecharMenu() {
+          if (bottomSheetOverlay) {
+            bottomSheetOverlay.classList.remove("active");
+            document.body.style.overflow = "";
+          }
+        }
+
+        // Expõe as funções globalmente para o script.js
+        window.fecharMenuPopup = fecharMenu;
+        window.abrirMenuPopup = abrirMenu;
+
+        // Função para copiar jogos selecionados
+        window.copiarJogosSelecionados = async function () {
+          const checkboxes = document.querySelectorAll(
+            ".jogo-select-checkbox:checked"
+          );
+
+          if (checkboxes.length === 0) {
+            alert("Nenhum jogo selecionado para copiar.");
+            return;
+          }
+
+          const jogosTexto = [];
+          checkboxes.forEach((checkbox) => {
+            const card = checkbox.closest(".jogo-salvo-card");
+            if (card && card.dataset.dezenas) {
+              jogosTexto.push(card.dataset.dezenas);
+            }
+          });
+
+          if (jogosTexto.length === 0) {
+            alert("Não foi possível copiar os jogos.");
+            return;
+          }
+
+          // Formata o texto: um jogo por linha
+          const textoParaCopiar = jogosTexto.join("\n");
+
+          try {
+            await navigator.clipboard.writeText(textoParaCopiar);
+
+            // Feedback visual
+            const btnCopiar = document.getElementById(
+              "btn-copiar-selecionados"
+            );
+            const textoOriginal =
+              btnCopiar.querySelector("span:last-child").textContent;
+            btnCopiar.querySelector("span:last-child").textContent =
+              "✓ Copiado!";
+            btnCopiar.classList.add("success");
+
+            setTimeout(() => {
+              btnCopiar.querySelector("span:last-child").textContent =
+                textoOriginal;
+              btnCopiar.classList.remove("success");
+              fecharMenu();
+            }, 1500);
+          } catch (err) {
+            console.error("Erro ao copiar:", err);
+            alert("Erro ao copiar para a área de transferência.");
+          }
+        };
+
+        if (btnMenuAcoes) {
+          btnMenuAcoes.addEventListener("click", abrirMenu);
+        }
+
+        if (btnFecharMenu) {
+          btnFecharMenu.addEventListener("click", fecharMenu);
+        }
+
+        if (btnCopiarSelecionados) {
+          btnCopiarSelecionados.addEventListener("click", () => {
+            if (typeof window.copiarJogosSelecionados === "function") {
+              window.copiarJogosSelecionados();
+            }
+          });
+        }
+
+        if (bottomSheetOverlay) {
+          bottomSheetOverlay.addEventListener("click", (e) => {
+            if (e.target === bottomSheetOverlay) {
+              fecharMenu();
+            }
+          });
+        }
+      });
+    </script>
   </body>
 </html>
