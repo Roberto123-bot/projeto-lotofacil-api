@@ -7,14 +7,6 @@ const token = localStorage.getItem("meu-token-lotofacil");
 if (!token) {
   window.location.href = "welcome.html";
 }
-
-// --- INICIALIZAR MERCADO PAGO ---
-// ⚠️ IMPORTANTE: Substitua pela sua PUBLIC KEY (Chave Pública) do Mercado Pago
-// Você pega isso no painel de desenvolvedor (Credenciais)
-const mp = new MercadoPago("APP_USR-6318a709-a9ed-491f-a960-8549736fbfe8", {
-  locale: "pt-BR",
-});
-
 // -------------------------------------------
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -38,9 +30,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const menuFechamentos = document.getElementById("menu-fechamentos");
   const btnGerarFechamento = document.getElementById("btn-gerar");
   const jogosGeradosContainer = document.getElementById("jogos-gerados");
-
-  // Referências necessárias para o checkout
-  const btnAssinarAgora = document.getElementById("btn-assinar-agora");
 
   // --- AJUSTADO ---
   // Esta variável agora guarda apenas os METADADOS (descrições)
@@ -70,60 +59,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =======================================================
   // === FIM: NOVAS REFERÊNCIAS DO CONFERIDOR
   // =======================================================
-
-  if (btnAssinarAgora) {
-    btnAssinarAgora.addEventListener("click", handleAssinarPremium);
-  }
-
-  // ===================================
-  // === LÓGICA DE ASSINATURA (ATUALIZADA COM SDK) ===
-  // ===================================
-  async function handleAssinarPremium() {
-    btnAssinarAgora.disabled = true;
-    btnAssinarAgora.textContent = "Carregando...";
-
-    try {
-      // 1. Chama o backend para criar a preferência
-      const response = await fetch(
-        `${API_URL}/api/pagamento/criar-assinatura`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok)
-        throw new Error(data.error || "Erro ao criar pagamento");
-
-      // 2. Usa o SDK para abrir o checkout
-      if (data.preferenceId) {
-        mp.checkout({
-          preference: {
-            id: data.preferenceId,
-          },
-          autoOpen: true, // Abre o checkout automaticamente
-        });
-
-        // Opcional: Restaurar o botão caso o usuário feche o popup
-        setTimeout(() => {
-          btnAssinarAgora.disabled = false;
-          btnAssinarAgora.textContent = "ASSINAR AGORA E LIBERAR";
-        }, 3000);
-      } else {
-        throw new Error("ID de preferência não recebido");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Erro: " + error.message);
-      btnAssinarAgora.disabled = false;
-      btnAssinarAgora.textContent = "ASSINAR AGORA E LIBERAR";
-    }
-  }
 
   // --- LÓGICA DE LOGOUT ---
   if (btnLogout) {
