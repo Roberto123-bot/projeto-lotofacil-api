@@ -568,11 +568,17 @@ main {
 
 /* O container do grid de 25 dezenas */
 #grid-dezenas {
-  display: grid;
-  grid-template-columns: repeat(5, 45px); /* 5 colunas */
+  display: grid; /* Use display: grid */
+
+  /* Esta linha AGORA funciona */
+  grid-template-columns: repeat(5, 45px);
+
   gap: 8px;
   margin-bottom: 20px;
-  max-width: 250px; /* (45px * 5) + (8px * 4) */
+
+  /* Centraliza o bloco do grid */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* O estilo de cada botão (de 01 a 25) */
@@ -605,12 +611,22 @@ main {
   border-color: #0a58ca;
 }
 
+.dezena-btn.selecionada.fixa {
+  /* O mesmo estilo acima */
+  background-color: #28a745;
+  color: #ffffff;
+  border: 3px solid #dc3545;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.7);
+}
+
 /* Estilo para os controles (menu e botão) */
 .gerador-controles {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 10px;
-  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 /* Estilo para o menu dropdown */

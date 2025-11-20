@@ -9,6 +9,9 @@ if (!token) {
 }
 // -------------------------------------------
 
+// Variável para a Referência do Modal (Referência criada no HTML)
+const randomicoModal = document.getElementById("randomico-modal");
+
 document.addEventListener("DOMContentLoaded", async () => {
   // --- REFERÊNCIAS GERAIS ---
   const selectConcursos = document.getElementById("num-concursos");
@@ -32,10 +35,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const jogosGeradosContainer = document.getElementById("jogos-gerados");
 
   // --- AJUSTADO ---
-  // Esta variável agora guarda apenas os METADADOS (descrições)
-  // dos fechamentos, e não mais a matriz de jogos.
-  let fechamentosDisponiveis = {};
   let dezenasSelecionadas = new Set();
+
+  // Variável Global para armazenar as dezenas selecionadas (N) ao abrir o modal
+  let N_SELECIONADO_RANDOMICO = 0;
+  let DEZENAS_SELECIONADAS_RANDOMICO = []; // Dezenas 'N' para a geração randômica
 
   // --- REFERÊNCIAS JOGOS SALVOS ---
   const jogosSalvosContainer = document.getElementById(
@@ -68,12 +72,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // --- INICIALIZAÇÃO GERADOR FECHAMENTOS ---
-  if (gridDezenas && menuFechamentos && btnGerarFechamento) {
-    await carregarMatrizes(); // <-- adicione await aqui
+  // --- INICIALIZAÇÃO E EVENT LISTENER AJUSTADO ---
+  if (gridDezenas && btnGerarFechamento) {
     configurarGrid();
-    // O event listener agora chama a nova função 'gerarFechamento' (que é async)
-    btnGerarFechamento.addEventListener("click", gerarFechamento);
+    // O botão "Gerar Jogos" AGORA abre o Modal Randômico
+    btnGerarFechamento.addEventListener("click", abrirModalRandomico);
   }
 
   // =======================================================
@@ -86,6 +89,410 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =======================================================
   // === FIM: NOVOS EVENT LISTENERS DO CONFERIDOR
   // =======================================================
+
+  // ===================================
+  // === SISTEMA DE BOLÕES - ADICIONE AO SCRIPT.JS
+  // ===================================
+
+  // VARIÁVEIS GLOBAIS PARA BOLÕES
+  let todosOsBoloes = [];
+  let bolaoSelecionado = null;
+
+  // REFERÊNCIAS DO DOM (Adicione estas variáveis globais no início do DOMContentLoaded)
+  const bolaoDropdownBtn = document.getElementById("bolao-dropdown-btn");
+  const bolaoDropdownMenu = document.getElementById("bolao-dropdown-menu");
+  const bolaoInputNome = document.getElementById("bolao-input-nome");
+  const btnCriarBolao = document.getElementById("btn-criar-bolao");
+  const listaBoloes = document.getElementById("lista-boloes");
+
+  // ===================================
+  // === FUNÇÕES DE BOLÕES
+  // ===================================
+
+  // BUSCAR TODOS OS BOLÕES DO USUÁRIO
+  async function buscarBoloes() {
+    try {
+      const response = await fetch(`${API_URL}/api/boloes`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error("Erro ao buscar bolões.");
+
+      todosOsBoloes = await response.json();
+      renderizarListaBoloes();
+      atualizarBotaoDropdown();
+    } catch (error) {
+      console.error("Erro:", error);
+      alert("Erro ao carregar bolões: " + error.message);
+    }
+  }
+
+  // CRIAR NOVO BOLÃO
+  async function criarNovoBolao(nome) {
+    try {
+      const response = await fetch(`${API_URL}/api/boloes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ nome }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Erro ao criar bolão.");
+      }
+
+      const novoBolao = await response.json();
+      todosOsBoloes.unshift(novoBolao); // Adiciona no início
+      renderizarListaBoloes();
+
+      // Seleciona o novo bolão automaticamente
+      selecionarBolao(novoBolao.id, novoBolao.nome);
+
+      return novoBolao;
+    } catch (error) {
+      console.error("Erro:", error);
+      throw error;
+    }
+  }
+
+  // DELETAR BOLÃO
+  async function deletarBolao(id) {
+    try {
+      const response = await fetch(`${API_URL}/api/boloes/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error("Erro ao deletar bolão.");
+
+      todosOsBoloes = todosOsBoloes.filter((b) => b.id !== id);
+      renderizarListaBoloes();
+
+      // Se o bolão deletado era o selecionado, reseta
+      if (bolaoSelecionado === id) {
+        bolaoSelecionado = null;
+        atualizarBotaoDropdown();
+        buscarJogosSalvos(); // Recarrega todos os jogos
+      }
+    } catch (error) {
+      console.error("Erro:", error);
+      alert("Erro ao deletar bolão: " + error.message);
+    }
+  }
+
+  // RENDERIZAR LISTA DE BOLÕES NO DROPDOWN
+  function renderizarListaBoloes() {
+    if (!listaBoloes) return;
+
+    listaBoloes.innerHTML = "";
+
+    // Opção "TODOS OS JOGOS"
+    const optTodos = criarItemBolao({
+      id: null,
+      nome: "TODOS OS JOGOS",
+      total_jogos: null,
+      tipo: "todos",
+    });
+    listaBoloes.appendChild(optTodos);
+
+    // Opção "SEM BOLÃO"
+    const optSemBolao = criarItemBolao({
+      id: "sem-bolao",
+      nome: "SEM BOLÃO",
+      total_jogos: null,
+      tipo: "sem-bolao",
+    });
+    listaBoloes.appendChild(optSemBolao);
+
+    // Divisor
+    const divisor = document.createElement("div");
+    divisor.className = "bolao-divisor";
+    listaBoloes.appendChild(divisor);
+
+    // Bolões do usuário
+    if (todosOsBoloes.length === 0) {
+      const msgVazio = document.createElement("div");
+      msgVazio.className = "bolao-item-vazio";
+      msgVazio.textContent = "Nenhum bolão criado";
+      listaBoloes.appendChild(msgVazio);
+    } else {
+      todosOsBoloes.forEach((bolao) => {
+        const item = criarItemBolao(bolao);
+        listaBoloes.appendChild(item);
+      });
+    }
+  }
+
+  // CRIAR ITEM DE BOLÃO NO DROPDOWN
+  function criarItemBolao(bolao) {
+    const item = document.createElement("div");
+    item.className = "bolao-item";
+
+    if (bolao.id === bolaoSelecionado) {
+      item.classList.add("selected");
+    }
+
+    const infoDiv = document.createElement("div");
+    infoDiv.className = "bolao-item-info";
+
+    // Ícone e Nome
+    const nomeSpan = document.createElement("span");
+    nomeSpan.className = "bolao-nome";
+
+    if (bolao.tipo === "todos") {
+      nomeSpan.innerHTML = `🔷 ${bolao.nome}`;
+    } else if (bolao.tipo === "sem-bolao") {
+      nomeSpan.innerHTML = `📋 ${bolao.nome}`;
+    } else {
+      nomeSpan.innerHTML = `🔥🍀 ${bolao.nome}`;
+    }
+
+    infoDiv.appendChild(nomeSpan);
+
+    // Total de jogos (se houver)
+    if (bolao.total_jogos !== null && bolao.total_jogos > 0) {
+      const totalSpan = document.createElement("span");
+      totalSpan.className = "bolao-total";
+      totalSpan.textContent = `${bolao.total_jogos} jogos`;
+      infoDiv.appendChild(totalSpan);
+    }
+
+    item.appendChild(infoDiv);
+
+    // Botão de deletar (apenas para bolões criados)
+    if (bolao.tipo !== "todos" && bolao.tipo !== "sem-bolao") {
+      const btnDelete = document.createElement("button");
+      btnDelete.className = "bolao-delete-btn";
+      btnDelete.innerHTML = "🗑️";
+      btnDelete.onclick = (e) => {
+        e.stopPropagation();
+        if (confirm(`Deletar bolão "${bolao.nome}"?`)) {
+          deletarBolao(bolao.id);
+        }
+      };
+      item.appendChild(btnDelete);
+    }
+
+    // Evento de clique
+    item.onclick = () => {
+      selecionarBolao(bolao.id, bolao.nome);
+      fecharDropdown();
+    };
+
+    return item;
+  }
+
+  // SELECIONAR BOLÃO
+  function selecionarBolao(id, nome) {
+    bolaoSelecionado = id;
+    atualizarBotaoDropdown(nome);
+    buscarJogosFiltrados(id);
+  }
+
+  // ATUALIZAR TEXTO DO BOTÃO DROPDOWN
+  function atualizarBotaoDropdown(nome) {
+    if (!bolaoDropdownBtn) return;
+
+    const span = bolaoDropdownBtn.querySelector("span");
+
+    if (!nome) {
+      if (bolaoSelecionado === null) {
+        span.textContent = "TODOS OS JOGOS";
+      } else if (bolaoSelecionado === "sem-bolao") {
+        span.textContent = "SEM BOLÃO";
+      } else {
+        const bolao = todosOsBoloes.find((b) => b.id === bolaoSelecionado);
+        span.textContent = bolao ? bolao.nome : "Selecione um bolão";
+      }
+    } else {
+      span.textContent = nome;
+    }
+  }
+
+  // BUSCAR JOGOS FILTRADOS POR BOLÃO
+  async function buscarJogosFiltrados(bolaoId) {
+    jogosSalvosContainer.innerHTML = "<p>Carregando jogos...</p>";
+
+    try {
+      let url = `${API_URL}/api/jogos/meus-jogos-filtrado`;
+      if (bolaoId) {
+        url += `?bolao_id=${bolaoId}`;
+      }
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error("Erro ao buscar jogos.");
+
+      const jogos = await response.json();
+
+      jogosSalvosContainer.innerHTML = "";
+
+      if (jogos.length === 0) {
+        jogosSalvosContainer.innerHTML = "<p>Nenhum jogo encontrado.</p>";
+        return;
+      }
+
+      if (btnSelecionarTodos) btnSelecionarTodos.disabled = false;
+      if (btnApagarSelecionados) btnApagarSelecionados.disabled = false;
+
+      jogos.forEach((jogo) => {
+        const card = document.createElement("div");
+        card.className = "jogo-salvo-card";
+        card.dataset.dezenas = jogo.dezenas;
+
+        const cardHeader = document.createElement("div");
+        cardHeader.className = "card-header-jogo";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "jogo-select-checkbox";
+        checkbox.dataset.id = jogo.id;
+
+        const infoBloco = document.createElement("div");
+        infoBloco.className = "jogo-info-bloco";
+
+        const pontuacaoDisplay = document.createElement("div");
+        pontuacaoDisplay.className = "pontuacao-display";
+        pontuacaoDisplay.textContent = "- Pontos";
+
+        // Mostra nome do bolão (se houver)
+        let dataTexto = new Date(jogo.data_criacao).toLocaleDateString(
+          "pt-BR",
+          {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }
+        );
+
+        if (jogo.bolao_nome) {
+          dataTexto = `${jogo.bolao_nome} • ${dataTexto}`;
+        }
+
+        const dataSpan = document.createElement("span");
+        dataSpan.className = "jogo-salvo-data";
+        dataSpan.textContent = dataTexto;
+
+        infoBloco.appendChild(pontuacaoDisplay);
+        infoBloco.appendChild(dataSpan);
+
+        cardHeader.appendChild(checkbox);
+        cardHeader.appendChild(infoBloco);
+
+        const bolinhasContainer = document.createElement("div");
+        bolinhasContainer.className = "jogo-gerado-dezenas";
+
+        const dezenasArray = jogo.dezenas.split(" ");
+        dezenasArray.forEach((dezenaStr) => {
+          const bolinha = document.createElement("span");
+          bolinha.className = "jogo-gerado-item";
+          bolinha.textContent = dezenaStr;
+          bolinhasContainer.appendChild(bolinha);
+        });
+
+        card.appendChild(cardHeader);
+        card.appendChild(bolinhasContainer);
+
+        jogosSalvosContainer.appendChild(card);
+      });
+
+      jogosJaCarregados = true;
+      updateCheckerView();
+    } catch (error) {
+      console.error(error);
+      jogosSalvosContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
+    }
+  }
+
+  // TOGGLE DROPDOWN
+  function toggleDropdown() {
+    if (!bolaoDropdownMenu) return;
+
+    const isVisible = bolaoDropdownMenu.style.display === "block";
+
+    if (isVisible) {
+      fecharDropdown();
+    } else {
+      bolaoDropdownMenu.style.display = "block";
+      bolaoDropdownBtn.classList.add("active");
+    }
+  }
+
+  function fecharDropdown() {
+    if (bolaoDropdownMenu) {
+      bolaoDropdownMenu.style.display = "none";
+    }
+    if (bolaoDropdownBtn) {
+      bolaoDropdownBtn.classList.remove("active");
+    }
+  }
+
+  // ===================================
+  // === EVENT LISTENERS
+  // ===================================
+
+  // Dropdown toggle
+  if (bolaoDropdownBtn) {
+    bolaoDropdownBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleDropdown();
+    });
+  }
+
+  // Criar novo bolão
+  if (btnCriarBolao && bolaoInputNome) {
+    btnCriarBolao.addEventListener("click", async () => {
+      const nome = bolaoInputNome.value.trim();
+
+      if (!nome) {
+        alert("Digite um nome para o bolão.");
+        return;
+      }
+
+      try {
+        btnCriarBolao.disabled = true;
+        btnCriarBolao.textContent = "Criando...";
+
+        await criarNovoBolao(nome);
+        bolaoInputNome.value = "";
+
+        btnCriarBolao.disabled = false;
+        btnCriarBolao.textContent = "+";
+      } catch (error) {
+        alert("Erro ao criar bolão: " + error.message);
+        btnCriarBolao.disabled = false;
+        btnCriarBolao.textContent = "+";
+      }
+    });
+
+    // Enter para criar bolão
+    bolaoInputNome.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        btnCriarBolao.click();
+      }
+    });
+  }
+
+  // Fechar dropdown ao clicar fora
+  document.addEventListener("click", (e) => {
+    if (bolaoDropdownMenu && bolaoDropdownBtn) {
+      if (
+        !bolaoDropdownMenu.contains(e.target) &&
+        !bolaoDropdownBtn.contains(e.target)
+      ) {
+        fecharDropdown();
+      }
+    }
+  });
 
   // --- LÓGICA DE ABAS (REFATORADA) ---
   function switchTab(targetId) {
@@ -110,25 +517,41 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ===================================
   // === LÓGICA DE SALVAMENTO EM LOTE ===
   // ===================================
+
   async function handleSalvarTodos(jogos, btn) {
     btn.disabled = true;
     btn.textContent = `Salvando ${jogos.length} jogos...`;
     const jogosStringArray = jogos.map((jogo) => jogo.join(" "));
+
     try {
-      const response = await fetch(`${API_URL}/api/jogos/salvar-lote`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ jogos: jogosStringArray }),
-      });
+      const response = await fetch(
+        `${API_URL}/api/jogos/salvar-lote-com-bolao`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            jogos: jogosStringArray,
+            bolao_id:
+              bolaoSelecionado === "sem-bolao" ? null : bolaoSelecionado,
+          }),
+        }
+      );
+
       const result = await response.json();
+
       if (!response.ok) {
         throw new Error(result.error || "Erro ao salvar em lote.");
       }
+
       btn.textContent = result.message;
       jogosJaCarregados = false;
+
+      // Atualiza contadores dos bolões
+      await buscarBoloes();
+
       setTimeout(() => {
         resetGeradorTab();
         switchTab("view-jogos");
@@ -465,59 +888,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Carrega os dados iniciais
   buscarResultados(10);
 
-  // ===================================
-  // === LÓGICA DO GERADOR DE FECHAMENTOS ===
-  // ===================================
-
-  // --- AJUSTADO ---
-  // Não faz mais 'fetch' do fechamentos.json.
-  // Apenas define os METADADOS (opções do menu)
-  async function carregarMatrizes() {
-    try {
-      const response = await fetch(`${API_URL}/api/fechamentos/opcoes`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Erro ao carregar fechamentos");
-
-      const opcoes = await response.json();
-
-      fechamentosDisponiveis = {};
-      opcoes.forEach((opcao) => {
-        fechamentosDisponiveis[opcao.codigo] = {
-          universo: opcao.universo,
-          descricao: opcao.descricao,
-        };
-      });
-
-      console.log("Fechamentos carregados da API:", fechamentosDisponiveis);
-    } catch (error) {
-      console.error("Erro ao carregar fechamentos:", error);
-      // Fallback: usa os códigos corretos manualmente
-      fechamentosDisponiveis = {
-        "22_21_15_15": {
-          universo: 22,
-          descricao: "Garantir 15 se acertar 15 (22 jogos)",
-        },
-        "21_20_15_15": {
-          universo: 21,
-          descricao: "Garantir 15 se acertar 15 (21 jogos)",
-        },
-        "20_19_15_15": {
-          universo: 20,
-          descricao: "Garantir 15 se acertar 15 (20 jogos)",
-        },
-        "19_18_15_15": {
-          universo: 19,
-          descricao: "Garantir 15 se acertar 15 (19 jogos)",
-        },
-      };
-    }
-  }
-
   function configurarGrid() {
     if (!gridDezenas) return;
     for (let i = 1; i <= 25; i++) {
@@ -533,130 +903,519 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function toggleDezena(btn) {
     const dezena = btn.dataset.dezena;
-    if (dezenasSelecionadas.has(dezena)) {
-      dezenasSelecionadas.delete(dezena);
+
+    // 1. Está FIXA? -> Remove FIXA e remove SELECIONADA.
+    if (btn.classList.contains("fixa")) {
+      btn.classList.remove("fixa");
       btn.classList.remove("selecionada");
-    } else {
-      dezenasSelecionadas.add(dezena);
-      btn.classList.add("selecionada");
+      dezenasSelecionadas.delete(dezena); // Remove da seleção
     }
+    // 2. Está SELECIONADA? -> Torna FIXA.
+    else if (btn.classList.contains("selecionada")) {
+      btn.classList.add("fixa"); // Adiciona o estado FIXA
+    }
+    // 3. Não está selecionada? -> Torna SELECIONADA.
+    else {
+      btn.classList.add("selecionada");
+      dezenasSelecionadas.add(dezena); // Adiciona à seleção
+    }
+
     if (contadorDezenas) {
       contadorDezenas.textContent = `Dezenas selecionadas: ${dezenasSelecionadas.size}`;
     }
-    atualizarMenuFechamentos();
+    atualizarMenuTamanhoJogo();
   }
 
-  // --- AJUSTADO ---
-  // Esta função não precisa de NENHUMA MUDANÇA.
-  // Ela continua lendo 'fechamentosDisponiveis' e filtrando
-  // pelo 'universo', o que ainda funciona.
-  function atualizarMenuFechamentos() {
-    if (!menuFechamentos) return;
+  // Função auxiliar para obter dezenas fixas e variáveis
+  function separarDezenas(dezenasOrdenadas, gridDezenas) {
+    const dezenasFixas = [];
+    const dezenasVariaveis = [];
 
-    const totalSelecionadas = dezenasSelecionadas.size;
-    menuFechamentos.innerHTML = "";
-    let opcoesEncontradas = 0;
-    for (const idDaMatriz in fechamentosDisponiveis) {
-      const fechamento = fechamentosDisponiveis[idDaMatriz];
-      if (fechamento.universo === totalSelecionadas) {
-        const novaOpcao = document.createElement("option");
-        novaOpcao.value = idDaMatriz; // O valor é o 'codigo' (ex: "18_15_15_14")
-        novaOpcao.textContent = fechamento.descricao;
-        menuFechamentos.appendChild(novaOpcao);
-        opcoesEncontradas++;
+    // Filtra as dezenas no grid com base na classe 'fixa'
+    const todosBotoes = gridDezenas.querySelectorAll(".dezena-btn");
+
+    // Usa um Set das dezenas ordenadas para garantir que só processamos as selecionadas
+    const selecionadasSet = new Set(dezenasOrdenadas);
+
+    todosBotoes.forEach((btn) => {
+      const dezena = btn.dataset.dezena;
+      if (selecionadasSet.has(dezena)) {
+        // Só processa se a dezena estiver selecionada
+        if (btn.classList.contains("fixa")) {
+          dezenasFixas.push(dezena);
+        } else {
+          // Se está selecionada, mas não é fixa, é variável.
+          dezenasVariaveis.push(dezena);
+        }
+      }
+    });
+
+    // Garante que todas as dezenas estejam em ordem crescente
+    dezenasFixas.sort((a, b) => parseInt(a) - parseInt(b));
+    dezenasVariaveis.sort((a, b) => parseInt(a) - parseInt(b));
+
+    return { dezenasFixas, dezenasVariaveis };
+  }
+
+  // E adicione estas funções:
+  // =======================================================
+  // === NOVO: LÓGICA DE GERAÇÃO DE COMBINAÇÕES C(n,k)
+  // =======================================================
+
+  // 1. Cálculo de Fatorial para uso em Combinação
+  function fatorial(n) {
+    if (n < 0) return -1;
+    if (n === 0 || n === 1) return 1;
+    let res = 1;
+    for (let i = 2; i <= n; i++) {
+      res *= i;
+    }
+    return res;
+  }
+
+  // 2. Cálculo de Combinação C(n, k)
+  function combinacao(n, k) {
+    if (k < 0 || k > n) return 0;
+    if (k === 0 || k === n) return 1;
+    if (k > n / 2) k = n - k; // Otimização
+
+    // Cálculo C(n, k) = n! / (k! * (n-k)!)
+    // Simplificamos o cálculo para evitar números muito grandes:
+    let res = 1;
+    for (let i = 1; i <= k; i++) {
+      res = (res * (n - i + 1)) / i;
+    }
+    return Math.round(res); // Arredonda para garantir precisão
+  }
+
+  // 3. Gerador de Combinações
+  function gerarCombinacoes(elementos, tamanho, limite) {
+    const n = elementos.length;
+    if (tamanho > n) return [];
+
+    const resultados = [];
+    const indices = Array(tamanho);
+    let jogosGerados = 0;
+
+    // Função auxiliar recursiva
+    function gerar(k, inicio) {
+      if (jogosGerados >= limite) return;
+
+      if (k === tamanho) {
+        const novaCombinacao = [];
+        for (let i = 0; i < tamanho; i++) {
+          novaCombinacao.push(elementos[indices[i]]);
+        }
+        resultados.push(novaCombinacao);
+        jogosGerados++;
+        return;
+      }
+
+      for (let i = inicio; i < n && n - i >= tamanho - k; i++) {
+        if (jogosGerados >= limite) return;
+        indices[k] = i;
+        gerar(k + 1, i + 1);
       }
     }
-    if (opcoesEncontradas === 0) {
-      const semOpcao = document.createElement("option");
-      semOpcao.value = "";
-      semOpcao.textContent =
-        totalSelecionadas === 0
-          ? "Selecione dezenas..."
-          : "Nenhum fechamento para esta qtde.";
-      menuFechamentos.appendChild(semOpcao);
-      menuFechamentos.disabled = true;
-    } else {
-      menuFechamentos.disabled = false;
-    }
+
+    gerar(0, 0);
+    return resultados;
   }
 
-  // ===================================
-  // === FUNÇÃO PRINCIPAL AJUSTADA
-  // ===================================
-  // Agora é 'async' para buscar dados da API
-  async function gerarFechamento() {
-    const idSelecionado = menuFechamentos.value;
-    if (!idSelecionado) {
-      alert("Por favor, selecione um tipo de fechamento válido.");
+  // =======================================================
+  // === FIM: LÓGICA DE GERAÇÃO DE COMBINAÇÕES C(n,k)
+  // =======================================================
+
+  // =======================================================
+  // === FUNÇÃO DE GERAÇÃO DETERMINÍSTICA (C(n,k))
+  // Mantida, mas não é chamada diretamente pelo botão "Gerar Jogos"
+  // =======================================================
+  async function gerarCombinacoesCnk() {
+    const kTotal = parseInt(menuFechamentos.value);
+
+    // 1. SEPARAÇÃO DAS DEZENAS FIXAS E VARIÁVEIS
+    const dezenasSelecionadasOrdenadas = Array.from(dezenasSelecionadas).sort(
+      (a, b) => parseInt(a) - parseInt(b)
+    );
+
+    const { dezenasFixas, dezenasVariaveis } = separarDezenas(
+      dezenasSelecionadasOrdenadas,
+      gridDezenas
+    );
+
+    const f = dezenasFixas.length; // F = Dezenas Fixas
+    const nVariavel = dezenasVariaveis.length; // N_var = Dezenas Variáveis
+    const kVariavel = kTotal - f; // K_var = Vagas Restantes
+
+    // 2. VALIDAÇÕES
+    if (kTotal === 0 || kTotal < 15) {
+      alert("Selecione um tamanho de jogo válido.");
       return;
+    }
+    if (kVariavel < 0) {
+      alert(
+        `Você selecionou ${f} dezenas fixas, mas quer jogos de ${kTotal}. O jogo deve ter mais dezenas que as fixas.`
+      );
+      return;
+    }
+    if (nVariavel < kVariavel) {
+      alert(
+        `Você precisa selecionar mais ${
+          kVariavel - nVariavel
+        } dezenas variáveis para preencher o jogo de ${kTotal}.`
+      );
+      return;
+    }
+
+    // 3. CÁLCULO DA COMBINAÇÃO AJUSTADA
+    const totalDeCombinacoes = combinacao(nVariavel, kVariavel);
+    const LIMITE_JOGOS = 1000;
+    const n = dezenasSelecionadasOrdenadas.length; // N original para o display
+
+    // 4. Verifica o limite de segurança (mantido)
+    if (totalDeCombinacoes > LIMITE_JOGOS) {
+      if (
+        !confirm(
+          `O cálculo é C(${nVariavel}, ${kVariavel}). Isso gerará ${totalDeCombinacoes} jogos. Isso excede o limite de segurança de ${LIMITE_JOGOS}. Deseja gerar APENAS ${LIMITE_JOGOS} jogos?`
+        )
+      ) {
+        return;
+      }
     }
 
     // Desabilita o botão e mostra feedback
     btnGerarFechamento.disabled = true;
-    btnGerarFechamento.textContent = "Buscando dados...";
-    jogosGeradosContainer.innerHTML = "<p>Carregando fechamento da API...</p>";
+    btnGerarFechamento.textContent = "Gerando combinações...";
+    jogosGeradosContainer.innerHTML = `<p>Gerando C(${nVariavel}, ${kVariavel}) = ${totalDeCombinacoes} jogos (Fixo: ${f})...</p>`;
 
     try {
-      // 1. BUSCA O FECHAMENTO NA API
-      // O 'idSelecionado' é o 'codigo' (ex: "18_15_15_14")
-      const response = await fetch(
-        `${API_URL}/api/fechamento/${idSelecionado}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      // 5. Geração das Combinações (USANDO VARIÁVEIS)
+      const combinacoesVariaveis = gerarCombinacoes(
+        dezenasVariaveis,
+        kVariavel,
+        LIMITE_JOGOS
       );
 
-      if (response.status === 401 || response.status === 403) {
-        throw new Error("Sessão expirada. Faça login novamente.");
-      }
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(
-          err.error || `Erro ao buscar fechamento: ${idSelecionado}`
-        );
-      }
+      // 6. MONTAGEM DOS JOGOS FINAIS
+      const jogosFinais = combinacoesVariaveis.map((combVariavel) => {
+        const jogoCompleto = [...dezenasFixas, ...combVariavel];
+        return jogoCompleto.sort((a, b) => parseInt(a) - parseInt(b));
+      });
 
-      // A API retorna o objeto: { universo, custo, jogos }
-      const matrizEscolhida = await response.json();
-
-      // 2. PROCESSA A RESPOSTA (Lógica original)
-      // Esta parte do código não muda, pois 'matrizEscolhida'
-      // agora contém os dados que vieram da API.
-      const dezenasOrdenadas = Array.from(dezenasSelecionadas).sort(
-        (a, b) => a - b
-      );
-      const jogosFinais = [];
-
-      for (const jogoMatriz of matrizEscolhida.jogos) {
-        const jogoTraduzido = [];
-        for (const indice of jogoMatriz) {
-          const dezenaReal = dezenasOrdenadas[indice - 1];
-          jogoTraduzido.push(dezenaReal);
-        }
-        jogosFinais.push(jogoTraduzido);
-      }
-
-      // 3. EXIBE OS JOGOS (Função original)
+      // 3. EXIBE OS JOGOS
       exibirJogos(jogosFinais);
     } catch (error) {
-      console.error("Erro ao gerar fechamento:", error);
-      jogosGeradosContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
-      // Se o token expirou, desloga o usuário
-      if (error.message.includes("Sessão expirada")) {
-        alert(error.message);
-        localStorage.removeItem("meu-token-lotofacil");
-        window.location.href = "welcome.html";
-      }
+      console.error("Erro ao gerar combinações:", error);
+      jogosGeradosContainer.innerHTML = `<p style="color: red;">Erro ao gerar combinações.</p>`;
     } finally {
       // Reabilita o botão, independente de sucesso ou falha
       btnGerarFechamento.disabled = false;
-      btnGerarFechamento.textContent = "Gerar Fechamento";
+      btnGerarFechamento.textContent = "Gerar Combinações";
     }
   }
+
+  // =======================================================
+  // === FUNÇÃO PRINCIPAL PARA ABRIR O MODAL RANDÔMICO
+  // Chamada pelo botão "Gerar Jogos" na tela principal.
+  // =======================================================
+  function abrirModalRandomico() {
+    const N_selecionado = dezenasSelecionadas.size;
+
+    // Verifica se há dezenas fixas
+    const dezenasFixas = Array.from(
+      gridDezenas.querySelectorAll(".dezena-btn.fixa")
+    );
+
+    if (N_selecionado < 15) {
+      alert("Selecione pelo menos 15 dezenas no grid para gerar jogos.");
+      return;
+    }
+
+    if (randomicoModal) {
+      // Atualiza as variáveis globais para o modal
+      N_SELECIONADO_RANDOMICO = N_selecionado;
+
+      // As dezenas para o RANDÔMICO devem ser apenas as VARIÁVEIS para o sorteio.
+      // A geração Randômica fará a separação e inclusão das fixas.
+
+      // 1. Obtém todas as dezenas selecionadas e ordenadas (fixas e variáveis)
+      const dezenasSelecionadasOrdenadas = Array.from(dezenasSelecionadas).sort(
+        (a, b) => parseInt(a) - parseInt(b)
+      );
+
+      // 2. Separa as fixas e as variáveis
+      const { dezenasFixas: fixas, dezenasVariaveis: variaveis } =
+        separarDezenas(dezenasSelecionadasOrdenadas, gridDezenas);
+
+      // Atualiza as variáveis globais com o resultado da separação
+      DEZENAS_SELECIONADAS_RANDOMICO = {
+        fixas: fixas,
+        variaveis: variaveis,
+      };
+
+      // Inicializa o modal com as dezenas selecionadas
+      if (typeof inicializarModalRandomico === "function") {
+        inicializarModalRandomico();
+      }
+      randomicoModal.style.display = "flex"; // Exibe o modal
+    } else {
+      // Fallback: se o HTML do modal não foi renderizado, faz a geração determinística
+      alert(
+        "Erro ao carregar modal randômico. Tentando gerar C(n,k) como fallback."
+      );
+      gerarCombinacoesCnk();
+    }
+  }
+
+  // =======================================================
+  // === FUNÇÕES DE APOIO E LÓGICA DO MODAL RANDÔMICO
+  // =======================================================
+  function fecharModalRandomico() {
+    if (randomicoModal) {
+      randomicoModal.style.display = "none";
+    }
+  } // Implementação da Lógica Randômica (Chamada pelo Modal)
+
+  function gerarJogosAleatorios(n, k, numJogos, dezenasTotal) {
+    if (k > n) return [];
+
+    const jogosGerados = new Set();
+    const LIMITE_ITERACOES = numJogos * 10; // Limite de segurança para evitar loop infinito
+    let tentativas = 0;
+
+    const dezenasPossiveis = [...dezenasTotal]; // Clonar para não alterar o original
+
+    while (jogosGerados.size < numJogos && tentativas < LIMITE_ITERACOES) {
+      let jogo = [];
+
+      // Geração randômica: Sorteia 'k' elementos de 'n'
+      let tempDezenas = [...dezenasPossiveis];
+
+      for (let i = 0; i < k; i++) {
+        const randomIndex = Math.floor(Math.random() * tempDezenas.length);
+        jogo.push(tempDezenas[randomIndex]);
+        tempDezenas.splice(randomIndex, 1); // Remove o sorteado
+      }
+
+      // Ordena e Converte para String para garantir unicidade no Set
+      jogo.sort((a, b) => parseInt(a) - parseInt(b));
+      const jogoString = jogo.join(" ");
+
+      jogosGerados.add(jogoString);
+      tentativas++;
+    }
+
+    // Converte o Set de volta para o formato de array esperado
+    return Array.from(jogosGerados).map((str) => str.split(" "));
+  }
+
+  // LÓGICA DE CONTROLE DO MODAL
+  window.inicializarModalRandomico = function () {
+    // 1. REFERÊNCIAS INTERNAS
+    const randomicoTitle = document.getElementById("randomico-title");
+    const dezenasJogoSlider = document.getElementById("dezenas-jogo-slider");
+    const dezenasJogoDisplay = document.getElementById("dezenas-jogo-display");
+    const jogosGerarSlider = document.getElementById("jogos-gerar-slider");
+    const jogosGerarDisplay = document.getElementById("jogos-gerar-display");
+    const btnGerarRandomico = document.getElementById("btn-gerar-randomico");
+    const btnCancelar = document.getElementById("btn-cancelar");
+    const sliderBtns = document.querySelectorAll(
+      "#randomico-modal .slider-btn"
+    );
+
+    // 2. VARIÁVEIS DO ESCOPO
+    const DEZENAS_FIXAS = DEZENAS_SELECIONADAS_RANDOMICO.fixas;
+    const DEZENAS_VARIAVEIS = DEZENAS_SELECIONADAS_RANDOMICO.variaveis;
+
+    const F = DEZENAS_FIXAS.length; // F = Dezenas Fixas
+    const N_VARIAVEL = DEZENAS_VARIAVEIS.length; // N_var = Dezenas Variáveis
+
+    const N_TOTAL = DEZENAS_FIXAS.length + DEZENAS_VARIAVEIS.length; // N original
+
+    const MAX_JOGOS_LIMITE = 1000; // Limite de geração hardcoded (Randômico e C(n,k))
+    const K_MIN = 15;
+    // K_MAX deve ser N_TOTAL
+    const K_MAX = N_TOTAL;
+
+    // 3. FUNÇÕES DE ATUALIZAÇÃO DA UI
+    function updateKControl() {
+      const k = parseInt(dezenasJogoSlider.value);
+
+      // CORREÇÃO: kTotal deve ser k (valor do slider)
+      const kTotal = k;
+
+      // Vagas que precisam ser preenchidas pelas variáveis
+      const kVariavel = kTotal - F;
+      const kAnterior = parseInt(dezenasJogoDisplay.textContent);
+
+      // 1. Validação se o jogo tem dezenas fixas demais ou de menos
+      if (kTotal < F || kVariavel > N_VARIAVEL) {
+        // O K mínimo deve ser pelo menos o número de fixas (F)
+        const novoK = Math.max(kTotal, F);
+        // E o K máximo não pode ultrapassar o total de selecionadas (N_TOTAL)
+        dezenasJogoSlider.max = N_TOTAL;
+
+        if (kTotal !== novoK || kTotal > N_TOTAL) {
+          dezenasJogoSlider.value = novoK > N_TOTAL ? N_TOTAL : novoK;
+          updateKControl(); // Chama recursivamente para revalidar
+          return;
+        }
+      }
+
+      // Se a validação passou, garantimos o limite mínimo de 15 dezenas no total
+      if (kTotal < K_MIN) {
+        dezenasJogoSlider.value = K_MIN;
+        updateKControl();
+        return;
+      }
+
+      // Recalcula o máximo Y (total de combinações C(N_VARIAVEL, K_VARIAVEL))
+      const totalComb = combinacao(N_VARIAVEL, kVariavel);
+      const maxY = Math.min(totalComb, MAX_JOGOS_LIMITE);
+
+      // Atualiza o display: mostra que as fixas foram consideradas
+      randomicoTitle.textContent = `Randômico de ${N_TOTAL} dezenas (Fixo: ${F})`;
+      dezenasJogoDisplay.textContent = kTotal;
+
+      // Se o K mudou significativamente, resetamos o X ou ajustamos o limite
+      if (k !== kAnterior) {
+        jogosGerarSlider.value = 1;
+      }
+
+      // 1. Atualiza o slider de Jogos a Gerar (Y)
+      jogosGerarSlider.min = 1;
+      jogosGerarSlider.max = maxY;
+
+      // Habilita/Desabilita botões
+      dezenasJogoSlider.min = K_MIN;
+      dezenasJogoSlider.max = K_MAX;
+
+      // 2. Chama updateXControl para refletir o novo limite
+      updateXControl();
+    }
+
+    function updateXControl() {
+      const maxComb = parseInt(jogosGerarSlider.max);
+      let x = parseInt(jogosGerarSlider.value);
+
+      // Limite visual
+      if (x > maxComb) x = maxComb;
+      if (x < 1) x = 1;
+
+      jogosGerarSlider.value = x;
+      jogosGerarDisplay.textContent = `${x} de ${maxComb}`;
+
+      // Habilita/Desabilita botões +/-
+      const btnMinus = document.querySelector(
+        '[data-target="jogos-gerar"].minus'
+      );
+      const btnPlus = document.querySelector(
+        '[data-target="jogos-gerar"].plus'
+      );
+
+      if (btnMinus) btnMinus.disabled = x <= 1;
+      if (btnPlus) btnPlus.disabled = x >= maxComb;
+    }
+
+    // 4. Configuração Inicial e Listeners
+
+    // Ajusta o max do slider K e reseta o valor (se o N mudar)
+    dezenasJogoSlider.min = K_MIN;
+    dezenasJogoSlider.max = K_MAX;
+    dezenasJogoSlider.value = K_MIN;
+
+    updateKControl(); // Primeira inicialização
+
+    // Lógica para alterar o K (Dezenas por Jogo)
+    dezenasJogoSlider.addEventListener("input", updateKControl);
+
+    // Lógica para alterar o X (Jogos a Gerar)
+    jogosGerarSlider.addEventListener("input", updateXControl);
+
+    // Lógica para os botões +/-
+    sliderBtns.forEach((btn) => {
+      btn.removeEventListener("click", handleSliderClick);
+      btn.addEventListener("click", handleSliderClick);
+    });
+
+    function handleSliderClick(e) {
+      const target = e.currentTarget.dataset.target;
+      const isPlus = e.currentTarget.classList.contains("plus");
+
+      let slider, updateFn;
+
+      if (target === "dezenas-jogo") {
+        slider = dezenasJogoSlider;
+        updateFn = updateKControl;
+      } else {
+        slider = jogosGerarSlider;
+        updateFn = updateXControl;
+      }
+
+      let currentValue = parseInt(slider.value);
+
+      if (isPlus && currentValue < parseInt(slider.max)) {
+        slider.value = currentValue + 1;
+      } else if (!isPlus && currentValue > parseInt(slider.min)) {
+        slider.value = currentValue - 1;
+      }
+
+      // Dispara a função de atualização para refletir a mudança no display
+      updateFn();
+
+      // Se mudamos o K, precisamos re-verificar o X
+      if (target === "dezenas-jogo") {
+        updateXControl();
+      }
+    }
+
+    // Lógica do botão GERAR (RANDÔMICO)
+    btnGerarRandomico.onclick = () => {
+      const kTotal = parseInt(dezenasJogoSlider.value);
+      const kVariavel = kTotal - F;
+      const numJogos = parseInt(jogosGerarSlider.value);
+
+      if (numJogos < 1) {
+        alert("Selecione pelo menos 1 jogo para gerar.");
+        return;
+      }
+
+      // Verificação final para garantir que o K-fixo é válido
+      if (kVariavel < 0 || kVariavel > N_VARIAVEL) {
+        alert(
+          "Ajuste o número de dezenas por jogo. K deve ser maior ou igual ao número de dezenas fixas."
+        );
+        return;
+      }
+
+      // 1. Executa a geração aleatória APENAS das variáveis
+      const combinacoesVariaveis = gerarJogosAleatorios(
+        N_VARIAVEL,
+        kVariavel,
+        numJogos,
+        DEZENAS_VARIAVEIS
+      );
+
+      // 2. MONTAGEM DOS JOGOS FINAIS
+      const jogosFinais = combinacoesVariaveis.map((combVariavel) => {
+        // Junta as dezenas fixas com as variáveis e ordena
+        const jogoCompleto = [...DEZENAS_FIXAS, ...combVariavel];
+        return jogoCompleto.sort((a, b) => parseInt(a) - parseInt(b));
+      });
+
+      // 2. Exibe os jogos no container principal
+      exibirJogos(jogosFinais);
+
+      // 3. Fecha o modal e troca para a aba Gerador
+      fecharModalRandomico();
+      switchTab("view-gerador");
+    };
+
+    btnCancelar.onclick = fecharModalRandomico;
+  };
+
+  // Expõe a função para o escopo global (usado pelo HTML)
+  window.fecharModalRandomico = fecharModalRandomico;
 
   function exibirJogos(jogos) {
     if (!jogosGeradosContainer) return;
@@ -691,18 +1450,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       jogosGeradosContainer.appendChild(btnSalvarTodos);
     }
   }
+
   function resetGeradorTab() {
     dezenasSelecionadas.clear();
 
     if (gridDezenas) {
       const todosBotoes = gridDezenas.querySelectorAll(".dezena-btn");
-      todosBotoes.forEach((btn) => btn.classList.remove("selecionada"));
+      todosBotoes.forEach((btn) => btn.classList.remove("selecionada", "fixa")); // Limpa 'fixa' também
     }
     if (contadorDezenas) {
       contadorDezenas.textContent = "Dezenas selecionadas: 0";
     }
-
-    atualizarMenuFechamentos();
 
     if (jogosGeradosContainer) {
       jogosGeradosContainer.innerHTML = "";
@@ -771,9 +1529,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const dezenasAcertadas = [];
 
       dezenasSalvas.forEach((dezena) => {
-        if (dezenasSorteadas.has(dezena)) {
+        const dezenaFormatada = dezena.padStart(2, "0");
+        if (dezenasSorteadas.has(dezenaFormatada)) {
           acertos++;
-          dezenasAcertadas.push(dezena);
+          dezenasAcertadas.push(dezenaFormatada);
         }
       });
 
@@ -787,15 +1546,74 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       bolinhas.forEach((bolinha) => {
-        if (dezenasAcertadas.includes(bolinha.textContent)) {
+        const bolinhaDezena = bolinha.textContent.padStart(2, "0");
+        if (dezenasAcertadas.includes(bolinhaDezena)) {
           bolinha.classList.add("hit");
         } else {
           bolinha.classList.remove("hit");
         }
       });
     });
+
+    // =======================================================
+    // === NOVO: CHAMADA DE ORDENAÇÃO APÓS A CONFERÊNCIA
+    // Garante que o jogo mais pontuado fique no topo.
+    // =======================================================
+    ordenarJogosPorPontuacao();
   }
   // =======================================================
   // === FIM: NOVAS FUNÇÕES DO CONFERIDOR
   // =======================================================
+
+  // ADICIONE ESTA NOVA FUNÇÃO AO FINAL DO document.addEventListener("DOMContentLoaded", ...
+  // =======================================================
+  // === NOVO: FUNÇÃO PARA ORDENAR JOGOS POR PONTUAÇÃO
+  // =======================================================
+  function ordenarJogosPorPontuacao() {
+    const container = jogosSalvosContainer;
+    if (!container) return;
+
+    // 1. Coleta todos os cards de jogos salvos
+    const cards = Array.from(container.querySelectorAll(".jogo-salvo-card"));
+
+    // 2. Classifica os cards
+    cards.sort((cardA, cardB) => {
+      // Pega o texto da pontuação (ex: "12 Pontos")
+      const scoreTextA = cardA.querySelector(".pontuacao-display").textContent;
+      const scoreTextB = cardB.querySelector(".pontuacao-display").textContent;
+
+      // Extrai apenas o número
+      // O '|| 0' garante que, se o texto estiver vazio ou não formatado, o valor seja 0.
+      const scoreA = parseInt(scoreTextA.split(" ")[0]) || 0;
+      const scoreB = parseInt(scoreTextB.split(" ")[0]) || 0;
+
+      // Classifica em ordem decrescente (maior pontuação primeiro)
+      return scoreB - scoreA;
+    });
+
+    // 3. Reinsere os cards ordenados no container
+    cards.forEach((card) => {
+      container.appendChild(card);
+    });
+  }
+
+  // ADICIONE ao final do DOMContentLoaded:
+  // Carrega os bolões ao abrir a aba "Meus Jogos"
+  function switchTab(targetId) {
+    if (!targetId) return;
+
+    tabButtons.forEach((btn) => btn.classList.remove("active"));
+    tabContents.forEach((content) => content.classList.add("hidden"));
+
+    const targetButton = document.querySelector(`[data-target="${targetId}"]`);
+    const targetContent = document.getElementById(targetId);
+
+    if (targetButton) targetButton.classList.add("active");
+    if (targetContent) targetContent.classList.remove("hidden");
+
+    if (targetId === "view-jogos" && !jogosJaCarregados) {
+      buscarBoloes(); // Carrega os bolões primeiro
+      buscarJogosFiltrados(bolaoSelecionado); // Depois os jogos
+    }
+  }
 }); // FIM DO DOMCONTENTLOADED

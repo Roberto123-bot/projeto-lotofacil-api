@@ -255,6 +255,443 @@
       .jogos-controles {
         display: none;
       }
+
+      /* =================================== */
+      /* === ESTILOS MODAL RANDÔMICO (NOVO) === */
+      /* =================================== */
+
+      :root {
+        --purple-primary: #673ab7;
+        --gray-secondary: #e0e0e0;
+      }
+
+      #randomico-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none; /* Inicia oculto */
+        justify-content: center;
+        align-items: center;
+        z-index: 2000; /* Alto z-index para sobrepor tudo */
+      }
+
+      .modal-content {
+        background-color: #fff;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        animation: modal-in 0.3s ease-out;
+      }
+
+      @keyframes modal-in {
+        from {
+          transform: translateY(-50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .modal-header {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--gray-secondary);
+        background-color: var(--purple-primary);
+        color: white;
+      }
+
+      #randomico-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+        letter-spacing: 0.0125em;
+      }
+
+      .modal-body {
+        padding: 24px;
+      }
+
+      .separator {
+        border: none;
+        height: 1px;
+        background-color: var(--gray-secondary);
+        margin: 20px 0;
+      }
+
+      /* Controle de Slider e Botões */
+      .control-group {
+        margin-bottom: 20px;
+      }
+
+      .control-group label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 8px;
+      }
+
+      .slider-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .slider-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid var(--purple-primary);
+        background-color: transparent;
+        color: var(--purple-primary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: background-color 0.2s, transform 0.1s;
+      }
+
+      .slider-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .slider-btn:active:not(:disabled) {
+        background-color: #9c27b0;
+        color: white;
+        transform: scale(0.95);
+      }
+
+      .slider-value {
+        font-size: 1.25rem;
+        font-weight: 600;
+        width: 100px;
+        text-align: center;
+      }
+
+      /* Estilo do Slider (Track e Thumb) */
+      .custom-slider {
+        flex-grow: 1;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 6px;
+        background: #ccc;
+        border-radius: 3px;
+        cursor: pointer;
+        margin: 0 10px;
+      }
+
+      .purple-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--purple-primary);
+        cursor: pointer;
+        transition: transform 0.2s;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Rodapé e Botões M3 */
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 16px 24px;
+        gap: 12px;
+      }
+
+      .m3-button {
+        padding: 10px 18px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s, box-shadow 0.2s;
+        border: none;
+      }
+
+      .m3-button.primary {
+        background-color: var(--purple-primary);
+        color: white;
+        box-shadow: 0 2px 4px rgba(103, 58, 183, 0.4);
+      }
+
+      .m3-button.primary:hover {
+        background-color: #512da8;
+      }
+
+      .m3-button.secondary {
+        background-color: transparent;
+        color: #495057;
+        border: 1px solid var(--gray-secondary);
+      }
+
+      .m3-button.secondary:hover {
+        background-color: #f0f0f0;
+      }
+
+      /* ===================================
+         ESTILOS DO DROPDOWN DE BOLÕES
+         =================================== */
+
+      .bolao-selector-container {
+        margin: 20px 0;
+        position: relative;
+      }
+
+      .bolao-dropdown {
+        position: relative;
+        width: 100%;
+      }
+
+      .bolao-dropdown-btn {
+        width: 100%;
+        padding: 12px 40px 12px 16px;
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.2s;
+      }
+
+      .bolao-dropdown-btn:hover {
+        border-color: #7c3aed;
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+      }
+
+      .bolao-dropdown-btn.active {
+        border-color: #7c3aed;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+      }
+
+      .bolao-dropdown-btn span {
+        flex: 1;
+        text-align: left;
+      }
+
+      .bolao-dropdown-btn::after {
+        content: "▼";
+        font-size: 12px;
+        color: #666;
+        transition: transform 0.2s;
+      }
+
+      .bolao-dropdown-btn.active::after {
+        transform: rotate(180deg);
+      }
+
+      .bolao-dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 8px;
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        max-height: 400px;
+        overflow-y: auto;
+        z-index: 1000;
+        animation: slideDown 0.2s ease;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Campo de criar novo bolão */
+      .bolao-criar-novo {
+        padding: 12px;
+        border-bottom: 2px solid #eee;
+        background: #f9f9f9;
+      }
+
+      .bolao-input-container {
+        display: flex;
+        gap: 8px;
+      }
+
+      .bolao-input-nome {
+        flex: 1;
+        padding: 10px 12px;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .bolao-input-nome:focus {
+        border-color: #7c3aed;
+      }
+
+      .bolao-input-nome::placeholder {
+        color: #999;
+      }
+
+      .btn-criar-bolao {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 24px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+
+      .btn-criar-bolao:hover {
+        background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%);
+        transform: scale(1.05);
+      }
+
+      .btn-criar-bolao:active {
+        transform: scale(0.95);
+      }
+
+      .btn-criar-bolao:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Lista de bolões */
+      .lista-boloes {
+        padding: 8px 0;
+      }
+
+      .bolao-item {
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-left: 4px solid transparent;
+      }
+
+      .bolao-item:hover {
+        background: #f3f4f6;
+        border-left-color: #7c3aed;
+      }
+
+      .bolao-item.selected {
+        background: #ede9fe;
+        border-left-color: #7c3aed;
+      }
+
+      .bolao-item-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .bolao-nome {
+        font-size: 15px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .bolao-total {
+        font-size: 12px;
+        color: #666;
+      }
+
+      .bolao-delete-btn {
+        width: 36px;
+        height: 36px;
+        background: transparent;
+        border: 2px solid #ef4444;
+        border-radius: 6px;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        opacity: 0;
+      }
+
+      .bolao-item:hover .bolao-delete-btn {
+        opacity: 1;
+      }
+
+      .bolao-delete-btn:hover {
+        background: #ef4444;
+        transform: scale(1.1);
+      }
+
+      .bolao-divisor {
+        height: 2px;
+        background: #eee;
+        margin: 8px 0;
+      }
+
+      .bolao-item-vazio {
+        padding: 20px;
+        text-align: center;
+        color: #999;
+        font-size: 14px;
+      }
+
+      /* Scrollbar customizada */
+      .bolao-dropdown-menu::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .bolao-dropdown-menu::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      .bolao-dropdown-menu::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+      }
+
+      .bolao-dropdown-menu::-webkit-scrollbar-thumb:hover {
+        background: #999;
+      }
+
+      /* Responsivo */
+      @media (max-width: 768px) {
+        .bolao-dropdown-menu {
+          max-height: 300px;
+        }
+
+        .bolao-item {
+          padding: 14px 12px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -387,13 +824,11 @@
         <div id="grid-dezenas"></div>
 
         <div class="gerador-controles" style="margin-top: 20px">
-          <select id="menu-fechamentos" disabled>
-            <option value="">Selecione dezenas no grid...</option>
-          </select>
-          <button id="btn-gerar" style="margin-left: 10px">Gerar Jogos</button>
+          <button id="btn-gerar" class="btn-randomico-chamada">
+            Gerar Combinações
+          </button>
         </div>
 
-        <h3 style="margin-top: 20px">Passo 3: Jogos Gerados</h3>
         <div id="jogos-gerados"></div>
       </div>
 
@@ -404,6 +839,40 @@
             <button id="check-prev" title="Concurso Anterior">◀</button>
             <span id="check-concurso-display">Carregando resultados...</span>
             <button id="check-next" title="Próximo Concurso">▶</button>
+          </div>
+        </div>
+
+        <!-- ==========================================
+             NOVO: DROPDOWN DE BOLÕES
+             ========================================== -->
+        <div class="bolao-selector-container">
+          <div class="bolao-dropdown">
+            <!-- Botão principal -->
+            <button class="bolao-dropdown-btn" id="bolao-dropdown-btn">
+              <span>Meus Jogos</span>
+            </button>
+
+            <!-- Menu dropdown -->
+            <div class="bolao-dropdown-menu" id="bolao-dropdown-menu">
+              <!-- Campo para criar novo bolão -->
+              <div class="bolao-criar-novo">
+                <div class="bolao-input-container">
+                  <input
+                    type="text"
+                    class="bolao-input-nome"
+                    id="bolao-input-nome"
+                    placeholder="Nome do novo bolão..."
+                    maxlength="50"
+                  />
+                  <button class="btn-criar-bolao" id="btn-criar-bolao">
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <!-- Lista de bolões (preenchida dinamicamente) -->
+              <div class="lista-boloes" id="lista-boloes"></div>
+            </div>
           </div>
         </div>
 
@@ -419,6 +888,77 @@
         </div>
       </div>
     </main>
+
+    <div id="randomico-modal" style="display: none">
+      <div class="modal-content">
+        <header class="modal-header">
+          <h3 id="randomico-title">Randômico de 17 dezenas</h3>
+        </header>
+
+        <div class="modal-body">
+          <div class="control-group">
+            <label>Dezenas por jogo:</label>
+            <div class="slider-container">
+              <button class="slider-btn minus" data-target="dezenas-jogo">
+                -
+              </button>
+
+              <span id="dezenas-jogo-display" class="slider-value">15</span>
+
+              <button class="slider-btn plus" data-target="dezenas-jogo">
+                +
+              </button>
+
+              <input
+                type="range"
+                id="dezenas-jogo-slider"
+                min="15"
+                max="18"
+                value="15"
+                class="custom-slider purple-slider"
+              />
+            </div>
+          </div>
+
+          <hr class="separator" />
+
+          <div class="control-group">
+            <label>Jogos a serem gerados:</label>
+            <div class="slider-container">
+              <button class="slider-btn minus" data-target="jogos-gerar">
+                -
+              </button>
+
+              <span id="jogos-gerar-display" class="slider-value"
+                >1 de 136</span
+              >
+
+              <button class="slider-btn plus" data-target="jogos-gerar">
+                +
+              </button>
+
+              <input
+                type="range"
+                id="jogos-gerar-slider"
+                min="1"
+                max="136"
+                value="1"
+                class="custom-slider purple-slider"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="btn-cancelar" class="m3-button secondary">
+            CANCELAR
+          </button>
+          <button id="btn-gerar-randomico" class="m3-button primary">
+            GERAR
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- NOVO: Bottom Sheet (Menu Popup) -->
     <div id="bottom-sheet-overlay" class="bottom-sheet-overlay">
@@ -479,6 +1019,10 @@
       window.fecharMenuPopup = null;
       window.abrirMenuPopup = null;
       window.copiarJogosSelecionados = null;
+
+      // Variável Global do Modal Randomico
+      window.fecharModalRandomico = null;
+      window.inicializarModalRandomico = null;
     </script>
     <script src="script.js"></script>
     <script>
