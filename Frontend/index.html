@@ -795,21 +795,23 @@
         </button>
       </nav>
 
+      <!-- SUBSTITUA todo o conteúdo de #view-tabela no seu index.html por isto: -->
+
       <div id="view-tabela" class="view-content">
-        <table id="tabela-resultados">
-          <thead>
-            <tr>
-              <th>Concurso</th>
-              <th>Data</th>
-              <th>Dezenas</th>
-            </tr>
-          </thead>
-          <tbody id="corpo-tabela">
-            <tr>
-              <td colspan="3">Carregando...</td>
-            </tr>
-          </tbody>
-        </table>
+        <h2 style="font-size: 1.2rem; text-align: center; color: #555">
+          MAPA DAS DEZENAS LOTOFÁCIL
+        </h2>
+        <p style="text-align: center; font-size: 0.8rem; color: #777">
+          (No celular, role para o lado para visualizar todo o mapa)
+        </p>
+
+        <!-- Container para rolagem horizontal do mapa -->
+        <div class="mapa-dezenas-wrapper">
+          <div id="mapa-dezenas-grid" class="mapa-dezenas-grid">
+            <!-- O JavaScript irá preencher este grid dinamicamente -->
+            <!-- NÃO adicione elementos manualmente aqui -->
+          </div>
+        </div>
       </div>
 
       <div id="view-grid" class="view-content hidden">

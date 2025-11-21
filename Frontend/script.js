@@ -23,14 +23,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   const tabContents = document.querySelectorAll(".view-content");
 
   // --- REFERÊNCIAS DOS RESULTADOS ---
-  const corpoTabela = document.getElementById("corpo-tabela");
   const viewGrid = document.getElementById("view-grid");
   const gridLoadingMsg = document.querySelector("#view-grid .loading-grid");
+
+  // Referência para o novo Mapa de Dezenas
+  const mapaDezenasGrid = document.getElementById("mapa-dezenas-grid");
 
   // --- REFERÊNCIAS GERADOR DE FECHAMENTOS ---
   const gridDezenas = document.getElementById("grid-dezenas");
   const contadorDezenas = document.getElementById("contador");
-  const menuFechamentos = document.getElementById("menu-fechamentos");
   const btnGerarFechamento = document.getElementById("btn-gerar");
   const jogosGeradosContainer = document.getElementById("jogos-gerados");
 
@@ -75,7 +76,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- INICIALIZAÇÃO E EVENT LISTENER AJUSTADO ---
   if (gridDezenas && btnGerarFechamento) {
     configurarGrid();
-    // O botão "Gerar Jogos" AGORA abre o Modal Randômico
     btnGerarFechamento.addEventListener("click", abrirModalRandomico);
   }
 
@@ -89,10 +89,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =======================================================
   // === FIM: NOVOS EVENT LISTENERS DO CONFERIDOR
   // =======================================================
-
-  // ===================================
-  // === SISTEMA DE BOLÕES - ADICIONE AO SCRIPT.JS
-  // ===================================
 
   // VARIÁVEIS GLOBAIS PARA BOLÕES
   let todosOsBoloes = [];
@@ -747,8 +743,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   // === FUNÇÕES DOS RESULTADOS ===
   // ===================================
 
+  // Substitua a função buscarResultados no seu script.js por esta versão:
+
   async function buscarResultados(limit = 10) {
-    corpoTabela.innerHTML = '<tr><td colspan="3">Carregando...</td></tr>';
+    // Mostra mensagem de carregamento no grid
+    const mapaGrid = document.getElementById("mapa-dezenas-grid");
+    if (mapaGrid) {
+      mapaGrid.innerHTML =
+        '<div style="grid-column: 1/-1; padding: 20px; text-align: center;">Carregando resultados...</div>';
+    }
+
     if (gridLoadingMsg) gridLoadingMsg.style.display = "block";
 
     allResultados = [];
@@ -766,12 +770,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           },
         }
       );
+
       if (response.status === 401 || response.status === 403) {
         alert("⚠️ Sua sessão expirou. Por favor, faça login novamente.");
         localStorage.removeItem("meu-token-lotofacil");
         window.location.href = "welcome.html";
         return;
       }
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
@@ -786,44 +792,136 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateCheckerView();
 
       if (gridLoadingMsg) gridLoadingMsg.style.display = "none";
+
+      // Popula APENAS o mapa de dezenas e o grid de cards
       popularTabela(resultados);
       popularGrid(resultados);
     } catch (error) {
       console.error("❌ Erro ao buscar dados da API:", error.message);
       let mensagemErro = "Erro ao carregar os resultados.";
+
       if (error.message.includes("Failed to fetch")) {
         mensagemErro =
           "❌ Não foi possível conectar à API. Verifique sua conexão.";
       } else if (error.message.includes("Token")) {
         mensagemErro = "❌ Problema de autenticação. Faça login novamente.";
       }
-      corpoTabela.innerHTML = `<tr><td colspan="3" style="color: red; padding: 20px;">${mensagemErro}</td></tr>`;
+
+      // Exibe erro no grid
+      if (mapaGrid) {
+        mapaGrid.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: red;">${mensagemErro}</div>`;
+      }
+
       viewGrid.innerHTML = `<p class="loading-grid" style="color: red;">${mensagemErro}</p>`;
       if (checkDisplay) checkDisplay.textContent = "Erro ao carregar.";
     }
   }
 
+  // Substitua também a função popularTabela por esta versão simplificada:
+
   function popularTabela(resultados) {
-    corpoTabela.innerHTML = "";
-    resultados.forEach((concurso) => {
-      const tr = document.createElement("tr");
+    // Esta função agora APENAS popula o mapa de dezenas
+    popularMapaDezenas(resultados);
+  }
+
+  // A função popularMapaDezenas permanece igual (não precisa alterar)
+
+  // Função para popular o mapa de dezenas (grid moderno)
+  function popularMapaDezenas(resultados) {
+    const mapaGrid = document.getElementById("mapa-dezenas-grid");
+    if (!mapaGrid) return;
+
+    // 1. Limpa o grid
+    mapaGrid.innerHTML = "";
+
+    // 2. CONSTRÓI O CABEÇALHO (27 COLUNAS)
+    mapaGrid.insertAdjacentHTML(
+      "beforeend",
+      `<div class="mapa-header concurso-col">Concurso</div>`
+    );
+    mapaGrid.insertAdjacentHTML(
+      "beforeend",
+      `<div class="mapa-header data-col">Data</div>`
+    );
+
+    // Células de 1 a 25
+    for (let i = 1; i <= 25; i++) {
+      const dezenaFormatada = i.toString().padStart(2, "0");
+      mapaGrid.insertAdjacentHTML(
+        "beforeend",
+        `<div class="mapa-header dezena-col">${dezenaFormatada}</div>`
+      );
+    }
+
+    // 3. CONSTRÓI AS LINHAS DE DADOS
+    resultados.forEach((concurso, index) => {
+      const dezenasSorteadas = new Set(concurso.dezenas.split(" "));
       const dataFormatada = new Date(concurso.data).toLocaleDateString(
         "pt-BR",
         { timeZone: "UTC" }
       );
-      const tdConcurso = document.createElement("td");
-      tdConcurso.textContent = concurso.concurso;
-      tr.appendChild(tdConcurso);
-      const tdData = document.createElement("td");
-      tdData.textContent = dataFormatada;
-      tr.appendChild(tdData);
-      const tdDezenas = document.createElement("td");
-      const gridBolinhas = criarGridDeBolinhas(concurso.dezenas);
-      tdDezenas.appendChild(gridBolinhas);
-      tr.appendChild(tdDezenas);
-      corpoTabela.appendChild(tr);
+      const linhaClass = index % 2 === 0 ? "linha-par" : "linha-impar";
+
+      // 3.1. Coluna Concurso
+      mapaGrid.insertAdjacentHTML(
+        "beforeend",
+        `<div class="mapa-celula concurso-col ${linhaClass}">${concurso.concurso}</div>`
+      );
+
+      // 3.2. Coluna Data
+      mapaGrid.insertAdjacentHTML(
+        "beforeend",
+        `<div class="mapa-celula data-col ${linhaClass}">${dataFormatada}</div>`
+      );
+
+      // 3.3. Colunas Dezenas (Mapa de 1 a 25)
+      for (let i = 1; i <= 25; i++) {
+        const dezenaFormatada = i.toString().padStart(2, "0");
+        const isSorteada = dezenasSorteadas.has(dezenaFormatada);
+        const statusClass = isSorteada ? "sorteada-mapa" : "nao-sorteada-mapa";
+
+        const celulaContent = `
+          <div class="mapa-celula dezena-col ${linhaClass}">
+            <div class="dezena-mapa ${statusClass}">
+              ${dezenaFormatada}
+            </div>
+          </div>
+        `;
+        mapaGrid.insertAdjacentHTML("beforeend", celulaContent);
+      }
     });
   }
+
+  // Função ORIGINAL para popular a tabela HTML tradicional
+  function popularTabela(resultados) {
+    // NOTA: Esta função agora chama o mapa de dezenas
+    // E também pode popular uma tabela tradicional se existir
+
+    // Popula o mapa de dezenas (grid moderno)
+    popularMapaDezenas(resultados);
+
+    // Se você tiver uma tabela HTML tradicional, popule aqui:
+    const corpoTabela = document.getElementById("corpo-tabela");
+    if (corpoTabela) {
+      corpoTabela.innerHTML = "";
+
+      resultados.forEach((concurso) => {
+        const dataFormatada = new Date(concurso.data).toLocaleDateString(
+          "pt-BR",
+          { timeZone: "UTC" }
+        );
+
+        const linha = document.createElement("tr");
+        linha.innerHTML = `
+          <td>${concurso.concurso}</td>
+          <td>${dataFormatada}</td>
+          <td>${concurso.dezenas}</td>
+        `;
+        corpoTabela.appendChild(linha);
+      });
+    }
+  }
+
   function popularGrid(resultados) {
     viewGrid.innerHTML = "";
     resultados.forEach((concurso) => {
@@ -857,24 +955,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       card.appendChild(gridContainer);
       viewGrid.appendChild(card);
     });
-  }
-  function criarGridDeBolinhas(dezenasString) {
-    const dezenasSorteadas = dezenasString.split(" ").map(Number);
-    const gridContainer = document.createElement("div");
-    gridContainer.className = "dezenas-grid";
-    for (let i = 1; i <= 25; i++) {
-      const dezenaItem = document.createElement("span");
-      dezenaItem.className = "dezena-item";
-      const numFormatado = i.toString().padStart(2, "0");
-      dezenaItem.textContent = numFormatado;
-      if (dezenasSorteadas.includes(i)) {
-        dezenaItem.classList.add("sorteada");
-      } else {
-        dezenaItem.classList.add("nao-sorteada");
-      }
-      gridContainer.appendChild(dezenaItem);
-    }
-    return gridContainer;
   }
 
   // --- EVENT LISTENERS ---
