@@ -323,7 +323,7 @@ main {
   font-size: 16px;
   font-weight: 600;
   color: #fff;
-  background-color: #dc3545; /* Vermelho (perigo/sair) */
+  background-color: #ff0000; /* Vermelho (perigo/sair) */
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -1177,4 +1177,43 @@ main {
 
 .btn-icone-acao:hover {
   opacity: 0.8;
+}
+
+/* Container que alinha os botões Salvar e Limpar */
+.jogos-gerados-botoes {
+  display: flex;
+  justify-content: flex-end; /* Alinha à direita */
+  gap: 10px; /* Espaço entre os botões */
+  margin-top: 20px;
+}
+
+/* Estilo para o botão Descartar (Secundário/Limpar) */
+.btn-limpar-jogos {
+  /* Estilo neutro, diferente do verde de 'Salvar' */
+  background-color: #ff0000;
+  color: #ffffff;
+  border: 1px solid #ccc;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.btn-limpar-jogos:hover {
+  background-color: #e2e6ea;
+}
+
+/* Garante que o botão Salvar continue com o estilo primário (verde) */
+.btn-salvar-todos {
+  /* (Seu estilo verde existente) */
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  /* ... */
 }

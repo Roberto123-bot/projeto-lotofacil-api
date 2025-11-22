@@ -813,9 +813,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (gridLoadingMsg) gridLoadingMsg.style.display = "none";
 
-      // Popula APENAS o mapa de dezenas e o grid de cards
+      // Popula o mapa de dezenas (Ordem: Menor -> Maior)
       popularTabela(resultados);
-      popularGrid(resultados);
+
+      // =========================================================================
+      // 2. CRIA UMA CÓPIA INVERTIDA PARA A GRADE DE CARDS (Maior para o Menor)
+      // =========================================================================
+      // Cria uma cópia da lista atual (ordenada do menor para o maior)
+      // e a inverte para voltar ao maior para o menor.
+      const resultadosParaGrid = [...resultados].reverse();
+
+      popularGrid(resultadosParaGrid);
+      // =========================================================================
     } catch (error) {
       console.error("❌ Erro ao buscar dados da API:", error.message);
       let mensagemErro = "Erro ao carregar os resultados.";
@@ -1598,14 +1607,35 @@ document.addEventListener("DOMContentLoaded", async () => {
       lista.appendChild(item);
     });
     jogosGeradosContainer.appendChild(lista);
+
     if (jogos.length > 0) {
+      // Container para agrupar os botões Salvar e Limpar
+      const botoesContainer = document.createElement("div");
+      botoesContainer.className = "jogos-gerados-botoes"; // Nova classe para estilização
+
+      // 1. Botão Salvar (EXISTENTE)
       const btnSalvarTodos = document.createElement("button");
       btnSalvarTodos.className = "btn-salvar-todos";
       btnSalvarTodos.textContent = `Salvar todos os ${jogos.length} jogos`;
       btnSalvarTodos.onclick = () => {
         handleSalvarTodos(jogos, btnSalvarTodos);
       };
-      jogosGeradosContainer.appendChild(btnSalvarTodos);
+
+      // 2. Botão Limpar/Descartar (NOVO)
+      const btnLimparJogos = document.createElement("button");
+      btnLimparJogos.className = "btn-limpar-jogos"; // Nova classe para estilo secundário
+      btnLimparJogos.textContent = `Limpar`;
+      btnLimparJogos.onclick = () => {
+        // Chama a função que limpa o painel de jogos
+        limparJogosGerados();
+      };
+
+      // Adiciona os botões ao novo container
+      botoesContainer.appendChild(btnLimparJogos);
+      botoesContainer.appendChild(btnSalvarTodos);
+
+      // Adiciona o container de botões
+      jogosGeradosContainer.appendChild(botoesContainer);
     }
   }
 
@@ -1622,6 +1652,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (jogosGeradosContainer) {
       jogosGeradosContainer.innerHTML = "";
+    }
+  }
+
+  // =======================================================
+  // === NOVO: FUNÇÃO PARA LIMPAR APENAS OS JOGOS GERADOS ===
+  // =======================================================
+  function limparJogosGerados() {
+    const btnGerar = document.getElementById("btn-gerar"); // Referência ao botão de gerar
+
+    // Limpa o container de jogos
+    if (jogosGeradosContainer) {
+      jogosGeradosContainer.innerHTML = "";
+    }
+
+    // Mostra novamente o botão "Gerar Combinações"
+    if (btnGerar) {
+      btnGerar.style.display = "block";
+      // Se você escondeu o botão Gerar com display: none no exibirJogos,
+      // use display: block aqui. Caso contrário, apenas garanta que ele esteja visível.
+      btnGerar.textContent = "Gerar Combinações"; // Reseta o texto
+      btnGerar.disabled = false;
     }
   }
 
