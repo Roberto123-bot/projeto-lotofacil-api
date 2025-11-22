@@ -13,13 +13,20 @@
       /* Header com o botão de menu */
       .jogos-header {
         display: flex;
-        justify-content: flex-end;
-        padding: 10px 0;
-        margin-bottom: 10px;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        padding: 0;
+        height: 43px;
+        margin: 0 0 5px 0;
       }
 
       /* Botão de 3 pontinhos */
       .btn-menu-icon {
+        position: absolute;
+        right: 0%;
+        top: 50%;
+        transform: translateY(-50%);
         background-color: #007bff;
         color: white;
         border: none;
@@ -692,11 +699,16 @@
           padding: 14px 12px;
         }
       }
+
+      .hidden {
+        display: none !important;
+      }
     </style>
   </head>
   <body>
-    <header>
+    <header class="jogos-header">
       <h1>APLICATIVO</h1>
+      <button id="btn-menu-acoes" class="btn-menu-icon" title="Ações">⋮</button>
     </header>
 
     <main>
@@ -876,13 +888,6 @@
               <div class="lista-boloes" id="lista-boloes"></div>
             </div>
           </div>
-        </div>
-
-        <!-- NOVO: Botão de menu (3 pontinhos) -->
-        <div class="jogos-header">
-          <button id="btn-menu-acoes" class="btn-menu-icon" title="Ações">
-            ⋮
-          </button>
         </div>
 
         <div id="jogos-salvos-container">

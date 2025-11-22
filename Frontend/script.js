@@ -17,6 +17,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const selectConcursos = document.getElementById("num-concursos");
   const btnAtualizar = document.getElementById("btn-atualizar");
   const btnLogout = document.getElementById("btn-logout");
+  // NOVO: Referência para o botão de ações (3 pontinhos)
+  const btnMenuAcoes = document.getElementById("btn-menu-acoes");
 
   // --- REFERÊNCIAS DAS ABAS ---
   const tabButtons = document.querySelectorAll(".tab-button");
@@ -1675,7 +1677,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     cards.forEach((card) => {
       container.appendChild(card);
     });
+  } // === INÍCIO: FUNÇÃO DE CONTROLE DE VISIBILIDADE (NOVA) // ======================================================= // Função para controlar a visibilidade do botão de menu de ações (3 pontinhos)
+
+  // =======================================================
+  function controlarMenuAcoes(targetId) {
+    // Verifica se a referência ao botão existe (definida na inicialização do DOMContentLoaded)
+    if (!btnMenuAcoes) return; // Se a aba alvo for "Meus Jogos" (view-jogos), mostra o botão
+
+    if (targetId === "view-jogos") {
+      btnMenuAcoes.classList.remove("hidden");
+    } else {
+      // Para qualquer outra aba, esconde o botão
+      btnMenuAcoes.classList.add("hidden");
+    }
   }
+
+  // =======================================================
+  // === FIM: FUNÇÃO DE CONTROLE DE VISIBILIDADE
+  // =======================================================
 
   // ADICIONE ao final do DOMContentLoaded:
   // Carrega os bolões ao abrir a aba "Meus Jogos"
@@ -1695,5 +1714,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       buscarBoloes(); // Carrega os bolões primeiro
       buscarJogosFiltrados(bolaoSelecionado); // Depois os jogos
     }
+
+    // NOVO: CHAMA A FUNÇÃO DE CONTROLE DE VISIBILIDADE DO BOTÃO DE AÇÕES
+    controlarMenuAcoes(targetId);
   }
 }); // FIM DO DOMCONTENTLOADED
