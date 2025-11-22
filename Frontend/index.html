@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Resultados da Lotofácil</title>
     <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
     <style>
       /* =================================== */
       /* === BOTTOM SHEET (MENU POPUP) === */
@@ -713,14 +717,16 @@
 
     <main>
       <div class="controles">
-        <label for="num-concursos">Exibir:</label>
-        <select id="num-concursos">
-          <option value="10" selected>10 concursos</option>
-          <option value="25">25 concursos</option>
-          <option value="50">50 concursos</option>
-          <option value="100">100 concursos</option>
-        </select>
-        <button id="btn-atualizar">Atualizar</button>
+        <div id="controles-tabela">
+          <label for="num-concursos">Exibir:</label>
+          <select id="num-concursos">
+            <option value="10" selected>10 concursos</option>
+            <option value="25">25 concursos</option>
+            <option value="50">50 concursos</option>
+            <option value="100">100 concursos</option>
+          </select>
+          <button id="btn-atualizar">Atualizar</button>
+        </div>
         <button id="btn-logout" class="btn-logout">Sair</button>
       </div>
 
@@ -831,6 +837,15 @@
       </div>
 
       <div id="view-gerador" class="view-content hidden">
+        <div class="gerador-acoes">
+          <button
+            id="btn-selecionar-todas"
+            class="btn-icone-acao"
+            title="Selecionar/Desselecionar Todas"
+          >
+            <i class="bi bi-check-square"></i>
+          </button>
+        </div>
         <h2>Gerador de Fechamentos</h2>
 
         <h3>Selecione suas dezenas</h3>

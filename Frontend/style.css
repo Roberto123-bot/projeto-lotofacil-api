@@ -1140,3 +1140,41 @@ main {
 .data-col.linha-par {
   background-color: #f7f7f7;
 }
+
+.gerador-acoes {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 15px; /* Aumenta um pouco o espaço para o título */
+  /* Garante que o container ocupe a largura total para alinhar o botão */
+  width: 100%;
+}
+
+.btn-icone-acao {
+  /* Diminui o tamanho e torna mais quadrado/compacto */
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #444; /* Cor mais escura */
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  /* Ajustes visuais para parecer um controle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  min-width: 40px; /* Garante que não fique muito pequeno */
+  line-height: 1; /* Centraliza verticalmente o emoji/texto */
+}
+
+/* Estilo para quando o botão está "Ativo" (todas selecionadas) */
+.btn-icone-acao.active {
+  background-color: #0011ff; /* Verde */
+  border-color: #28a745;
+  color: white;
+}
+
+.btn-icone-acao:hover {
+  opacity: 0.8;
+}

@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnLogout = document.getElementById("btn-logout");
   // NOVO: Referência para o botão de ações (3 pontinhos)
   const btnMenuAcoes = document.getElementById("btn-menu-acoes");
+  // NOVO: Referência para os controles específicos da Tabela/Mapa
+  const controlesTabela = document.getElementById("controles-tabela");
 
   // --- REFERÊNCIAS DAS ABAS ---
   const tabButtons = document.querySelectorAll(".tab-button");
@@ -79,6 +81,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (gridDezenas && btnGerarFechamento) {
     configurarGrid();
     btnGerarFechamento.addEventListener("click", abrirModalRandomico);
+  }
+
+  // =======================================================
+  // === NOVO: EVENT LISTENER PARA SELECIONAR TODAS ===
+  // =======================================================
+  const btnSelecionarTodas = document.getElementById("btn-selecionar-todas");
+
+  if (btnSelecionarTodas) {
+    btnSelecionarTodas.addEventListener("click", selecionarTodasDezenas);
   }
 
   // =======================================================
@@ -787,7 +798,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
       }
 
-      const resultados = await response.json();
+      let resultados = await response.json();
+
+      // ===========================================
+      // ✅ AJUSTE: INVERTE A ORDEM DOS CONCURSOS
+      // ===========================================
+      if (resultados && resultados.length > 0) {
+        resultados.reverse();
+      }
 
       allResultados = resultados;
       currentCheckIndex = 0;
@@ -969,6 +987,64 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Carrega os dados iniciais
   buscarResultados(10);
+
+  // =======================================================
+  // === NOVO: FUNÇÃO PARA SELECIONAR TODAS AS DEZENAS ===
+  // =======================================================
+  function selecionarTodasDezenas() {
+    const gridDezenas = document.getElementById("grid-dezenas");
+    const contadorDezenas = document.getElementById("contador");
+    const btnSelecionarTodas = document.getElementById("btn-selecionar-todas"); // <--- Referência local
+
+    if (!gridDezenas || !btnSelecionarTodas) return;
+
+    // Ação: Se 25 já estiverem selecionadas, desmarca tudo; senão, marca tudo.
+    const todosBotoes = gridDezenas.querySelectorAll(".dezena-btn");
+    const jaEstaoTodasSelecionadas =
+      dezenasSelecionadas.size === todosBotoes.length;
+
+    dezenasSelecionadas.clear(); // Limpa a seleção inicial
+
+    todosBotoes.forEach((btn) => {
+      if (jaEstaoTodasSelecionadas) {
+        // Desseleciona tudo
+        btn.classList.remove("selecionada", "fixa");
+      } else {
+        // Seleciona tudo
+        const dezena = btn.dataset.dezena;
+        btn.classList.remove("fixa"); // Apenas seleciona, não fixa
+        btn.classList.add("selecionada");
+        dezenasSelecionadas.add(dezena);
+      }
+    });
+
+    // ===================================================
+    // ✅ NOVO: CONTROLE DE ESTILO E ÍCONE DO BOTÃO 'ALL'
+    // ===================================================
+    // Referência ao elemento do ícone dentro do botão
+    const iconElement = btnSelecionarTodas.querySelector("i");
+
+    if (jaEstaoTodasSelecionadas) {
+      // Se deselecionou, remove o estado ativo (cor verde)
+      btnSelecionarTodas.classList.remove("active");
+
+      // Altera o ícone para o estado 'desmarcado' (quadrado vazio)
+      iconElement.className = "bi bi-check-square"; // Ou bi-square, se preferir
+    } else {
+      // Se selecionou, adiciona o estado ativo (cor verde)
+      btnSelecionarTodas.classList.add("active");
+
+      // Altera o ícone para o estado 'marcado' (quadrado preenchido)
+      iconElement.className = "bi bi-check-square-fill"; // Usa a versão preenchida
+    }
+    // ===================================================
+
+    if (contadorDezenas) {
+      contadorDezenas.textContent = `Dezenas selecionadas: ${dezenasSelecionadas.size}`;
+    }
+    // Chame a função para atualizar o menu de fechamentos se ela existir
+    // if (typeof atualizarMenuTamanhoJogo === 'function') atualizarMenuTamanhoJogo();
+  }
 
   function configurarGrid() {
     if (!gridDezenas) return;
@@ -1709,6 +1785,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (targetButton) targetButton.classList.add("active");
     if (targetContent) targetContent.classList.remove("hidden");
+
+    // =======================================================
+    // ✅ CONTROLE DE VISIBILIDADE DO SELETOR DE CONCURSOS
+    // =======================================================
+    if (controlesTabela) {
+      // Se a aba for 'view-tabela' (ou 'view-grid', dependendo da sua organização), mostra.
+      // Pela imagem, a aba ativa (Mapa) tem o conteúdo da 'Tabela'.
+      if (targetId === "view-tabela" || targetId === "view-grid") {
+        controlesTabela.classList.remove("hidden");
+      } else {
+        controlesTabela.classList.add("hidden");
+      }
+    }
 
     if (targetId === "view-jogos" && !jogosJaCarregados) {
       buscarBoloes(); // Carrega os bolões primeiro
