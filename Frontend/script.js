@@ -806,12 +806,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         const statusClass = isSorteada ? "sorteada-mapa" : "nao-sorteada-mapa";
 
         const celulaContent = `
-          <div class="mapa-celula dezena-col ${linhaClass}">
-            <div class="dezena-mapa ${statusClass}">
-              ${dezenaFormatada}
-            </div>
-          </div>
-        `;
+        <div class="mapa-celula dezena-col ${linhaClass}">
+        <div class="dezena-mapa ${statusClass}">
+        ${dezenaFormatada}
+        </div>
+        </div>
+        `;
         mapaGrid.insertAdjacentHTML("beforeend", celulaContent);
       }
     });
@@ -836,10 +836,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const linha = document.createElement("tr");
         linha.innerHTML = `
-          <td>${concurso.concurso}</td>
-          <td>${dataFormatada}</td>
-          <td>${concurso.dezenas}</td>
-        `;
+        <td>${concurso.concurso}</td>
+        <td>${dataFormatada}</td>
+        <td>${concurso.dezenas}</td>
+        `;
         corpoTabela.appendChild(linha);
       });
     }
