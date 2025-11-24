@@ -83,25 +83,26 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ email }),
         });
 
-        const data = await response.json();
+        const data = await response.json(); // 1. TRATAMENTO DE ERRO DO SERVIDOR (Status 4xx ou 5xx)
 
-        // O backend sempre retorna 200 OK com uma mensagem genérica por segurança
-        if (response.ok) {
-          messageArea.textContent =
-            data.message ||
-            "Se o e-mail estiver registrado, você receberá um link de redefinição.";
-        } else {
-          // Isso só deve ocorrer se houver um erro 500 ou 400 inesperado no backend
+        if (!response.ok) {
+          // Exibe a mensagem de erro detalhada do backend
           errorMessage.textContent =
-            data.error || "Erro ao processar a solicitação.";
-        }
+            data.detalhes ||
+            data.error ||
+            `Erro do Servidor: ${response.status}`;
+          return;
+        } // 2. TRATAMENTO DE SUCESSO (Status 200) // Exibe a mensagem genérica de sucesso que o backend enviou
 
-        // Limpa o email após o envio
+        messageArea.textContent =
+          data.message ||
+          "Se o e-mail estiver registrado, você receberá um link de redefinição."; // Limpa o email após o envio
+
         document.getElementById("email").value = "";
       } catch (error) {
         console.error("Erro na requisição forgot-password:", error);
         errorMessage.textContent =
-          "Erro de comunicação com o servidor. Tente novamente.";
+          "Erro de comunicação com o servidor. Verifique a URL da API.";
       }
     });
   }
