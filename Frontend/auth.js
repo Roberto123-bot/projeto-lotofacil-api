@@ -48,9 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
 
         if (response.ok) {
+          // 1. O TOKEN ESTÁ SENDO LIDO CORRETAMENTE?
           localStorage.setItem("userToken", data.token);
           // Redireciona o usuário para a página principal após o login
-          window.location.href = "index.html";
+          window.location.href = "index.html"; // ⚠️ ATENÇÃO AQUI!
         } else {
           errorMessage.textContent =
             data.error || "Erro de login desconhecido.";
@@ -150,10 +151,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
+        // ⚠️ A chave deve ser 'novaSenha' (conforme o backend)
         const response = await fetch(`${API_URL}/reset-password`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, newPassword: newSenha }),
+          body: JSON.stringify({ token, newSenha: newSenha }),
         });
 
         const data = await response.json();
