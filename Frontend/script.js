@@ -723,8 +723,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         resultados.reverse();
       }
 
-      allResultados = resultados;
-      currentCheckIndex = 0;
+      allResultados = resultados; // 🚨 CORREÇÃO PRINCIPAL: Começa no concurso mais RECENTE
+
+      if (allResultados.length > 0) {
+        currentCheckIndex = allResultados.length - 1;
+      } else {
+        currentCheckIndex = 0;
+      }
+
       updateCheckerView();
 
       if (gridLoadingMsg) gridLoadingMsg.style.display = "none"; // Popula o mapa de dezenas (Ordem: Menor -> Maior)
@@ -1470,12 +1476,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   function navigateCheck(direction) {
     if (allResultados.length === 0) return;
 
+    // AUMENTA/DIMINUI O ÍNDICE (Se a lista está em ordem ASC, o índice mais alto é o mais recente)
     if (direction === "prev") {
-      currentCheckIndex++;
+      currentCheckIndex--; // Índices menores são concursos mais antigos
     } else if (direction === "next") {
-      currentCheckIndex--;
+      currentCheckIndex++; // Índices maiores são concursos mais recentes
     }
 
+    // Limites
     if (currentCheckIndex >= allResultados.length) {
       currentCheckIndex = allResultados.length - 1;
     }
@@ -1486,6 +1494,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateCheckerView();
   }
 
+  // Função para atualizar o display do conferidor
   function updateCheckerView() {
     if (allResultados.length === 0) {
       if (checkDisplay) checkDisplay.textContent = "Carregue os resultados...";
@@ -1504,12 +1513,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       "pt-BR",
       { timeZone: "UTC" }
     );
-    if (checkDisplay)
-      checkDisplay.textContent = `Concurso ${concursoAtual.concurso} (${dataFormatada})`;
 
-    if (checkNextBtn) checkNextBtn.disabled = currentCheckIndex === 0;
-    if (checkPrevBtn)
-      checkPrevBtn.disabled = currentCheckIndex === allResultados.length - 1;
+    // ✅ Corrigido o display para mostrar o concurso correto
+    if (checkDisplay)
+      checkDisplay.textContent = `Concurso ${concursoAtual.concurso} (${dataFormatada})`; // Lógica de desabilitar botões // Se o índice é o mais antigo (0), o botão 'prev' deve ser desabilitado.
+
+    if (checkPrevBtn) checkPrevBtn.disabled = currentCheckIndex === 0; // Se o índice é o mais recente (último elemento), o botão 'next' deve ser desabilitado.
+    if (checkNextBtn)
+      checkNextBtn.disabled = currentCheckIndex === allResultados.length - 1;
 
     const dezenasSorteadas = new Set(concursoAtual.dezenas.split(" "));
 
