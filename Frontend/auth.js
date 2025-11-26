@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const forgotPasswordForm = document.getElementById("forgot-password-form");
   const resetPasswordForm = document.getElementById("reset-password-form");
+  const registerForm = document.getElementById("register-form");
 
   // Adiciona o link "Esqueceu a Senha" à página de login
   if (loginForm) {
@@ -64,7 +65,57 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ===============================================
-  // 2. LÓGICA DE SOLICITAR REDEFINIÇÃO (/forgot-password.html)
+  // 2. LÓGICA DE CADASTRO (/register.html)
+  // ===============================================
+  if (registerForm) {
+    registerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      // Assume que os IDs dos campos no register.html são: nome, email, senha
+      const nome = document.getElementById("nome").value;
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value; // Tenta encontrar o elemento de erro ou cria um temporário
+      const errorMessage =
+        document.getElementById("error-message") || document.createElement("p"); // Se não houver elemento de erro na página, cria um e insere para o feedback
+      if (!document.getElementById("error-message")) {
+        errorMessage.id = "error-message";
+        errorMessage.classList.add("error");
+        registerForm.appendChild(errorMessage);
+      }
+      errorMessage.textContent = "";
+
+      try {
+        // Validação de frontend
+        if (senha.length < 6) {
+          errorMessage.textContent = "A senha deve ter no mínimo 6 caracteres.";
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome, email, senha }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Limpa formulário e redireciona para Login
+          registerForm.reset(); // NOTA: alert deve ser substituído por um modal customizado
+          alert("Cadastro realizado com sucesso! Faça login.");
+          window.location.href = "login.html";
+        } else {
+          errorMessage.textContent =
+            data.error || "Erro ao cadastrar. Tente outro e-mail.";
+        }
+      } catch (error) {
+        console.error("Erro na requisição de cadastro:", error);
+        errorMessage.textContent = "Erro de comunicação com o servidor.";
+      }
+    });
+  }
+
+  // ===============================================
+  // 3. LÓGICA DE SOLICITAR REDEFINIÇÃO (/forgot-password.html)
   // ===============================================
   if (forgotPasswordForm) {
     forgotPasswordForm.addEventListener("submit", async (e) => {
@@ -108,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ===============================================
-  // 3. LÓGICA DE REDEFINIR SENHA (/reset-password.html)
+  // 4. LÓGICA DE REDEFINIR SENHA (/reset-password.html)
   // ===============================================
   if (resetPasswordForm) {
     const urlParams = new URLSearchParams(window.location.search);
