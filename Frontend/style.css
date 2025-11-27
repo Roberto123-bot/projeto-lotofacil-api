@@ -879,7 +879,11 @@ main {
 
 /* A "bolinha" de dezena ACERTADA (verde) */
 .jogo-gerado-item.hit {
-  background-color: #198754 !important; /* Verde */
+  background: linear-gradient(
+    135deg,
+    #10b981 0%,
+    #059669 100%
+  ) !important; /* Verde */
   color: white !important;
   border-color: #146c43 !important;
 }
