@@ -12,6 +12,13 @@ if (!userToken) {
 // Variável para a Referência do Modal (Referência criada no HTML)
 const randomicoModal = document.getElementById("randomico-modal");
 
+// ⚠️ IMPORTANTE: Declare estas variáveis FORA do DOMContentLoaded
+// para que fiquem acessíveis globalmente
+
+// Variáveis globais do conferidor
+window.allResultados = [];
+window.currentCheckIndex = 0;
+
 document.addEventListener("DOMContentLoaded", async () => {
   // --- REFERÊNCIAS GERAIS ---
   const selectConcursos = document.getElementById("num-concursos");
@@ -19,6 +26,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnLogout = document.getElementById("btn-logout"); // NOVO: Referência para o botão de ações (3 pontinhos)
   const btnMenuAcoes = document.getElementById("btn-menu-acoes"); // NOVO: Referência para os controles específicos da Tabela/Mapa
   const controlesTabela = document.getElementById("controles-tabela"); // --- REFERÊNCIAS DAS ABAS ---
+
+  // Variável Global para a Referência do Modal do Jogo
+  const visualizadorModal = document.getElementById("visualizador-modal");
+  const visualizadorGrid = document.getElementById("visualizador-grid-dezenas");
 
   const tabButtons = document.querySelectorAll(".tab-button");
   const tabContents = document.querySelectorAll(".view-content"); // --- REFERÊNCIAS DOS RESULTADOS ---
@@ -51,8 +62,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const checkNextBtn = document.getElementById("check-next");
   const checkDisplay = document.getElementById("check-concurso-display");
 
-  let allResultados = []; // Guarda os resultados buscados
-  let currentCheckIndex = 0; // Índice do concurso sendo conferido // ======================================================= // === FIM: NOVAS REFERÊNCIAS DO CONFERIDOR // ======================================================= // --- LÓGICA DE LOGOUT ---
+  // ✅ NOTA: allResultados e currentCheckIndex são variáveis globais (window.allResultados e window.currentCheckIndex)
+  // definidas no início do arquivo, não precisam ser redeclaradas aqui
+  // ======================================================= // === FIM: NOVAS REFERÊNCIAS DO CONFERIDOR // ======================================================= // --- LÓGICA DE LOGOUT ---
   if (btnLogout) {
     btnLogout.addEventListener("click", () => {
       localStorage.removeItem("userToken"); // ✅ CORRIGIDO: Remove a chave correta
@@ -96,9 +108,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       todosOsBoloes = await response.json();
       renderizarListaBoloes();
       atualizarBotaoDropdown();
+      return Promise.resolve(); // Retorna uma Promise resolvida para permitir encadeamento
     } catch (error) {
       console.error("Erro:", error);
       alert("Erro ao carregar bolões: " + error.message);
+      return Promise.reject(error); // Retorna uma Promise rejeitada
     }
   } // CRIAR NOVO BOLÃO
 
@@ -269,15 +283,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       span.textContent = nome;
     }
-  } // BUSCAR JOGOS FILTRADOS POR BOLÃO
+  }   // BUSCAR JOGOS FILTRADOS POR BOLÃO
 
   async function buscarJogosFiltrados(bolaoId) {
+    if (!jogosSalvosContainer) return;
+    
     jogosSalvosContainer.innerHTML = "<p>Carregando jogos...</p>";
 
     try {
       let url = `${API_URL}/api/jogos/meus-jogos-filtrado`;
-      if (bolaoId) {
+      // ✅ CORRIGIDO: Só adiciona o parâmetro se bolaoId não for null, undefined ou "sem-bolao"
+      if (bolaoId && bolaoId !== "sem-bolao" && bolaoId !== null) {
         url += `?bolao_id=${bolaoId}`;
+      } else if (bolaoId === "sem-bolao") {
+        // Se for "sem-bolao", busca jogos sem bolão (bolao_id=null)
+        url += `?bolao_id=null`;
       }
 
       const response = await fetch(url, {
@@ -304,6 +324,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         card.className = "jogo-salvo-card";
         card.dataset.dezenas = jogo.dezenas;
 
+        // ✅ EVENTO DE CLIQUE NO CARD INTEIRO
+        card.addEventListener("click", function (e) {
+          console.log("🎯 Card clicado!", jogo.dezenas); // Debug
+
+          // Ignora se clicou no checkbox
+          if (e.target.classList.contains("jogo-select-checkbox")) {
+            console.log("❌ Clicou no checkbox, ignorando");
+            return;
+          }
+
+          // Chama a função do visualizador
+          console.log("✅ Abrindo visualizador...");
+          abrirVisualizadorConferidor(jogo.dezenas);
+        });
+
         const cardHeader = document.createElement("div");
         cardHeader.className = "card-header-jogo";
 
@@ -311,6 +346,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         checkbox.type = "checkbox";
         checkbox.className = "jogo-select-checkbox";
         checkbox.dataset.id = jogo.id;
+
+        // Para propagação no checkbox
+        checkbox.addEventListener("click", (e) => {
+          e.stopPropagation();
+          console.log("✅ Checkbox clicado (propagação parada)");
+        });
 
         const infoBloco = document.createElement("div");
         infoBloco.className = "jogo-info-bloco";
@@ -364,7 +405,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       jogosJaCarregados = true;
       updateCheckerView();
     } catch (error) {
-      console.error(error);
+      console.error("❌ Erro ao buscar jogos:", error);
       jogosSalvosContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
     }
   } // TOGGLE DROPDOWN
@@ -442,25 +483,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
   }); // --- LÓGICA DE ABAS (REFATORADA) ---
+  // NOTA: A função switchTab está definida mais abaixo no código (linha ~1690)
+  // para incluir todas as funcionalidades necessárias
 
-  function switchTab(targetId) {
-    if (!targetId) return;
-    tabButtons.forEach((btn) => btn.classList.remove("active"));
-    tabContents.forEach((content) => content.classList.add("hidden"));
-    const targetButton = document.querySelector(`[data-target="${targetId}"]`);
-    const targetContent = document.getElementById(targetId);
-    if (targetButton) targetButton.classList.add("active");
-    if (targetContent) targetContent.classList.remove("hidden");
-    if (targetId === "view-jogos" && !jogosJaCarregados) {
-      buscarJogosSalvos();
-    }
-  }
   tabButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const targetId = button.dataset.target;
       switchTab(targetId);
     });
-  }); // =================================== // === LÓGICA DE SALVAMENTO EM LOTE === // ===================================
+  });
+
+  // =================================== // === LÓGICA DE SALVAMENTO EM LOTE === // ===================================
 
   async function handleSalvarTodos(jogos, btn) {
     btn.disabled = true;
@@ -538,11 +571,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (btnApagarSelecionados) btnApagarSelecionados.disabled = false;
 
       jogos.forEach((jogo) => {
-        // --- INÍCIO DA NOVA ESTRUTURA DO CARD ---
-
         const card = document.createElement("div");
         card.className = "jogo-salvo-card";
         card.dataset.dezenas = jogo.dezenas; // 1. CABEÇALHO (Checkbox + Infos)
+
+        // ✅ EVENTO DE CLIQUE NO CARD INTEIRO
+        card.addEventListener("click", function (e) {
+          console.log("🎯 Card clicado!", jogo.dezenas); // Debug
+
+          // Ignora se clicou no checkbox
+          if (e.target.classList.contains("jogo-select-checkbox")) {
+            console.log("❌ Clicou no checkbox, ignorando");
+            return;
+          }
+
+          // Chama a função do visualizador
+          console.log("✅ Abrindo visualizador...");
+          abrirVisualizadorConferidor(jogo.dezenas);
+        });
 
         const cardHeader = document.createElement("div");
         cardHeader.className = "card-header-jogo"; // Nova classe
@@ -551,6 +597,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         checkbox.type = "checkbox";
         checkbox.className = "jogo-select-checkbox";
         checkbox.dataset.id = jogo.id; // Bloco de informações (Pontos + Data)
+
+        checkbox.addEventListener("click", (e) => {
+          e.stopPropagation();
+          console.log("✅ Checkbox clicado (propagação parada)");
+        });
 
         const infoBloco = document.createElement("div");
         infoBloco.className = "jogo-info-bloco";
@@ -595,11 +646,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         jogosSalvosContainer.appendChild(card); // --- FIM DA NOVA ESTRUTURA DO CARD ---
       });
+
       jogosJaCarregados = true;
 
       updateCheckerView();
     } catch (error) {
-      console.error(error);
+      console.error("❌ Erro ao buscar jogos:", error);
       jogosSalvosContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
     }
   } // 4. FUNÇÕES DE DELEÇÃO
@@ -676,19 +728,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     return await response.json();
   } // =================================== // === FUNÇÕES DOS RESULTADOS === // =================================== // Substitua a função buscarResultados no seu script.js por esta versão:
 
-  async function buscarResultados(limit = 10) {
-    // Mostra mensagem de carregamento no grid
+  async function buscarResultados(limit = 10, targetTabId = null) {
     const mapaGrid = document.getElementById("mapa-dezenas-grid");
     if (mapaGrid) {
       mapaGrid.innerHTML =
         '<div style="grid-column: 1/-1; padding: 20px; text-align: center;">Carregando resultados...</div>';
     }
 
+    const gridLoadingMsg = document.querySelector("#view-grid .loading-grid");
     if (gridLoadingMsg) gridLoadingMsg.style.display = "block";
 
-    allResultados = [];
-    currentCheckIndex = 0;
-    updateCheckerView();
+    // ✅ IMPORTANTE: Limpa as variáveis GLOBAIS
+    window.allResultados = [];
+    window.currentCheckIndex = 0;
 
     try {
       const response = await fetch(
@@ -697,15 +749,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${userToken}`, // ✅ Token ajustado
+            Authorization: `Bearer ${userToken}`,
           },
         }
       );
 
       if (response.status === 401 || response.status === 403) {
-        // NOTA: alert deve ser substituído por um modal customizado
         alert("⚠️ Sua sessão expirou. Por favor, faça login novamente.");
-        localStorage.removeItem("userToken"); // ✅ Token ajustado
+        localStorage.removeItem("userToken");
         window.location.href = "welcome.html";
         return;
       }
@@ -717,29 +768,54 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
       }
 
-      let resultados = await response.json(); // =========================================== // ✅ AJUSTE: INVERTE A ORDEM DOS CONCURSOS // ===========================================
+      let resultados = await response.json();
 
       if (resultados && resultados.length > 0) {
         resultados.reverse();
       }
 
-      allResultados = resultados; // 🚨 CORREÇÃO PRINCIPAL: Começa no concurso mais RECENTE
+      // ✅ IMPORTANTE: Atualiza as variáveis GLOBAIS
+      window.allResultados = resultados;
 
-      if (allResultados.length > 0) {
-        currentCheckIndex = allResultados.length - 1;
+      if (window.allResultados.length > 0) {
+        window.currentCheckIndex = window.allResultados.length - 1;
       } else {
-        currentCheckIndex = 0;
+        window.currentCheckIndex = 0;
       }
 
+      // 🔍 DEBUG: Mostra no console quantos resultados foram carregados
+      console.log("✅ Resultados carregados:", window.allResultados.length);
+      console.log("✅ Índice inicial:", window.currentCheckIndex);
+      console.log(
+        "✅ Concurso atual:",
+        window.allResultados[window.currentCheckIndex]
+      );
+
+      // ✅ CORRIGIDO: Atualiza o display do conferidor imediatamente após carregar os resultados
       updateCheckerView();
 
-      if (gridLoadingMsg) gridLoadingMsg.style.display = "none"; // Popula o mapa de dezenas (Ordem: Menor -> Maior)
+      if (gridLoadingMsg) gridLoadingMsg.style.display = "none";
 
-      popularTabela(resultados); // ========================================================================= // 2. CRIA UMA CÓPIA INVERTIDA PARA A GRADE DE CARDS (Maior para o Menor) // ========================================================================= // Cria uma cópia da lista atual (ordenada do menor para o maior) // e a inverte para voltar ao maior para o menor.
-
+      popularTabela(resultados);
       const resultadosParaGrid = [...resultados].reverse();
+      popularGrid(resultadosParaGrid);
 
-      popularGrid(resultadosParaGrid); // =========================================================================
+      // =========================================================
+      // 🚨 NOVO: Se esta busca foi acionada pela ABA MEUS JOGOS,
+      // carregue os jogos agora que os resultados estão prontos.
+      // =========================================================
+      if (targetTabId === "view-jogos") {
+        console.log("✅ Resultados prontos. Carregando jogos salvos...");
+        // Atualiza o display do conferidor primeiro
+        updateCheckerView();
+        // Depois carrega os bolões e jogos
+        buscarBoloes().then(() => {
+          buscarJogosFiltrados(bolaoSelecionado);
+        }).catch((error) => {
+          console.error("Erro ao carregar bolões:", error);
+          buscarJogosFiltrados(bolaoSelecionado);
+        });
+      }
     } catch (error) {
       console.error("❌ Erro ao buscar dados da API:", error.message);
       let mensagemErro = "Erro ao carregar os resultados.";
@@ -749,16 +825,21 @@ document.addEventListener("DOMContentLoaded", async () => {
           "❌ Não foi possível conectar à API. Verifique sua conexão.";
       } else if (error.message.includes("Token")) {
         mensagemErro = "❌ Problema de autenticação. Faça login novamente.";
-      } // Exibe erro no grid
+      }
 
       if (mapaGrid) {
         mapaGrid.innerHTML = `<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: red;">${mensagemErro}</div>`;
       }
 
-      viewGrid.innerHTML = `<p class="loading-grid" style="color: red;">${mensagemErro}</p>`;
+      const viewGrid = document.getElementById("view-grid");
+      if (viewGrid) {
+        viewGrid.innerHTML = `<p class="loading-grid" style="color: red;">${mensagemErro}</p>`;
+      }
+
+      const checkDisplay = document.getElementById("check-concurso-display");
       if (checkDisplay) checkDisplay.textContent = "Erro ao carregar.";
     }
-  } // Substitua também a função popularTabela por esta versão simplificada:
+  }
 
   function popularTabela(resultados) {
     // Esta função agora APENAS popula o mapa de dezenas
@@ -1474,21 +1555,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   } // ======================================================= // === INÍCIO: NOVAS FUNÇÕES DO CONFERIDOR // =======================================================
 
   function navigateCheck(direction) {
-    if (allResultados.length === 0) return;
+    if (!window.allResultados || window.allResultados.length === 0) return;
 
     // AUMENTA/DIMINUI O ÍNDICE (Se a lista está em ordem ASC, o índice mais alto é o mais recente)
     if (direction === "prev") {
-      currentCheckIndex--; // Índices menores são concursos mais antigos
+      window.currentCheckIndex--; // Índices menores são concursos mais antigos
     } else if (direction === "next") {
-      currentCheckIndex++; // Índices maiores são concursos mais recentes
+      window.currentCheckIndex++; // Índices maiores são concursos mais recentes
     }
 
     // Limites
-    if (currentCheckIndex >= allResultados.length) {
-      currentCheckIndex = allResultados.length - 1;
+    if (window.currentCheckIndex >= window.allResultados.length) {
+      window.currentCheckIndex = window.allResultados.length - 1;
     }
-    if (currentCheckIndex < 0) {
-      currentCheckIndex = 0;
+    if (window.currentCheckIndex < 0) {
+      window.currentCheckIndex = 0;
     }
 
     updateCheckerView();
@@ -1496,14 +1577,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Função para atualizar o display do conferidor
   function updateCheckerView() {
-    if (allResultados.length === 0) {
-      if (checkDisplay) checkDisplay.textContent = "Carregue os resultados...";
+    if (!window.allResultados || window.allResultados.length === 0) {
+      if (checkDisplay) checkDisplay.textContent = "Carregando resultados...";
       if (checkPrevBtn) checkPrevBtn.disabled = true;
       if (checkNextBtn) checkNextBtn.disabled = true;
       return;
     }
 
-    const concursoAtual = allResultados[currentCheckIndex];
+    const concursoAtual = window.allResultados[window.currentCheckIndex];
     if (!concursoAtual) {
       if (checkDisplay) checkDisplay.textContent = "Nenhum concurso";
       return;
@@ -1518,9 +1599,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (checkDisplay)
       checkDisplay.textContent = `Concurso ${concursoAtual.concurso} (${dataFormatada})`; // Lógica de desabilitar botões // Se o índice é o mais antigo (0), o botão 'prev' deve ser desabilitado.
 
-    if (checkPrevBtn) checkPrevBtn.disabled = currentCheckIndex === 0; // Se o índice é o mais recente (último elemento), o botão 'next' deve ser desabilitado.
+    if (checkPrevBtn) checkPrevBtn.disabled = window.currentCheckIndex === 0; // Se o índice é o mais recente (último elemento), o botão 'next' deve ser desabilitado.
     if (checkNextBtn)
-      checkNextBtn.disabled = currentCheckIndex === allResultados.length - 1;
+      checkNextBtn.disabled = window.currentCheckIndex === window.allResultados.length - 1;
 
     const dezenasSorteadas = new Set(concursoAtual.dezenas.split(" "));
 
@@ -1618,12 +1699,245 @@ document.addEventListener("DOMContentLoaded", async () => {
         controlesTabela.classList.add("hidden");
       }
     }
-
-    if (targetId === "view-jogos" && !jogosJaCarregados) {
-      buscarBoloes(); // Carrega os bolões primeiro
-      buscarJogosFiltrados(bolaoSelecionado); // Depois os jogos
-    } // NOVO: CHAMA A FUNÇÃO DE CONTROLE DE VISIBILIDADE DO BOTÃO DE AÇÕES
+    // =======================================================
+    // 🚨 CORREÇÃO CRÍTICA: Lógica da Aba "Meus Jogos"
+    // =======================================================
+    if (targetId === "view-jogos") {
+      // 1. Garante que os resultados (concursos) estejam carregados
+      // ✅ CORRIGIDO: Usa window.allResultados para acessar a variável global
+      if (!window.allResultados || window.allResultados.length === 0) {
+        // Chama a busca de resultados e passa a flag para carregar jogos depois
+        console.log(
+          "⚠️ Resultados não carregados. Iniciando busca de 10 concursos..."
+        );
+        buscarResultados(10, "view-jogos");
+      } else {
+        // Se os resultados JÁ ESTÃO na memória, apenas recarrega os jogos e confere.
+        console.log(
+          "✅ Resultados prontos. Recarregando jogos para conferência..."
+        );
+        // ✅ CORRIGIDO: Atualiza o display primeiro para remover "Carregando resultados..."
+        updateCheckerView();
+        // Depois carrega os bolões e jogos
+        buscarBoloes().then(() => {
+          buscarJogosFiltrados(bolaoSelecionado);
+        }).catch((error) => {
+          console.error("Erro ao carregar bolões:", error);
+          buscarJogosFiltrados(bolaoSelecionado);
+        });
+      }
+    }
 
     controlarMenuAcoes(targetId);
   }
+
+  // script.js (Adicione estas funções no final do arquivo)
+
+  // =======================================================
+  // === VISUALIZADOR DE JOGO EM GRID (POPUP)
+  // =======================================================
+
+  window.abrirVisualizador = function (dezenasString) {
+    if (!visualizadorModal || !visualizadorGrid) return;
+
+    // 1. Converte a string de dezenas para um Set (para busca rápida)
+    const dezenasDoJogo = new Set(dezenasString.split(" "));
+
+    // 2. Limpa o grid antigo
+    visualizadorGrid.innerHTML = "";
+
+    // 3. Cria o grid 5x5
+    for (let i = 1; i <= 25; i++) {
+      const dezenaFormatada = i.toString().padStart(2, "0");
+      const item = document.createElement("div");
+
+      item.textContent = dezenaFormatada;
+      item.className = "visualizador-dezena-item";
+
+      // 4. Pinta as dezenas que estão no jogo
+      if (dezenasDoJogo.has(dezenaFormatada)) {
+        item.classList.add("selecionada");
+      }
+
+      visualizadorGrid.appendChild(item);
+    }
+
+    // 5. Exibe o modal
+    visualizadorModal.style.display = "flex";
+  };
+
+  // Expõe a função de fechar para o botão 'X' no HTML
+  window.fecharVisualizador = fecharVisualizador;
 }); // FIM DO DOMCONTENTLOADED
+
+// =======================================================
+// === FUNÇÃO DO VISUALIZADOR COM CONFERIDOR
+// === ADICIONE NO FINAL DO ARQUIVO, FORA DO DOMContentLoaded
+// =======================================================
+
+function abrirVisualizadorConferidor(dezenasString) {
+  console.log("🔍 === INICIANDO VISUALIZADOR ===");
+  console.log("📦 Dezenas recebidas:", dezenasString);
+
+  const visualizadorModal = document.getElementById("visualizador-modal");
+  const visualizadorGrid = document.getElementById("visualizador-grid-dezenas");
+
+  if (!visualizadorModal || !visualizadorGrid) {
+    console.error("❌ Modal ou Grid não encontrado no DOM!");
+    alert("Erro: Modal não encontrado. Verifique o HTML.");
+    return;
+  }
+
+  // ✅ VERIFICAÇÃO DETALHADA DOS RESULTADOS
+  console.log("📊 window.allResultados:", window.allResultados);
+  console.log("📊 Tipo:", typeof window.allResultados);
+  console.log("📊 É Array?", Array.isArray(window.allResultados));
+  console.log(
+    "📊 Quantidade:",
+    window.allResultados ? window.allResultados.length : 0
+  );
+
+  // Verifica se os resultados foram carregados
+  if (
+    !window.allResultados ||
+    !Array.isArray(window.allResultados) ||
+    window.allResultados.length === 0
+  ) {
+    console.error("❌ Nenhum resultado carregado!");
+    console.log(
+      "💡 Dica: Vá até a aba 'Tabela' para carregar os resultados primeiro"
+    );
+    alert(
+      "Por favor, vá até a aba 'Tabela' para carregar os resultados antes de conferir os jogos."
+    );
+    return;
+  }
+
+  const concursoAtual = window.allResultados[window.currentCheckIndex];
+
+  console.log("🎲 Índice atual:", window.currentCheckIndex);
+  console.log("🎲 Concurso atual:", concursoAtual);
+
+  if (!concursoAtual) {
+    alert("Erro ao obter concurso atual. Tente recarregar os resultados.");
+    return;
+  }
+
+  // Dezenas sorteadas no concurso atual
+  const dezenasSorteadas = new Set(concursoAtual.dezenas.split(" "));
+  console.log("🎯 Dezenas sorteadas:", Array.from(dezenasSorteadas));
+
+  // Dezenas do jogo
+  const dezenasDoJogo = new Set(dezenasString.split(" "));
+  console.log("🎮 Dezenas do jogo:", Array.from(dezenasDoJogo));
+
+  // Limpa o grid antigo
+  visualizadorGrid.innerHTML = "";
+
+  let acertos = 0;
+  let erros = 0;
+
+  // Cria o grid 5x5 com conferência
+  for (let i = 1; i <= 25; i++) {
+    const dezenaFormatada = i.toString().padStart(2, "0");
+    const item = document.createElement("div");
+
+    item.textContent = dezenaFormatada;
+    item.className = "visualizador-dezena-item";
+
+    const estaNoJogo = dezenasDoJogo.has(dezenaFormatada);
+    const foiSorteada = dezenasSorteadas.has(dezenaFormatada);
+
+    if (estaNoJogo) {
+      if (foiSorteada) {
+        item.classList.add("acerto");
+        acertos++;
+      } else {
+        item.classList.add("erro");
+        erros++;
+      }
+    }
+
+    visualizadorGrid.appendChild(item);
+  }
+
+  console.log(`✅ Grid criado: ${acertos} acertos, ${erros} erros`);
+
+  // Remove legenda antiga se existir
+  const legendaAntiga = visualizadorModal.querySelector(".legenda-conferidor");
+  if (legendaAntiga) {
+    legendaAntiga.remove();
+  }
+
+  // Adiciona nova legenda
+  const legenda = document.createElement("div");
+  legenda.className = "legenda-conferidor";
+  legenda.innerHTML = `
+    <div class="legenda-item">
+      <span class="legenda-cor acerto"></span>
+      <span>Acerto (${acertos})</span>
+    </div>
+    <div class="legenda-item">
+      <span class="legenda-cor erro"></span>
+      <span>Erro (${erros})</span>
+    </div>
+  `;
+
+  const modalBody = visualizadorModal.querySelector(".modal-body");
+  if (modalBody) {
+    modalBody.appendChild(legenda);
+  }
+
+  // Exibe o modal
+  visualizadorModal.style.setProperty("display", "flex", "important");
+  visualizadorModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  console.log("✅ Modal exibido!");
+  console.log("🔍 === FIM VISUALIZADOR ===");
+}
+
+// Expõe a função globalmente
+window.abrirVisualizadorConferidor = abrirVisualizadorConferidor;
+
+// Função para fechar o visualizador
+function fecharVisualizador() {
+  const visualizadorModal = document.getElementById("visualizador-modal");
+  if (visualizadorModal) {
+    visualizadorModal.style.display = "none";
+    visualizadorModal.classList.remove("active");
+    document.body.style.overflow = "";
+    console.log("✅ Modal fechado");
+  }
+}
+
+window.fecharVisualizador = fecharVisualizador;
+
+// =======================================================
+// === PASSO 4: ADICIONE ESTE CÓDIGO NO FINAL DO SEU
+// === document.addEventListener("DOMContentLoaded", ...)
+// =======================================================
+
+// Adiciona listener para fechar ao clicar no overlay
+const visualizadorModal = document.getElementById("visualizador-modal");
+if (visualizadorModal) {
+  visualizadorModal.addEventListener("click", function (e) {
+    if (e.target === visualizadorModal) {
+      fecharVisualizador();
+    }
+  });
+}
+
+// Adiciona listener para fechar ao clicar no overlay
+document.addEventListener("DOMContentLoaded", function () {
+  const visualizadorModal = document.getElementById("visualizador-modal");
+
+  if (visualizadorModal) {
+    visualizadorModal.addEventListener("click", function (e) {
+      // Fecha apenas se clicou no overlay (fundo escuro), não no conteúdo
+      if (e.target === visualizadorModal) {
+        fecharVisualizador();
+      }
+    });
+  }
+});

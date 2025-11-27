@@ -289,14 +289,18 @@
         z-index: 2000; /* Alto z-index para sobrepor tudo */
       }
 
+      /* Conteúdo do modal */
       .modal-content {
-        background-color: #fff;
+        background: white;
         border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         width: 90%;
-        max-width: 400px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
-        animation: modal-in 0.3s ease-out;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: modalSlideIn 0.3s ease-out;
+        position: relative;
+        z-index: 2001;
       }
 
       @keyframes modal-in {
@@ -411,12 +415,34 @@
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
       }
 
-      /* Rodapé e Botões M3 */
+      /* Rodapé do modal */
       .modal-footer {
         display: flex;
         justify-content: flex-end;
         padding: 16px 24px;
+        border-top: 1px solid #eee;
         gap: 12px;
+      }
+
+      .btn-primary {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
       }
 
       .m3-button {
@@ -706,6 +732,301 @@
 
       .hidden {
         display: none !important;
+      }
+
+      /* Fundo escuro do modal */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none !important; /* Força oculto por padrão */
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        padding: 20px;
+      }
+
+      /* Quando o modal está ativo */
+      .modal-overlay.active {
+        display: flex !important; /* Força exibição */
+      }
+
+      /* Conteúdo do Modal */
+      .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 400px;
+        animation: fadeIn 0.3s;
+      }
+
+      /* Cabeçalho do modal */
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 2px solid #eee;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px 12px 0 0;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: white;
+      }
+
+      .modal-close {
+        cursor: pointer;
+        font-size: 32px;
+        color: white;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+        font-weight: 300;
+        line-height: 1;
+      }
+
+      .modal-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+      }
+      /* =======================================================
+   ESTILOS DO VISUALIZADOR COM CONFERIDOR
+   Adicione este CSS no seu style.css ou na tag <style> do HTML
+   ======================================================= */
+
+      /* Dezena que foi ACERTADA (no jogo E sorteada) */
+      .visualizador-dezena-item.acerto {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-color: #047857;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+        animation: pulseAcerto 0.5s ease-in-out;
+      }
+
+      /* Dezena que foi ERRO (no jogo mas NÃO sorteada) */
+      .visualizador-dezena-item.erro {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border-color: #b91c1c;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+      }
+
+      /* Animação de pulso para acertos */
+      @keyframes pulseAcerto {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      /* ===================================
+   LEGENDA DO CONFERIDOR
+   =================================== */
+
+      .legenda-conferidor {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-top: 20px;
+        padding: 16px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+      }
+
+      .legenda-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .legenda-cor {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid #ddd;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .legenda-cor.acerto {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-color: #047857;
+      }
+
+      .legenda-cor.erro {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        border-color: #b91c1c;
+      }
+
+      /* Ajuste do modal para acomodar a legenda */
+      .modal-content.visualizador-tamanho {
+        max-width: 500px;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          transform: scale(0.9) translateY(-20px);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
+      }
+
+      /* Responsivo */
+      @media (max-width: 600px) {
+        .modal-overlay {
+          padding: 5px;
+        }
+
+        .modal-content {
+          width: 85%;
+          max-width: 85%;
+          padding: 8px;
+        }
+
+        .modal-content.visualizador-tamanho {
+          max-width: 80%;
+          width: 80%;
+        }
+
+        .modal-header {
+          padding: 8px 12px;
+          border-radius: 8px 8px 0 0;
+        }
+
+        .modal-header h2 {
+          font-size: 0.9rem;
+        }
+
+        .modal-close {
+          font-size: 20px;
+          width: 24px;
+          height: 24px;
+        }
+
+        .modal-body {
+          padding: 8px;
+        }
+
+        .grid-5x5 {
+          gap: 3px;
+          padding: 2px;
+          margin-top: 8px;
+        }
+
+        .visualizador-dezena-item {
+          font-size: 10px;
+          border-width: 1px;
+        }
+
+        .legenda-conferidor {
+          flex-direction: row;
+          justify-content: center;
+          gap: 12px;
+          margin-top: 8px;
+          padding: 8px;
+          border-width: 1px;
+        }
+
+        .legenda-item {
+          justify-content: center;
+          font-size: 11px;
+        }
+
+        .legenda-cor {
+          width: 20px;
+          height: 20px;
+        }
+
+        .modal-footer {
+          padding: 8px;
+        }
+
+        .btn-primary {
+          width: 100%;
+          padding: 8px;
+          font-size: 13px;
+        }
+      }
+
+      /* Melhoria visual do grid 5x5 */
+      .grid-5x5 {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-top: 15px;
+        padding: 4px;
+      }
+
+      .visualizador-dezena-item {
+        background: #f0f0f0;
+        border: 2px solid #ddd;
+        border-radius: 50%;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 16px;
+        color: #666;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      /* Reduz tamanho dos itens em mobile */
+      @media (max-width: 600px) {
+        .visualizador-dezena-item {
+          min-width: 0;
+          min-height: 0;
+        }
+      }
+
+      .visualizador-dezena-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      /* ===================================
+   CARDS CLICÁVEIS
+   =================================== */
+
+      /* Card clicável - feedback visual */
+      .jogo-salvo-card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .jogo-salvo-card:hover {
+        background-color: #f7f9fc;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+      }
+
+      .jogo-salvo-card:active {
+        transform: translateY(0);
       }
     </style>
   </head>
@@ -1035,6 +1356,54 @@
         </div>
       </div>
     </div>
+    <!-- Modal para Visualizar o Jogo em Grid (5x5) -->
+    <div id="visualizador-modal" class="modal-overlay">
+      <div class="modal-content visualizador-tamanho">
+        <div class="modal-header">
+          <h2>Visualização do Jogo</h2>
+          <span class="modal-close" onclick="window.fecharVisualizador()"
+            >x</span
+          >
+        </div>
+
+        <div class="modal-body">
+          <!-- Grid 5x5 será injetado aqui pelo JavaScript -->
+          <div id="visualizador-grid-dezenas" class="grid-5x5">
+            <!-- Dezenas serão inseridas dinamicamente -->
+          </div>
+
+          <!-- Legenda será inserida aqui dinamicamente pelo JS -->
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-primary" onclick="window.fecharVisualizador()">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================
+     ALTERNATIVA: Se o modal ainda não abrir, adicione este
+     script inline logo após o modal no HTML:
+     ======================================================= -->
+
+    <script>
+      // Teste rápido: força a abertura do modal ao clicar em qualquer card
+      document.addEventListener("click", function (e) {
+        const card = e.target.closest(".jogo-salvo-card");
+        if (card && !e.target.classList.contains("jogo-select-checkbox")) {
+          console.log("🎯 Card clicado via fallback!");
+          const dezenas = card.dataset.dezenas;
+          if (
+            dezenas &&
+            typeof window.abrirVisualizadorConferidor === "function"
+          ) {
+            window.abrirVisualizadorConferidor(dezenas);
+          }
+        }
+      });
+    </script>
 
     <script>
       // Variáveis globais para controle do menu
