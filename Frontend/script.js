@@ -283,11 +283,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       span.textContent = nome;
     }
-  }   // BUSCAR JOGOS FILTRADOS POR BOLÃO
+  } // BUSCAR JOGOS FILTRADOS POR BOLÃO
 
   async function buscarJogosFiltrados(bolaoId) {
     if (!jogosSalvosContainer) return;
-    
+
     jogosSalvosContainer.innerHTML = "<p>Carregando jogos...</p>";
 
     try {
@@ -809,12 +809,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Atualiza o display do conferidor primeiro
         updateCheckerView();
         // Depois carrega os bolões e jogos
-        buscarBoloes().then(() => {
-          buscarJogosFiltrados(bolaoSelecionado);
-        }).catch((error) => {
-          console.error("Erro ao carregar bolões:", error);
-          buscarJogosFiltrados(bolaoSelecionado);
-        });
+        buscarBoloes()
+          .then(() => {
+            buscarJogosFiltrados(bolaoSelecionado);
+          })
+          .catch((error) => {
+            console.error("Erro ao carregar bolões:", error);
+            buscarJogosFiltrados(bolaoSelecionado);
+          });
       }
     } catch (error) {
       console.error("❌ Erro ao buscar dados da API:", error.message);
@@ -1601,7 +1603,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (checkPrevBtn) checkPrevBtn.disabled = window.currentCheckIndex === 0; // Se o índice é o mais recente (último elemento), o botão 'next' deve ser desabilitado.
     if (checkNextBtn)
-      checkNextBtn.disabled = window.currentCheckIndex === window.allResultados.length - 1;
+      checkNextBtn.disabled =
+        window.currentCheckIndex === window.allResultados.length - 1;
 
     const dezenasSorteadas = new Set(concursoAtual.dezenas.split(" "));
 
@@ -1686,6 +1689,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const targetButton = document.querySelector(`[data-target="${targetId}"]`);
     const targetContent = document.getElementById(targetId);
+    const controlesTabela = document.getElementById("controles-tabela");
 
     if (targetButton) targetButton.classList.add("active");
     if (targetContent) targetContent.classList.remove("hidden"); // ======================================================= // ✅ CONTROLE DE VISIBILIDADE DO SELETOR DE CONCURSOS // =======================================================
@@ -1694,9 +1698,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Se a aba for 'view-tabela' (ou 'view-grid', dependendo da sua organização), mostra.
       // Pela imagem, a aba ativa (Mapa) tem o conteúdo da 'Tabela'.
       if (targetId === "view-tabela" || targetId === "view-grid") {
-        controlesTabela.classList.remove("hidden");
+        controlesTabela?.classList.remove("hidden");
       } else {
-        controlesTabela.classList.add("hidden");
+        controlesTabela?.classList.add("hidden");
       }
     }
     // =======================================================
@@ -1719,12 +1723,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         // ✅ CORRIGIDO: Atualiza o display primeiro para remover "Carregando resultados..."
         updateCheckerView();
         // Depois carrega os bolões e jogos
-        buscarBoloes().then(() => {
-          buscarJogosFiltrados(bolaoSelecionado);
-        }).catch((error) => {
-          console.error("Erro ao carregar bolões:", error);
-          buscarJogosFiltrados(bolaoSelecionado);
-        });
+        buscarBoloes()
+          .then(() => {
+            buscarJogosFiltrados(bolaoSelecionado);
+          })
+          .catch((error) => {
+            console.error("Erro ao carregar bolões:", error);
+            buscarJogosFiltrados(bolaoSelecionado);
+          });
       }
     }
 

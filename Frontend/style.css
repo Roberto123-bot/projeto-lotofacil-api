@@ -1,34 +1,103 @@
-/* ==================== 
-   Variables & Reset 
-   ==================== */
+/* ============================================================================
+   ROBERTO LOTERIAS - STYLE.CSS COMPLETO E ORGANIZADO
+   Versão: 2.0
+   Data: Dezembro 2024
+   
+   ÍNDICE:
+   1. Variáveis CSS e Reset
+   2. Layout Principal (Body, Header, Main)
+   3. Controles e Navegação
+   4. Sistema de Abas
+   5. Tabela de Resultados
+   6. Visualização em Grade
+   7. Mapa de Dezenas
+   8. Gerador de Fechamentos
+   9. Meus Jogos Salvos
+   10. Conferidor de Jogos
+   11. Modais e Popups
+   12. Bottom Sheet (Menu)
+   13. Dropdown de Bolões
+   14. Responsividade Mobile
+   ============================================================================ */
+
+/* ============================================================================
+   1. VARIÁVEIS CSS E RESET
+   ============================================================================ */
+
 :root {
-  /* Colors */
+  /* Cores Principais */
   --primary-color: #6366f1;
   --accent-color: #ec4899;
+  --purple-primary: #673ab7;
+  --gray-secondary: #e0e0e0;
+
+  /* Espaçamentos */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
   --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Cores de Status */
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #007bff;
+
+  /* Cores Neutras */
+  --white: #ffffff;
+  --black: #333333;
+  --gray-light: #f8f9fa;
+  --gray-medium: #6c757d;
+  --gray-dark: #495057;
 }
 
-/* --- Configurações Gerais --- */
+/* Reset Básico */
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
   background-color: #f4f7f6;
-  color: #333;
+  color: var(--black);
   margin: 0;
-  padding: 20px;
+  padding: 0;
+  line-height: 1.6;
 }
 
-/* --- Cabeçalho --- */
+/* ============================================================================
+   2. LAYOUT PRINCIPAL (BODY, HEADER, MAIN)
+   ============================================================================ */
+
+/* === HEADER FIXO === */
 header {
-  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--white);
+  padding: 15px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
 }
 
+.jogos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 25px;
+  position: relative;
+  height: 50px;
+}
+
 .jogos-header h1 {
-  font-size: clamp(1.5rem, 7vw, 3.5rem);
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
   font-weight: 800;
   line-height: 1.1;
-  margin-bottom: var(--spacing-md);
+  margin: 0;
   background: linear-gradient(
     135deg,
     var(--primary-color),
@@ -37,193 +106,220 @@ header {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  flex-grow: 1; /* Adicionar esta linha */
-  text-align: left; /* Garantir que esta linha exista */
+  flex-grow: 1;
+  text-align: left;
 }
 
-/* header h1 {
-  color: #004a99;
-  margin: 0;
-} */
+/* Botão de Menu (3 pontinhos) */
+.btn-menu-icon {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--info-color);
+  color: var(--white);
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  transition: all 0.2s ease;
+}
 
-/* --- Container Principal --- */
+.btn-menu-icon:hover {
+  background-color: #0056b3;
+  transform: translateY(-50%) scale(1.05);
+}
+
+/* === CONTAINER PRINCIPAL === */
 main {
   max-width: 900px;
-  margin: 0 auto; /* Centraliza o conteúdo na página */
-  background-color: #ffffff;
+  margin: 0 auto;
+  background-color: var(--white);
   padding: 25px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  min-height: calc(100vh - 120px);
 }
 
-/* --- Controles (Select e Botão) --- */
+/* ============================================================================
+   3. CONTROLES E NAVEGAÇÃO
+   ============================================================================ */
+
+/* === CONTROLES SUPERIORES (EM LINHA HORIZONTAL) === */
 .controles {
   display: flex;
-  gap: 10px; /* Espaço entre os itens */
+  flex-direction: row; /* ← MANTÉM EM LINHA */
+  gap: 10px;
   align-items: center;
   margin-bottom: 20px;
-  flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+  flex-wrap: wrap;
+}
+
+#controles-tabela {
+  display: flex;
+  flex-direction: row; /* ← IMPORTANTE: LINHA HORIZONTAL */
+  align-items: center;
+  gap: 10px;
+  flex: 1; /* Ocupa espaço disponível */
 }
 
 .controles label {
   font-weight: 500;
+  color: var(--gray-dark);
+  white-space: nowrap; /* Evita quebra de linha */
 }
 
-/* Estilo para o <select> */
+/* Select de Número de Concursos */
 #num-concursos {
   padding: 8px 12px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  background-color: #fff;
+  background-color: var(--white);
   cursor: pointer;
+  transition: border-color 0.2s ease;
+  min-width: 120px; /* Largura mínima para evitar aperto */
 }
 
-/* Estilo para o <button> */
+#num-concursos:hover,
+#num-concursos:focus {
+  border-color: var(--info-color);
+  outline: none;
+}
+
+/* Botão Atualizar */
 #btn-atualizar {
   padding: 9px 16px;
   font-size: 16px;
   font-weight: 600;
-  color: #fff;
-  background-color: #007bff; /* Azul primário */
+  color: var(--white);
+  background-color: var(--info-color);
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  white-space: nowrap; /* Evita quebra de texto */
 }
 
 #btn-atualizar:hover {
-  background-color: #0056b3; /* Azul mais escuro no hover */
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
 }
 
-/* --- Tabela de Resultados --- */
-#tabela-resultados {
-  width: 100%;
-  border-collapse: collapse; /* Remove espaço entre as bordas */
-  margin-top: 10px;
-}
-
-/* Cabeçalho da Tabela */
-#tabela-resultados th {
-  background-color: #e9ecef; /* Cinza claro */
-  color: #495057;
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 2px solid #dee2e6;
-  font-size: 14px;
-  text-transform: uppercase;
-}
-
-/* Corpo da Tabela */
-#tabela-resultados td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #eee; /* Linha sutil separando as linhas */
-  font-size: 15px;
-  /* Garante que as células da tabela alinhem verticalmente no topo */
-  vertical-align: middle;
-}
-
-/* Coluna das Dezenas (ESSA REGRA NÃO É MAIS TÃO NECESSÁRIA, MAS MANTIVE) */
-#tabela-resultados td:nth-child(3) {
-  font-family: "Courier New", Courier, monospace;
+/* Botão Logout */
+.btn-logout {
+  padding: 9px 20px;
+  font-size: 16px;
   font-weight: 600;
-  letter-spacing: 1px; /* Aumenta o espaçamento das dezenas */
+  color: var(--white);
+  background-color: var(--danger-color);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+  white-space: nowrap; /* Evita quebra de texto */
 }
 
-/* Linhas alternadas (zebrada) */
-#tabela-resultados tbody tr:nth-of-type(even) {
-  background-color: #f9f9f9;
+.btn-logout:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
 }
 
-/* Efeito de hover na linha */
-#tabela-resultados tbody tr:hover {
-  background-color: #f1f1f1;
-}
-
-/* Mensagem de "Carregando..." */
-#tabela-resultados td[colspan="3"] {
-  text-align: center;
-  font-style: italic;
-  color: #888;
-  padding: 20px;
-}
-
-/* --- NOVOS ESTILOS PARA O GRID DE DEZENAS --- */
-
-.dezenas-grid {
+/* Oculta controles específicos da tabela quando não está na aba */
+#controles-tabela {
   display: flex;
-  flex-wrap: wrap;
-  gap: 5px; /* Espaço entre as bolinhas */
-  padding: 5px 0;
-  /* Limita a largura para ajudar na quebra de linha */
-  max-width: 850px;
-}
-
-/* Estilo base de cada bolinha (dezena) */
-.dezena-item {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  width: 30px; /* Largura da bolinha */
-  height: 30px; /* Altura da bolinha */
-  border-radius: 50%; /* Para ficar redonda */
-  font-size: 0.85rem;
-  font-weight: bold;
-  box-sizing: border-box;
-  /* Resetamos a fonte para a padrão, 
-     cancelando o "Courier New" da regra antiga */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  letter-spacing: 0;
+  gap: 10px;
 }
 
-/* Estilo para dezenas NÃO sorteadas */
-.nao-sorteada {
-  background-color: #f0f0f0; /* Um cinza claro neutro */
-  color: #6c757d;
-  border: 1px solid #dee2e6;
-}
+/* ============================================================================
+   4. SISTEMA DE ABAS
+   ============================================================================ */
 
-/* Estilo para dezenas SORTEADAS (Roxo) */
-.sorteada {
-  background-color: #6f42c1;
-  color: #ffffff;
-  border: 1px solid #5a359e;
-}
-
-/* --- ESTILOS DAS ABAS DE VISUALIZAÇÃO --- */
+/* === CONTAINER DAS ABAS === */
 .view-tabs {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-  border-bottom: 2px solid #dee2e6;
-  margin: 0 0 5px 0;
+  gap: 8px;
+  margin-bottom: 20px;
+  background-color: var(--gray-light);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+/* === BOTÕES DAS ABAS === */
 .tab-button {
-  padding: 10px 15px;
-  font-size: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 16px;
+  font-size: 13px;
   font-weight: 600;
   background-color: transparent;
   border: none;
-  border-bottom: 3px solid transparent;
+  border-radius: 8px;
   cursor: pointer;
-  color: #555;
-  transition: all 0.2s ease;
+  color: var(--gray-medium);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  min-height: 70px; /* ← IMPORTANTE: Garante alinhamento uniforme */
 }
 
-.tab-button:hover {
-  background-color: #f0f0f0;
+.tab-button svg {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 24px;
+  height: 24px;
+}
+
+.tab-button span {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Estados do Botão de Aba */
+.tab-button:hover:not(.active) {
+  background-color: #e9ecef;
+  color: var(--gray-dark);
+  transform: translateY(-2px);
+}
+
+.tab-button:hover:not(.active) svg {
+  stroke-width: 2.5;
 }
 
 .tab-button.active {
-  color: #007bff; /* Mesmo azul do botão */
-  border-bottom-color: #007bff;
+  background-color: var(--info-color);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-/* === CORREÇÃO PARA A CLASSE .hidden === */
+.tab-button.active svg {
+  stroke-width: 2.5;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
 
-/* Substitua a regra existente (linha ~168) por esta versão mais forte: */
+.tab-button:active {
+  transform: scale(0.95);
+}
+
+/* === CONTEÚDO DAS ABAS === */
+.view-content {
+  display: block;
+  animation: fadeIn 0.3s ease-in-out;
+}
 
 .view-content.hidden {
   display: none !important;
@@ -232,69 +328,155 @@ main {
   pointer-events: none !important;
 }
 
-/* Garanta também que a view ativa esteja sempre visível: */
-.view-content:not(.hidden) {
-  display: block !important;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* --- ESTILOS DA NOVA VISUALIZAÇÃO EM GRADE --- */
+/* Remove controles antigos (mantido para compatibilidade) */
+.jogos-controles {
+  display: none;
+}
 
-/* Mensagem de "Carregando..." da grade */
+/* ============================================================================
+   5. TABELA DE RESULTADOS
+   ============================================================================ */
+
+/* === TABELA TRADICIONAL === */
+#tabela-resultados {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#tabela-resultados th {
+  background-color: #e9ecef;
+  color: var(--gray-dark);
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+  font-size: 14px;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#tabela-resultados td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  font-size: 15px;
+  vertical-align: middle;
+}
+
+#tabela-resultados tbody tr:nth-of-type(even) {
+  background-color: #f9f9f9;
+}
+
+#tabela-resultados tbody tr:hover {
+  background-color: #f1f1f1;
+  transition: background-color 0.2s ease;
+}
+
+/* === GRID DE DEZENAS (Bolinhas na Tabela) === */
+.dezenas-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 5px 0;
+  max-width: 850px;
+}
+
+.dezena-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  font-weight: bold;
+  font-family: inherit;
+  letter-spacing: 0;
+  transition: transform 0.2s ease;
+}
+
+.dezena-item:hover {
+  transform: scale(1.1);
+}
+
+/* Dezena NÃO sorteada */
+.dezena-item.nao-sorteada {
+  background-color: #f0f0f0;
+  color: var(--gray-medium);
+  border: 1px solid #dee2e6;
+}
+
+/* Dezena SORTEADA */
+.dezena-item.sorteada {
+  background-color: #6f42c1;
+  color: var(--white);
+  border: 1px solid #5a359e;
+  box-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);
+}
+
+/* ============================================================================
+   6. VISUALIZAÇÃO EM GRADE
+   ============================================================================ */
+
+/* === CONTAINER DA GRADE === */
+#view-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  justify-items: center;
+  gap: 20px;
+}
+
+/* Mensagem de carregamento */
 .loading-grid {
   text-align: center;
   font-style: italic;
-  color: #888;
+  color: var(--gray-medium);
   padding: 20px;
   width: 100%;
+  grid-column: 1 / -1;
 }
 
-/* O container dos cards */
-#view-grid {
-  /* 1. Usamos o sistema de Grelha (Grid) */
-  display: grid;
-
-  /* 2. Definimos as colunas:
-     - auto-fit: Cria quantas colunas couberem.
-     - minmax(340px, 1fr): Cada coluna tem no MÍNIMO 340px
-       e no MÁXIMO 1 fração (para esticar).
-  */
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-
-  /* 3. A MÁGICA: Centraliza os items (os cards)
-     horizontalmente dentro das suas colunas.
-  */
-  justify-items: center;
-
-  /* 4. Espaçamento entre os cards */
-  gap: 20px;
-
-  /* (Oculta o flex-wrap, já não é necessário) */
-  /* flex-wrap: wrap; */
-}
-
-/* O card de cada concurso */
+/* === CARD DE CONCURSO === */
 .concurso-card {
-  width: 340px; /* Largura fixa para cada card */
-  background-color: #ffffff;
+  width: 340px;
+  background-color: var(--white);
   border: 1px solid #dee2e6;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   padding: 12px;
-  box-sizing: border-box;
   margin-top: 10px;
+  transition: all 0.3s ease;
 }
 
-/* O cabeçalho do card (ex: "CONCURSO 3539") */
+.concurso-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Cabeçalho do Card */
 .card-header {
-  background-color: #004a99; /* Azul do seu título H1 */
-  color: #ffffff;
+  background-color: #004a99;
+  color: var(--white);
   padding: 10px;
   text-align: center;
   font-weight: bold;
   border-radius: 5px 5px 0 0;
 }
+
 .card-header span {
   font-weight: normal;
   font-size: 0.9rem;
@@ -302,216 +484,571 @@ main {
   margin-left: 8px;
 }
 
+/* Container do Grid 5x5 */
 .card-grid-container {
   display: flex;
-  justify-content: center; /* Centraliza o grid 5x5 */
+  justify-content: center;
   padding: 10px 0;
 }
 
-/* O grid 5x5 */
 .card-dezenas-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 colunas */
+  grid-template-columns: repeat(5, 1fr);
   gap: 5px;
   width: 100%;
 }
 
-/* Cada item (dezena) do grid 5x5 */
+/* Itens do Grid 5x5 */
 .card-dezena-item {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  aspect-ratio: 1 / 1; /* Para manter o item quadrado */
+  aspect-ratio: 1 / 1;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 4px; /* Quadrados com borda levemente arredondada */
-  box-sizing: border-box;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
-/* Estilo "no mesmo estilo" (roxo e cinza) para o grid */
+.card-dezena-item:hover {
+  transform: scale(1.05);
+}
+
 .card-dezena-item.sorteada {
-  background-color: #38b000;
-  color: #ffffff;
-  border: 1px solid #008000;
+  background-color: var(--success-color);
+  color: var(--white);
+  border: 1px solid #198754;
 }
 
 .card-dezena-item.nao-sorteada {
   background-color: #f0f0f0;
-  color: #6c757d;
+  color: var(--gray-medium);
   border: 1px solid #dee2e6;
 }
 
-/* style.css (adicione ao final) */
+/* ============================================================================
+   7. MAPA DE DEZENAS
+   ============================================================================ */
 
-/* Estilo para o botão de Sair */
-.btn-logout {
-  padding: 9px 20px;
-  font-size: 16px;
+/* === WRAPPER COM SCROLL HORIZONTAL === */
+.mapa-dezenas-wrapper {
+  overflow-x: auto;
+  padding-bottom: 10px;
+  width: 100%;
+}
+
+/* Scrollbar Customizada */
+.mapa-dezenas-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.mapa-dezenas-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.mapa-dezenas-wrapper::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.mapa-dezenas-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* === GRID DO MAPA === */
+.mapa-dezenas-grid {
+  display: grid;
+  grid-template-columns: 80px 80px repeat(25, 32px);
+  width: max-content;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: 10px auto;
+}
+
+/* Células do Mapa */
+.mapa-header,
+.mapa-celula {
+  padding: 8px 0;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cabeçalho do Mapa */
+.mapa-header {
+  font-weight: bold;
+  background-color: #e9ecef;
+  color: var(--gray-dark);
+  border-bottom: 2px solid #dee2e6;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Colunas de Dados */
+.concurso-col {
+  background-color: var(--gray-light);
   font-weight: 600;
-  color: #fff;
-  background-color: #ff0000; /* Vermelho (perigo/sair) */
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-left: auto; /* Joga o botão para a direita */
 }
 
-.btn-logout:hover {
-  background-color: #c82333; /* Vermelho mais escuro */
+.data-col {
+  background-color: var(--white);
 }
 
-/* --- ESTILOS PARA AS NOVAS ABAS (GERADOR / MEUS JOGOS) --- */
-
-/* Ajuste no container das abas para caberem todas */
-.view-tabs {
-  flex-wrap: wrap; /* Permite que as abas quebrem a linha em telas pequenas */
+/* Bolinha da Dezena no Mapa */
+.dezena-mapa {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  margin: auto;
 }
 
-/* Container do gerador */
+.dezena-mapa:hover {
+  transform: scale(1.15);
+}
+
+.sorteada-mapa {
+  background-color: var(--success-color);
+  color: var(--white);
+}
+
+.nao-sorteada-mapa {
+  background-color: #f0f0f0;
+  color: #777;
+}
+
+/* Efeito Zebrado */
+.linha-impar {
+  background-color: #fcfcfc;
+}
+
+.linha-par {
+  background-color: #fafafa;
+}
+
+.concurso-col.linha-impar {
+  background-color: #f4f4f4;
+}
+
+.concurso-col.linha-par {
+  background-color: #f1f1f1;
+}
+
+.data-col.linha-impar {
+  background-color: #fcfcfc;
+}
+
+.data-col.linha-par {
+  background-color: #f7f7f7;
+}
+
+/* ============================================================================
+   8. GERADOR DE FECHAMENTOS
+   ============================================================================ */
+
+/* === CONTAINER DO GERADOR === */
 #view-gerador {
   padding: 20px;
   text-align: center;
 }
 
-#btn-gerar-jogo {
-  padding: 10px 20px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  background-color: #28a745; /* Verde */
-  border: none;
-  border-radius: 6px;
+/* === AÇÕES DO GERADOR === */
+.gerador-acoes {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 15px;
+  width: 100%;
+}
+
+.btn-icone-acao {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #444;
+  padding: 5px 10px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-bottom: 20px;
-}
-#btn-gerar-jogo:hover {
-  background-color: #218838;
-}
-
-/* Jogo Gerado */
-#jogo-gerado-container {
-  padding: 15px;
-  border: 1px dashed #ccc;
-  border-radius: 8px;
-  min-height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
-/* =================================== */
-/* === ESTILO BOLINHA (JOGOS SALVOS) === */
-/* =================================== */
-
-/* O container das dezenas (para garantir a quebra de linha) */
-.jogo-gerado-dezenas {
-  display: flex;
-  flex-wrap: wrap; /* Garante que as bolinhas quebrem a linha */
-  gap: 6px; /* Espaço entre as bolinhas */
-  padding-top: 5px; /* Espaço do texto de pontos acima */
-}
-
-/* A "bolinha" de dezena PADRÃO (cinza) */
-.jogo-gerado-item {
-  width: 35px;
-  height: 35px;
-  font-size: 1rem;
+  font-size: 14px;
   font-weight: bold;
-  color: #555;
-  background-color: #e9ecef; /* Fundo cinza claro */
-  border: 1px solid #dee2e6;
-  border-radius: 50%; /* A mágica para o CÍRCULO */
-
-  /* Centraliza o número dentro da bolinha */
   display: flex;
   align-items: center;
   justify-content: center;
-
-  /* Remove estilos de texto antigos */
-  padding: 0;
-  min-width: 35px;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  line-height: 1;
 }
 
-/* Botão de Salvar Jogo */
-.btn-salvar-jogo {
-  padding: 8px 15px;
-  font-size: 0.9rem;
+.btn-icone-acao:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.btn-icone-acao.active {
+  background-color: var(--info-color);
+  border-color: var(--info-color);
+  color: var(--white);
+}
+
+/* === GRID DE SELEÇÃO DE DEZENAS === */
+#grid-dezenas {
+  display: grid;
+  grid-template-columns: repeat(5, 45px);
+  gap: 8px;
+  margin-bottom: 20px;
+  max-width: 250px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Contador de Dezenas */
+#contador {
+  margin-bottom: 15px;
   font-weight: 600;
-  color: #fff;
-  background-color: #007bff; /* Azul */
-  border: none;
-  border-radius: 6px;
+  color: var(--gray-dark);
+}
+
+/* === BOTÕES DE DEZENAS === */
+.dezena-btn {
+  width: 45px;
+  height: 45px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
   cursor: pointer;
-}
-.btn-salvar-jogo:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: #f0f0f0;
+  color: var(--black);
+  transition: all 0.2s ease;
 }
 
-#jogos-salvos-container {
-  /* Passo 1: Definimos uma altura máxima. 
-    Use a altura que fizer sentido para você (ex: 600px).
-    "vh" significa "viewport height" (altura da tela). 
-    50vh = 50% da altura da tela do navegador.
-  */
-  max-height: 60vh;
+.dezena-btn:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.05);
+}
 
-  /* Passo 2: A MÁGICA.
-    'overflow-y: auto;' diz: "Se o conteúdo (os cards)
-    passar da altura máxima, adicione uma barra de 
-    rolagem vertical".
-  */
+/* Dezena Selecionada */
+.dezena-btn.selecionada {
+  background-color: var(--info-color);
+  color: var(--white);
+  border-color: #0a58ca;
+}
+
+/* Dezena Fixa */
+.dezena-btn.selecionada.fixa {
+  background-color: var(--success-color);
+  color: var(--white);
+  border: 3px solid var(--danger-color);
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.7);
+  /* animation: pulse 1s infinite; */
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* === CONTROLES DO GERADOR === */
+.gerador-controles {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+#menu-fechamentos {
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  flex-grow: 1;
+  max-width: 400px;
+}
+
+.btn-randomico-chamada,
+#btn-gerar {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: var(--success-color);
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  transition: all 0.2s ease;
+}
+
+.btn-randomico-chamada:hover,
+#btn-gerar:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+/* === JOGOS GERADOS === */
+#jogos-gerados {
+  margin-top: 20px;
+}
+
+.lista-jogos-gerados {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
   overflow-y: auto;
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 15px;
+}
 
-  /* Passo 3: (Opcional) Estilo para deixar a caixa
-    de rolagem mais bonita.
-  */
+.jogo-gerado-card {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #fafafa;
+  transition: all 0.2s ease;
+}
+
+.jogo-gerado-card:hover {
+  background: #f0f0f0;
+  transform: translateX(5px);
+}
+
+/* Dezenas no Gerador (Bolinhas Azuis) */
+.jogo-gerado-dezenas-no-gerador {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.jogo-gerado-item-no-gerador {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--info-color);
+  background-color: var(--info-color);
+  color: var(--white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* === BOTÕES DE AÇÃO DOS JOGOS === */
+.jogos-gerados-botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-salvar-todos {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: var(--info-color);
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  transition: all 0.2s ease;
+}
+
+.btn-salvar-todos:hover {
+  background-color: #0b5ed7;
+  transform: translateY(-2px);
+}
+
+.btn-salvar-todos:disabled {
+  background-color: var(--success-color);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.btn-limpar-jogos {
+  background-color: var(--danger-color);
+  color: var(--white);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.btn-limpar-jogos:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}
+
+/* ============================================================================
+   9. MEUS JOGOS SALVOS
+   ============================================================================ */
+
+/* === CONTAINER DOS JOGOS === */
+#jogos-salvos-container {
+  max-height: 60vh;
+  overflow-y: auto;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #fafafa;
 }
 
-.jogo-salvo-card {
-  background-color: #f9f9f9;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Scrollbar Customizada */
+#jogos-salvos-container::-webkit-scrollbar {
+  width: 8px;
 }
 
-.jogo-salvo-info {
+#jogos-salvos-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+#jogos-salvos-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+#jogos-salvos-container::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* === CARD DE JOGO SALVO === */
+.jogo-salvo-card {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-}
-
-.jogo-salvo-dezenas {
-  font-family: "Courier New", Courier, monospace;
-  font-weight: 600;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
-}
-
-.btn-deletar-jogo {
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  color: #fff;
-  background-color: #dc3545; /* Vermelho */
-  border: none;
-  border-radius: 6px;
+  background-color: var(--white);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* --- ESTILOS PARA DELEÇÃO DE JOGOS SALVOS --- */
+.jogo-salvo-card:hover {
+  background-color: #f7f9fc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
 
-/* Container dos botões de ação */
+.jogo-salvo-card:active {
+  transform: translateY(0);
+}
+
+/* === CABEÇALHO DO CARD === */
+.card-header-jogo {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+/* Checkbox de Seleção */
+.jogo-select-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* === BLOCO DE INFORMAÇÕES === */
+.jogo-info-bloco {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.pontuacao-display {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--black);
+  padding-left: 5px;
+  margin-bottom: 5px;
+}
+
+.pontuacao-display.premiado {
+  color: var(--success-color) !important;
+  /* animation: pulseGreen 1s ease-in-out; */
+}
+
+@keyframes pulseGreen {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.jogo-salvo-data {
+  font-size: 0.8rem;
+  color: var(--gray-medium);
+  padding-left: 5px;
+}
+
+/* === DEZENAS DO JOGO === */
+.jogo-gerado-dezenas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 5px;
+  overflow-x: hidden;
+}
+
+.jogo-gerado-item {
+  width: 35px;
+  height: 35px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #555;
+  background-color: #e9ecef;
+  border: 1px solid #dee2e6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  min-width: 35px;
+  transition: all 0.2s ease;
+}
+
+/* Dezena Acertada (Verde) */
+.jogo-gerado-item.hit {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: var(--white) !important;
+  border-color: #146c43 !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+/* === BOTÕES DE AÇÃO === */
 .jogos-controles {
   display: flex;
   gap: 10px;
@@ -527,254 +1064,65 @@ main {
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btn-jogo-acao.danger {
-  background-color: #dc3545; /* Vermelho */
-  color: white;
+  background-color: var(--danger-color);
+  color: var(--white);
 }
+
 .btn-jogo-acao.danger:hover {
   background-color: #c82333;
 }
+
 .btn-jogo-acao:not(.danger) {
-  background-color: #007bff; /* Azul */
-  color: white;
+  background-color: var(--info-color);
+  color: var(--white);
 }
+
 .btn-jogo-acao:not(.danger):hover {
   background-color: #0056b3;
 }
+
 .btn-jogo-acao:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
-/* Ajuste no Card do Jogo Salvo para incluir o Checkbox */
-.jogo-salvo-card {
-  background-color: #f9f9f9;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 15px;
-  display: flex;
-  /* justify-content: space-between; (removido) */
-  align-items: center;
-  gap: 15px; /* Espaço entre o checkbox e o jogo */
-}
+/* ============================================================================
+   10. CONFERIDOR DE JOGOS
+   ============================================================================ */
 
-/* Estilo do Checkbox de seleção */
-.jogo-select-checkbox {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-}
-
-/* Ocupa o espaço restante */
-.jogo-salvo-info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  flex-grow: 1; /* Faz esta div ocupar o espaço */
-}
-
-.jogo-salvo-dezenas {
-  font-family: "Courier New", Courier, monospace;
-  font-weight: 600;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
-}
-
-.jogo-salvo-data {
-  font-size: 0.85rem;
-  color: #555;
-}
-
-/* (O btn-deletar-jogo individual não será mais usado, 
-   mas pode deixar o estilo se quiser) */
-
-/* =================================== */
-/* === CSS PARA O GERADOR DE FECHAMENTOS === */
-/* =================================== */
-
-/* O container do grid de 25 dezenas */
-#grid-dezenas {
-  display: grid; /* Use display: grid */
-
-  /* Esta linha AGORA funciona */
-  grid-template-columns: repeat(5, 45px);
-
-  gap: 8px;
-  margin-bottom: 20px;
-
-  /* Centraliza o bloco do grid */
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* O estilo de cada botão (de 01 a 25) */
-.dezena-btn {
-  width: 45px;
-  height: 45px;
-  border: 2px solid #ccc;
-  border-radius: 50%; /* Bolinha */
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Arial, sans-serif;
-  font-weight: bold;
-  font-size: 16px;
-  background-color: #f0f0f0;
-  color: #333;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-
-/* Quando o mouse passa por cima */
-.dezena-btn:hover {
-  background-color: #e0e0e0;
-}
-
-/* O estilo da bolinha QUANDO SELECIONADA */
-.dezena-btn.selecionada {
-  background-color: #0d6efd; /* Azul (pode mudar para seu tema) */
-  color: white;
-  border-color: #0a58ca;
-}
-
-.dezena-btn.selecionada.fixa {
-  /* O mesmo estilo acima */
-  background-color: #28a745;
-  color: #ffffff;
-  border: 3px solid #dc3545;
-  font-weight: bold;
-  box-shadow: 0 0 10px rgba(40, 167, 69, 0.7);
-}
-
-/* Estilo para os controles (menu e botão) */
-.gerador-controles {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-/* Estilo para o menu dropdown */
-#menu-fechamentos {
-  padding: 8px;
-  font-size: 16px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  flex-grow: 1; /* Faz o menu ocupar o espaço */
-  max-width: 400px;
-}
-
-/* Estilo para o botão Gerar */
-#btn-gerar {
-  padding: 9px 15px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  background-color: #198754; /* Verde */
-  color: white;
-  border: none;
-  border-radius: 5px;
-}
-
-#btn-gerar:hover {
-  background-color: #157347;
-}
-
-/* Container para a lista de jogos gerados */
-.lista-jogos-gerados {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 400px; /* Limita a altura para não ficar gigante */
-  overflow-y: auto; /* Adiciona scroll se passar da altura */
-  border: 1px solid #eee;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-/* O card de cada jogo gerado (na aba Gerador) */
-.jogo-gerado-card {
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background: #fafafa;
-}
-
-/* Reutilização de Classes:
-  Note que para exibir os jogos gerados, eu usei as classes
-  'jogo-gerado-dezenas' e 'jogo-gerado-item', que você
-  JÁ TINHA DEFINIDO para a aba "Meus Jogos Salvos". 
-  Isso é ótimo e mantém o visual consistente.
-*/
-
-/* --- Estilo para o novo botão Salvar Todos --- */
-
-.btn-salvar-todos {
-  padding: 12px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  background-color: #0d6efd; /* Azul */
-  color: white;
-  border: none;
-  border-radius: 5px;
-  transition: background-color 0.2s;
-  width: 100%; /* Ocupa a largura toda */
-  margin-top: 20px; /* Espaço acima */
-}
-
-.btn-salvar-todos:hover {
-  background-color: #0b5ed7;
-}
-
-.btn-salvar-todos:disabled {
-  background-color: #198754; /* Verde quando está salvando/salvo */
-  cursor: not-allowed;
-}
-
-/* Ajuste no card (removemos o 'flex' que não é mais necessário) */
-.jogo-gerado-card {
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background: #fafafa;
-}
-
-/* =================================== */
-/* === CSS PARA O CONFERIDOR DE JOGOS === */
-/* =================================== */
-
-/* O painel do conferidor */
+/* === PAINEL DO CONFERIDOR === */
 #conferidor-ui {
   background-color: #f4f7f6;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 15px;
-  margin-bottom: 8px;
-  margin: 0 0 5px 0;
+  margin-bottom: 15px;
 }
 
 #conferidor-ui h3 {
-  margin: 0 0 5px 0;
+  margin: 0 0 10px 0;
   text-align: center;
-  color: #333;
+  color: var(--black);
+  font-size: 1.2rem;
 }
 
+/* === CONTROLES DO CONFERIDOR === */
 .conferidor-controles {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 15px;
 }
 
-/* Botões de seta do conferidor */
 #check-prev,
 #check-next {
-  background-color: #0d6efd;
-  color: white;
+  background-color: var(--info-color);
+  color: var(--white);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -782,234 +1130,841 @@ main {
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 #check-prev:hover,
 #check-next:hover {
   background-color: #0a58ca;
+  transform: scale(1.1);
 }
 
 #check-prev:disabled,
 #check-next:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
-/* Display do concurso (ex: Concurso 3539) */
 #check-concurso-display {
   font-size: 1.1rem;
   font-weight: bold;
-  color: #1a1a1a;
+  color: var(--black);
   text-align: center;
   flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* =================================== */
-/* === CSS PARA MEUS JOGOS SALVOS (Layout Elegante) === */
-/* =================================== */
+/* ============================================================================
+   11. MODAIS E POPUPS
+   ============================================================================ */
 
-/* O card principal na aba "Meus Jogos Salvos" */
-.jogo-salvo-card {
-  display: flex;
-  flex-direction: column; /* Organiza o header e o grid de dezenas verticalmente */
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  padding: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  gap: 1px;
-}
-
-/* O cabeçalho (Checkbox + Infos) */
-.card-header-jogo {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
+/* === OVERLAY DO MODAL === */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  border-bottom: 1px solid #eee; /* Linha separadora */
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none !important;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 20px;
 }
 
-/* O bloco de informações (Pontos + Data) */
-.jogo-info-bloco {
-  flex-grow: 1;
+.modal-overlay.active {
+  display: flex !important;
 }
 
-/* O texto de "Pontos" (mantém o estilo de texto) */
-.pontuacao-display {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #333;
-  padding-left: 5px;
+/* === CONTEÚDO DO MODAL === */
+.modal-content {
+  background: var(--white);
+  padding: 0;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
+  position: relative;
+  z-index: 2001;
 }
 
-/* Contador de pontos premiado */
-.pontuacao-display.premiado {
-  color: #198754 !important; /* Verde */
+@keyframes modalSlideIn {
+  from {
+    transform: scale(0.9) translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
 }
 
-/* O container do meio (bolinhas + data) */
-.jogo-salvo-info {
-  flex-grow: 1; /* Faz ele ocupar o espaço do meio */
-  min-width: 0; /* MUITO IMPORTANTE: Permite que o flex-item encolha */
-}
-
-/* O container das bolinhas
-  ESTA É A CORREÇÃO PRINCIPAL
-*/
-.jogo-gerado-dezenas {
+/* === CABEÇALHO DO MODAL === */
+.modal-header {
   display: flex;
-  flex-wrap: wrap; /* <<< A MÁGICA CORRETA: Quebra a linha */
-  gap: 6px; /* Espaço entre os números */
-  padding-top: 5px;
-  /* Garante que não tenha scroll horizontal */
-  overflow-x: hidden;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 2px solid #eee;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px 12px 0 0;
 }
 
-/* A "BOLINHA" (AGORA É SÓ TEXTO) */
-/* .jogo-gerado-item {
-  font-size: 0.95rem;
-  color: #444;
-  min-width: 28px;
-  text-align: center;
-  padding: 4px;
-  width: auto !important;
-  height: auto !important;
-  border-radius: 4px !important;
-  border: 1px solid #ddd !important;
-  background-color: #f8f8f8 !important;
-  color: #333 !important;
-  font-weight: normal !important;
-} */
-
-/* O texto da data */
-.jogo-salvo-data {
-  font-size: 0.8rem; /* Fonte menor */
-  color: #6c757d;
-  padding: 5px;
+.modal-header h2,
+#randomico-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--white);
 }
 
-/* O contador de pontos */
-.score-display {
-  font-size: 1rem; /* Fonte menor */
-  padding: 5px 8px;
-  min-width: 80px; /* Largura menor */
-  text-align: center;
-  font-weight: bold;
-  color: #555;
-  background-color: #f0f0f0;
-  border-radius: 5px;
-}
-
-/* A "bolinha" de dezena ACERTADA (verde) */
-.jogo-gerado-item.hit {
-  background: linear-gradient(
-    135deg,
-    #10b981 0%,
-    #059669 100%
-  ) !important; /* Verde */
-  color: white !important;
-  border-color: #146c43 !important;
-}
-
-/* Contador de pontos premiado */
-.score-display.premiado {
-  background-color: #d1e7dd !important; /* Verde claro */
-  color: #0f5132 !important;
-  border: 1px solid #a3cfbb !important;
-}
-
-/*
-  Para o GERADOR DE JOGOS não quebrar (ele usava as mesmas classes),
-  vamos dar a ele classes únicas.
-*/
-
-/* No Gerador: container */
-.jogo-gerado-dezenas-no-gerador {
+.modal-close {
+  cursor: pointer;
+  font-size: 32px;
+  color: var(--white);
+  width: 36px;
+  height: 36px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-/* No Gerador: bolinha azul */
-.jogo-gerado-item-no-gerador {
-  width: 32px;
-  height: 32px;
-  font-size: 14px;
-  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  border: 1px solid #0d6efd;
-  background-color: #0d6efd;
-  color: white;
-  display: inline-flex;
+  transition: all 0.2s ease;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+/* === CORPO DO MODAL === */
+.modal-body {
+  padding: 24px;
+}
+
+.separator {
+  border: none;
+  height: 1px;
+  background-color: var(--gray-secondary);
+  margin: 20px 0;
+}
+
+/* === RODAPÉ DO MODAL === */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid #eee;
+  gap: 12px;
+}
+
+/* === BOTÕES DO MODAL === */
+.btn-primary {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.m3-button {
+  padding: 10px 18px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.m3-button.primary {
+  background-color: var(--purple-primary);
+  color: var(--white);
+  box-shadow: 0 2px 4px rgba(103, 58, 183, 0.4);
+}
+
+.m3-button.primary:hover {
+  background-color: #512da8;
+  transform: translateY(-2px);
+}
+
+.m3-button.secondary {
+  background-color: transparent;
+  color: var(--gray-dark);
+  border: 1px solid var(--gray-secondary);
+}
+
+.m3-button.secondary:hover {
+  background-color: #f0f0f0;
+}
+
+/* === MODAL RANDÔMICO === */
+#randomico-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+/* Controles do Slider */
+.control-group {
+  margin-bottom: 20px;
+}
+
+.control-group label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--gray-dark);
+  margin-bottom: 8px;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slider-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--purple-primary);
+  background-color: transparent;
+  color: var(--purple-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.slider-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slider-btn:active:not(:disabled) {
+  background-color: #9c27b0;
+  color: var(--white);
+  transform: scale(0.95);
+}
+
+.slider-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  width: 100px;
+  text-align: center;
+}
+
+.custom-slider {
+  flex-grow: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  margin: 0 10px;
+}
+
+.purple-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--purple-primary);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.purple-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* === VISUALIZADOR DE JOGO === */
+.modal-content.visualizador-tamanho {
+  max-width: 500px;
+}
+
+.grid-5x5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+  padding: 4px;
+}
+
+.visualizador-dezena-item {
+  background: #f0f0f0;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  aspect-ratio: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
+  font-size: 16px;
+  color: #666;
+  transition: all 0.3s ease;
 }
 
-/* =================================== */
-/* === AJUSTES PARA CELULAR (Responsivo) === */
-/* =================================== */
+.visualizador-dezena-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
-/* Estas regras SÓ serão aplicadas em telas com 
-  largura máxima de 600px (tamanho de celular).
-*/
+/* Dezena Acertada */
+.visualizador-dezena-item.acerto {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: var(--white);
+  border-color: #146c43;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+  /* animation: pulseAcerto 0.5s ease-in-out; */
+}
+
+/* Dezena Errada */
+.visualizador-dezena-item.erro {
+  background: linear-gradient(135deg, #cac6c6 0%, #a1a1a1 100%);
+  color: var(--white);
+  border-color: #a1a1a1;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(110, 108, 108, 0.4);
+}
+
+@keyframes pulseAcerto {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* === LEGENDA DO CONFERIDOR === */
+.legenda-conferidor {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--gray-light);
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+}
+
+.legenda-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--black);
+}
+
+.legenda-cor {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.legenda-cor.acerto {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: #047857;
+}
+
+.legenda-cor.erro {
+  background: linear-gradient(135deg, #cac6c6 0%, #a1a1a1 100%);
+  border-color: #a1a1a1;
+}
+
+/* ============================================================================
+   12. BOTTOM SHEET (MENU)
+   ============================================================================ */
+
+/* === OVERLAY DO BOTTOM SHEET === */
+.bottom-sheet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.bottom-sheet-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* === PAINEL DO BOTTOM SHEET === */
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--white);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  max-width: 600px;
+  margin: 0 auto;
+  z-index: 1001;
+}
+
+.bottom-sheet-overlay.active .bottom-sheet {
+  transform: translateY(0);
+}
+
+/* === CABEÇALHO DO BOTTOM SHEET === */
+.bottom-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.bottom-sheet-header h3 {
+  margin: 0;
+  color: var(--black);
+  font-size: 1.2rem;
+}
+
+.btn-fechar-menu {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.btn-fechar-menu:hover {
+  background-color: #f0f0f0;
+}
+
+/* === CONTEÚDO DO BOTTOM SHEET === */
+.bottom-sheet-content {
+  padding: 10px;
+}
+
+/* === BOTÕES DE AÇÃO DO MENU === */
+.menu-action-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 18px 20px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--gray-light);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--black);
+  transition: all 0.2s ease;
+}
+
+.menu-action-btn:hover {
+  background-color: #e9ecef;
+  transform: translateX(5px);
+}
+
+.menu-action-btn.danger {
+  color: var(--danger-color);
+}
+
+.menu-action-btn.danger:hover {
+  background-color: #ffe0e3;
+}
+
+.menu-action-btn.success {
+  color: var(--success-color);
+}
+
+.menu-action-btn.success:hover {
+  background-color: #d1e7dd;
+}
+
+.menu-icon {
+  font-size: 1.3rem;
+}
+
+/* ============================================================================
+   13. DROPDOWN DE BOLÕES
+   ============================================================================ */
+
+/* === CONTAINER DO DROPDOWN === */
+.bolao-selector-container {
+  margin: 20px 0;
+  position: relative;
+}
+
+.bolao-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+/* === BOTÃO DO DROPDOWN === */
+.bolao-dropdown-btn {
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  background: var(--white);
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--black);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.bolao-dropdown-btn:hover {
+  border-color: #7c3aed;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+}
+
+.bolao-dropdown-btn.active {
+  border-color: #7c3aed;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+
+.bolao-dropdown-btn span {
+  flex: 1;
+  text-align: left;
+}
+
+.bolao-dropdown-btn::after {
+  content: "▼";
+  font-size: 12px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.bolao-dropdown-btn.active::after {
+  transform: rotate(180deg);
+}
+
+/* === MENU DO DROPDOWN === */
+.bolao-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: var(--white);
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbar do Dropdown */
+.bolao-dropdown-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bolao-dropdown-menu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.bolao-dropdown-menu::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.bolao-dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* === CRIAR NOVO BOLÃO === */
+.bolao-criar-novo {
+  padding: 12px;
+  border-bottom: 2px solid #eee;
+  background: #f9f9f9;
+}
+
+.bolao-input-container {
+  display: flex;
+  gap: 8px;
+}
+
+.bolao-input-nome {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.bolao-input-nome:focus {
+  border-color: #7c3aed;
+}
+
+.bolao-input-nome::placeholder {
+  color: #999;
+}
+
+.btn-criar-bolao {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  color: var(--white);
+  border: none;
+  border-radius: 6px;
+  font-size: 24px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-criar-bolao:hover {
+  background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%);
+  transform: scale(1.05);
+}
+
+.btn-criar-bolao:active {
+  transform: scale(0.95);
+}
+
+.btn-criar-bolao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === LISTA DE BOLÕES === */
+.lista-boloes {
+  padding: 8px 0;
+}
+
+.bolao-item {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.bolao-item:hover {
+  background: #f3f4f6;
+  border-left-color: #7c3aed;
+}
+
+.bolao-item.selected {
+  background: #ede9fe;
+  border-left-color: #7c3aed;
+}
+
+.bolao-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bolao-nome {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--black);
+}
+
+.bolao-total {
+  font-size: 12px;
+  color: #666;
+}
+
+.bolao-delete-btn {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 2px solid var(--danger-color);
+  border-radius: 6px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.bolao-item:hover .bolao-delete-btn {
+  opacity: 1;
+}
+
+.bolao-delete-btn:hover {
+  background: var(--danger-color);
+  color: var(--white);
+  transform: scale(1.1);
+}
+
+.bolao-divisor {
+  height: 2px;
+  background: #eee;
+  margin: 8px 0;
+}
+
+.bolao-item-vazio {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+
+/* ============================================================================
+   14. RESPONSIVIDADE MOBILE
+   ============================================================================ */
+
 @media (max-width: 600px) {
-  /* === INÍCIO DA NOVA REGRA (CORREÇÃO DA MARGEM) === */
-
-  /* Remove qualquer preenchimento do corpo */
+  /* === BODY E ESTRUTURA === */
   body {
     padding: 0;
     margin: 0;
-    background-color: #f0f2f5; /* Um fundo leve para diferenciar */
   }
 
-  /* O container principal da sua página */
-  main {
-    /* Remove margens e preenchimentos laterais */
-    margin: 0;
-    padding: 5px 15px; /* 10px topo/baixo, 8px laterais (bem pequeno) */
+  /* === HEADER === */
+  header {
+    padding: 12px 0;
+  }
 
-    /* Remove bordas e sombras que prendem o layout */
-    border: none;
+  .jogos-header {
+    padding: 0 15px;
+    height: auto;
+  }
+
+  .jogos-header h1 {
+    font-size: clamp(1.2rem, 5vw, 1.8rem);
+  }
+
+  .btn-menu-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  /* === MAIN === */
+  main {
+    margin: 0;
+    padding: 15px;
     border-radius: 0;
     box-shadow: none;
-
-    /* Garante que ocupe a largura */
-    width: 100%;
-    max-width: 100%;
   }
-  /* === FIM DA NOVA REGRA === */
 
-  /* O card principal */
+  /* === ABAS === */
+  .view-tabs {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .tab-button {
+    padding: 10px 8px;
+    gap: 4px;
+    min-height: 60px;
+  }
+
+  .tab-button span {
+    font-size: 11px;
+  }
+
+  .tab-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* === CARDS DE JOGOS === */
   .jogo-salvo-card {
     padding: 10px 8px;
     margin-bottom: 8px;
-    gap: 1px;
   }
 
-  /* O cabeçalho (checkbox + infos) */
   .card-header-jogo {
     gap: 8px;
     padding-bottom: 8px;
     margin-bottom: 8px;
-    align-items: flex-start;
   }
 
-  /* O texto de "Pontos" */
   .pontuacao-display {
     font-size: 1rem;
   }
 
-  /* O container das dezenas */
   .jogo-gerado-dezenas {
     gap: 4px;
   }
 
-  /* A "bolinha" no telemóvel (um pouco menor) */
   .jogo-gerado-item {
     width: 30px;
     height: 30px;
@@ -1017,11 +1972,15 @@ main {
     min-width: 30px;
   }
 
-  /* Ajusta o grid do GERADOR também */
+  /* === GRID DE DEZENAS === */
   #grid-dezenas {
-    max-width: 100%;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(5, 45px);
+    gap: 8px;
+    margin-bottom: 20px;
+    max-width: 250px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .dezena-btn {
@@ -1029,222 +1988,155 @@ main {
     height: 45px;
   }
 
-  /* Ajusta os botões de seleção de jogos */
-  .jogos-controles {
-    gap: 10px;
-  }
-
-  .jogos-controles .btn-jogo-acao {
-    flex: 1;
-  }
-
-  /* Ajusta o layout do conferidor */
+  /* === CONFERIDOR === */
   #check-prev,
   #check-next {
     width: 35px;
     height: 35px;
     font-size: 1rem;
   }
+
   #check-concurso-display {
     font-size: 1rem;
     padding: 0 5px;
   }
+
+  /* === MODAIS === */
+  .modal-overlay {
+    padding: 5px;
+  }
+
+  .modal-content {
+    width: 95%;
+    max-width: 95%;
+    padding: 8px;
+  }
+
+  .modal-content.visualizador-tamanho {
+    max-width: 95%;
+    width: 95%;
+  }
+
+  .modal-header {
+    padding: 12px 16px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .modal-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .modal-close {
+    font-size: 24px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .modal-body {
+    padding: 12px;
+  }
+
+  .grid-5x5 {
+    gap: 6px;
+    padding: 4px;
+    margin-top: 10px;
+  }
+
+  .visualizador-dezena-item {
+    font-size: 12px;
+    border-width: 1.5px;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  /* === LEGENDA === */
+  .legenda-conferidor {
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 10px;
+    border-width: 1px;
+  }
+
+  .legenda-item {
+    justify-content: center;
+    font-size: 11px;
+  }
+
+  .legenda-cor {
+    width: 24px;
+    height: 24px;
+  }
+
+  .modal-footer {
+    padding: 12px;
+    flex-direction: column;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* === DROPDOWN DE BOLÕES === */
+  .bolao-dropdown-menu {
+    max-height: 300px;
+  }
+
+  .bolao-item {
+    padding: 14px 12px;
+  }
+
+  /* === CONTROLES === */
+  .controles {
+    gap: 8px;
+  }
+
+  #controles-tabela {
+    gap: 8px;
+  }
+
+  .controles label {
+    font-size: 14px;
+  }
+
+  #num-concursos {
+    font-size: 14px;
+    padding: 6px 10px;
+    min-width: 100px;
+  }
+
+  #btn-atualizar,
+  .btn-logout {
+    font-size: 14px;
+    padding: 7px 12px;
+  }
 }
 
-#grid-dezenas {
-  display: grid;
-  grid-template-columns: repeat(5, 45px); /* 5 colunas */
-  gap: 8px;
-  margin-bottom: 20px;
-  max-width: 250px; /* (45px * 5) + (8px * 4) */
-  margin-left: auto;
-  margin-right: auto;
+/* ============================================================================
+   15. CLASSES UTILITÁRIAS
+   ============================================================================ */
+
+/* Classe para ocultar elementos */
+.hidden {
+  display: none !important;
 }
 
-/* =================================== */
-/* === ESTILOS MAPA DE DEZENAS (NOVO) === */
-/* =================================== */
-
-.mapa-dezenas-wrapper {
-  overflow-x: auto; /* Permite rolagem horizontal */
-  padding-bottom: 10px; /* Espaço para a barra de rolagem */
-  /* 1. Garante que o wrapper seja centralizado na página */
-  width: 100%;
-  box-sizing: border-box;
+/* Classe para loading/carregando */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
-/* O grid real com as colunas (display: grid) */
-.mapa-dezenas-grid {
-  display: grid;
-  /* CORREÇÃO: Colunas ajustadas para melhor visualização */
-  grid-template-columns: 80px 80px repeat(25, 32px);
-
-  /* Garante que o grid seja largo o suficiente para rolar */
-  width: max-content;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin: 10px auto; /* Centraliza o grid dentro do wrapper */
+/* Classe para elementos desabilitados */
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  pointer-events: none;
 }
 
-/* Estilos de Célula Comuns */
-.mapa-header,
-.mapa-celula {
-  padding: 8px 0;
-  text-align: center;
-  /* CORREÇÃO: Remove a borda inferior da ÚLTIMA célula de cada linha */
-  border-bottom: 1px solid #eee;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Remove a borda direita da última coluna */
-.mapa-dezenas-grid > div:nth-child(27n) {
-  border-right: none;
-}
-
-/* Estilos Específicos do Cabeçalho */
-.mapa-header {
-  font-weight: bold;
-  background-color: #e9ecef; /* Cinza do cabeçalho de tabela */
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-/* Estilos das Colunas de Dados */
-.concurso-col {
-  background-color: #f8f9fa; /* Fundo claro para ID */
-  font-weight: 600;
-}
-.data-col {
-  background-color: #ffffff; /* Fundo branco para Data */
-}
-
-/* Estilo para a dezena (bolinha) */
-.dezena-mapa {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #333;
-  transition: background-color 0.2s;
-  margin: auto;
-}
-
-/* Estilos de Acerto (Cores) */
-.sorteada-mapa {
-  background-color: #28a745; /* Verde */
-  color: white;
-}
-.nao-sorteada-mapa {
-  background-color: #f0f0f0; /* Cinza claro */
-  color: #777;
-}
-
-/* Efeito Zebrado (Simulação de linha) - Necessário ajustar */
-/* Se quisermos linhas zebradas, precisamos de classes adicionadas no JS (linha-par/linha-impar) */
-.linha-impar {
-  background-color: #fcfcfc;
-}
-.linha-par {
-  background-color: #fafafa;
-}
-
-/* Garante que o fundo das colunas fixas respeite o zebrado */
-.concurso-col.linha-impar {
-  background-color: #f4f4f4;
-}
-.concurso-col.linha-par {
-  background-color: #f1f1f1;
-}
-.data-col.linha-impar {
-  background-color: #fcfcfc;
-}
-.data-col.linha-par {
-  background-color: #f7f7f7;
-}
-
-.gerador-acoes {
-  display: flex;
-  justify-content: flex-end;
-  padding-bottom: 15px; /* Aumenta um pouco o espaço para o título */
-  /* Garante que o container ocupe a largura total para alinhar o botão */
-  width: 100%;
-}
-
-.btn-icone-acao {
-  /* Diminui o tamanho e torna mais quadrado/compacto */
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  color: #444; /* Cor mais escura */
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  /* Ajustes visuais para parecer um controle */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  min-width: 40px; /* Garante que não fique muito pequeno */
-  line-height: 1; /* Centraliza verticalmente o emoji/texto */
-}
-
-/* Estilo para quando o botão está "Ativo" (todas selecionadas) */
-.btn-icone-acao.active {
-  background-color: #0011ff; /* Verde */
-  border-color: #28a745;
-  color: white;
-}
-
-.btn-icone-acao:hover {
-  opacity: 0.8;
-}
-
-/* Container que alinha os botões Salvar e Limpar */
-.jogos-gerados-botoes {
-  display: flex;
-  justify-content: flex-end; /* Alinha à direita */
-  gap: 10px; /* Espaço entre os botões */
-  margin-top: 20px;
-}
-
-/* Estilo para o botão Descartar (Secundário/Limpar) */
-.btn-limpar-jogos {
-  /* Estilo neutro, diferente do verde de 'Salvar' */
-  background-color: #ff0000;
-  color: #ffffff;
-  border: 1px solid #ccc;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  transition: background-color 0.2s;
-}
-
-.btn-limpar-jogos:hover {
-  background-color: #e2e6ea;
-}
-
-/* Garante que o botão Salvar continue com o estilo primário (verde) */
-.btn-salvar-todos {
-  /* (Seu estilo verde existente) */
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  /* ... */
-}
+/* ============================================================================
+   FIM DO ARQUIVO CSS
+   ============================================================================ */
