@@ -911,7 +911,7 @@ main {
 #jogos-salvos-container {
   max-height: 60vh;
   overflow-y: auto;
-  padding: 10px;
+  padding: 2px;
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #fafafa;
@@ -1919,7 +1919,7 @@ main {
   /* === MAIN === */
   main {
     margin: 0;
-    padding: 15px;
+    padding: 5px;
     border-radius: 0;
     box-shadow: none;
   }
@@ -1948,13 +1948,13 @@ main {
   /* === CARDS DE JOGOS === */
   .jogo-salvo-card {
     padding: 10px 8px;
-    margin-bottom: 8px;
+    margin-bottom: 3px;
   }
 
   .card-header-jogo {
     gap: 8px;
-    padding-bottom: 8px;
-    margin-bottom: 8px;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
   }
 
   .pontuacao-display {
