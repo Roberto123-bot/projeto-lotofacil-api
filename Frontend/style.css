@@ -1,3 +1,13 @@
+/* ==================== 
+   Variables & Reset 
+   ==================== */
+:root {
+  /* Colors */
+  --primary-color: #6366f1;
+  --accent-color: #ec4899;
+  --spacing-md: 1rem;
+}
+
 /* --- Configurações Gerais --- */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
@@ -14,10 +24,27 @@ header {
   margin-bottom: 10px;
 }
 
-header h1 {
-  color: #004a99; /* Um tom de azul escuro */
-  margin: 0;
+.jogos-header h1 {
+  font-size: clamp(1.5rem, 7vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: var(--spacing-md);
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--accent-color)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  flex-grow: 1; /* Adicionar esta linha */
+  text-align: left; /* Garantir que esta linha exista */
 }
+
+/* header h1 {
+  color: #004a99;
+  margin: 0;
+} */
 
 /* --- Container Principal --- */
 main {
