@@ -1,53 +1,94 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "Frontend/**",
-      "use": "@vercel/static"
+      "source": "/service-worker.js",
+      "destination": "/Frontend/service-worker.js"
     },
     {
-      "src": "assets/**",
-      "use": "@vercel/static"
+      "source": "/manifest.json",
+      "destination": "/Frontend/manifest.json"
+    },
+    {
+      "source": "/style.css",
+      "destination": "/Frontend/style.css"
+    },
+    {
+      "source": "/script.js",
+      "destination": "/Frontend/script.js"
+    },
+    {
+      "source": "/auth.css",
+      "destination": "/Frontend/auth.css"
+    },
+    {
+      "source": "/auth.js",
+      "destination": "/Frontend/auth.js"
+    },
+    {
+      "source": "/login.html",
+      "destination": "/Frontend/login.html"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/Frontend/index.html"
+    },
+    {
+      "source": "/welcome.html",
+      "destination": "/Frontend/welcome.html"
+    },
+    {
+      "source": "/favicon.ico",
+      "destination": "/favicon.ico"
+    },
+    {
+      "source": "/favicon.svg",
+      "destination": "/favicon.svg"
+    },
+    {
+      "source": "/assets/:path*",
+      "destination": "/assets/:path*"
+    },
+    {
+      "source": "/",
+      "destination": "/Frontend/welcome.html"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/Frontend/:path*"
     }
   ],
-  "routes": [
+  "headers": [
     {
-      "src": "/service-worker.js",
-      "headers": {
-        "Cache-Control": "public, max-age=0, must-revalidate",
-        "Service-Worker-Allowed": "/"
-      },
-      "dest": "/Frontend/service-worker.js"
+      "source": "/service-worker.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
     },
     {
-      "src": "/manifest.json",
-      "headers": {
-        "Content-Type": "application/manifest+json"
-      },
-      "dest": "/Frontend/manifest.json"
+      "source": "/manifest.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        }
+      ]
     },
     {
-      "src": "/favicon.ico",
-      "dest": "/Frontend/favicon.ico"
-    },
-    {
-      "src": "/favicon.svg",
-      "dest": "/Frontend/favicon.svg"
-    },
-    {
-      "src": "/assets/images/(.*)",
-      "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
-      },
-      "dest": "/assets/images/$1"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/Frontend/$1"
+      "source": "/assets/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ]
 }
