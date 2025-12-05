@@ -696,12 +696,7 @@ ${jogosTexto.length} jogos • ${dataAtual}
       });
     </script>
 
-    <!-- ============================================================================
-     SOLUÇÃO: BOTÃO SEMPRE VISÍVEL (PARA TESTE)
-     Cole este código no final do seu index.html (substitua o script PWA atual)
-     ============================================================================ -->
-
-    <!-- Botão PWA (sempre visível para teste) -->
+    <!-- Botão PWA (sempre visível) -->
     <button
       id="btn-install-pwa"
       class="install-button"
@@ -711,169 +706,78 @@ ${jogosTexto.length} jogos • ${dataAtual}
     </button>
 
     <script>
-      // ============================================================================
-      // PWA: BOTÃO SEMPRE VISÍVEL (MODO DEBUG)
-      // ============================================================================
-
       let deferredPrompt;
       const installButton = document.getElementById("btn-install-pwa");
 
-      console.log("🔍 [PWA] Verificando botão...");
-      console.log("Botão existe?", installButton);
-      console.log(
-        "Display:",
-        installButton ? window.getComputedStyle(installButton).display : "N/A"
-      );
+      console.log("🔍 [PWA] Botão existe?", installButton);
 
       // Service Worker
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
             .register("/service-worker.js")
-            .then((registration) => {
-              console.log("✅ Service Worker registrado:", registration.scope);
-            })
-            .catch((error) => {
-              console.error("❌ Erro ao registrar Service Worker:", error);
-            });
+            .then((reg) => console.log("✅ SW registrado:", reg.scope))
+            .catch((err) => console.error("❌ Erro SW:", err));
         });
       }
 
-      // Evento de instalação
+      // Evento instalação
       window.addEventListener("beforeinstallprompt", (e) => {
-        console.log("🎯 [PWA] beforeinstallprompt DISPARADO!");
+        console.log("🎯 [PWA] EVENTO DISPARADO!");
         e.preventDefault();
         deferredPrompt = e;
 
         if (installButton) {
-          installButton.style.display = "block";
           installButton.style.background =
             "linear-gradient(135deg, #00ff00 0%, #00cc00 100%)";
-          console.log("✅ [PWA] Botão ativado (verde)");
+          console.log("✅ Botão ativado (verde)");
         }
       });
 
-      // Função de instalação
+      // Função instalar
       async function installApp() {
-        console.log("🔘 [PWA] Botão clicado!");
+        console.log("🔘 [PWA] Clicado!");
 
         if (!deferredPrompt) {
-          console.log("⚠️ [PWA] Prompt não disponível");
           alert(
-            "Instalação não disponível. Possíveis motivos:\n\n" +
-              "1. App já está instalado\n" +
-              "2. Navegador não suporta (use Chrome/Edge)\n" +
-              "3. Não está em HTTPS\n" +
-              "4. Critérios PWA não atendidos"
+            "Instalação indisponível:\n\n" +
+              "• App já instalado\n" +
+              "• Navegador não suporta (use Chrome)\n" +
+              "• Critérios PWA não atendidos"
           );
           return;
         }
 
-        try {
-          deferredPrompt.prompt();
-          const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`👤 [PWA] ${outcome}`);
 
-          console.log(`👤 [PWA] Resposta: ${outcome}`);
-
-          if (outcome === "accepted" && installButton) {
-            installButton.style.display = "none";
-          }
-
-          deferredPrompt = null;
-        } catch (err) {
-          console.error("❌ [PWA] Erro:", err);
+        if (outcome === "accepted") {
+          installButton.style.display = "none";
         }
+        deferredPrompt = null;
       }
 
-      // Click
       if (installButton) {
         installButton.addEventListener("click", installApp);
-        console.log("✅ [PWA] Listener registrado");
+        console.log("✅ Listener registrado");
       }
 
       // Detecta standalone
-      const isStandalone =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        window.navigator.standalone === true;
-
-      if (isStandalone) {
-        console.log("📱 [PWA] App já instalado (standalone)");
-        document.body.classList.add("standalone-mode");
-        if (installButton) {
-          installButton.style.display = "none";
-        }
-      } else {
-        console.log("🌐 [PWA] Rodando no navegador");
+      if (window.matchMedia("(display-mode: standalone)").matches) {
+        console.log("📱 App já instalado");
+        installButton.style.display = "none";
       }
 
-      // Log final
+      // Log
       console.log(`
-╔════════════════════════════════════════════════════════════╗
-║               🎰 ROBERTO LOTERIAS PWA 🎰                  ║
-║                                                            ║
-║  Botão existe:        ${
-        installButton ? "✅ SIM" : "❌ NÃO"
-      }                        ║
-║  Display:             ${
-        installButton ? window.getComputedStyle(installButton).display : "N/A"
-      }                   ║
-║  Modo:                ${
-        isStandalone ? "Standalone" : "Browser"
-      }                      ║
-║  Service Worker:      ${
-        navigator.serviceWorker ? "✅ Disponível" : "❌ Indisponível"
-      } ║
-║  HTTPS:               ${
-        location.protocol === "https:" ? "✅ Sim" : "❌ Não"
-      }                        ║
-║                                                            ║
-║  Aguardando evento beforeinstallprompt...                 ║
-║                                                            ║
-╚════════════════════════════════════════════════════════════╝
+╔════════════════════════════════════════════════════╗
+║          🎰 ROBERTO LOTERIAS PWA 🎰              ║
+║  Botão: ${installButton ? "✅" : "❌"}  |  HTTPS: ${
+        location.protocol === "https:" ? "✅" : "❌"
+      }            ║
+╚════════════════════════════════════════════════════╝
   `);
-
-      // Teste visual após 3 segundos
-      setTimeout(() => {
-        if (installButton) {
-          console.log("🔍 [DEBUG 3s] Botão ainda existe:", installButton);
-          console.log(
-            "🔍 [DEBUG 3s] Display:",
-            window.getComputedStyle(installButton).display
-          );
-          console.log(
-            "🔍 [DEBUG 3s] Z-index:",
-            window.getComputedStyle(installButton).zIndex
-          );
-          console.log(
-            "🔍 [DEBUG 3s] Position:",
-            window.getComputedStyle(installButton).position
-          );
-
-          // Forçar visibilidade
-          installButton.style.display = "block";
-          installButton.style.position = "fixed";
-          installButton.style.bottom = "20px";
-          installButton.style.right = "20px";
-          installButton.style.zIndex = "99999";
-
-          console.log("✅ [DEBUG] Botão forçado a aparecer!");
-        }
-      }, 3000);
     </script>
-
-    <!-- ============================================================================
-     O QUE ESTE CÓDIGO FAZ:
-     
-     1. ✅ Botão SEMPRE VISÍVEL (style="display: block !important;")
-     2. ✅ Logs detalhados no console
-     3. ✅ Força visibilidade após 3 segundos
-     4. ✅ Fica VERDE quando prompt disponível
-     5. ✅ Mostra mensagem clara se não funcionar
-     
-     TESTE:
-     - Se o botão aparecer MAS não instalar → Navegador não dispara evento
-     - Se o botão NÃO aparecer → Problema no CSS ou HTML
-     
-     ============================================================================ -->
   </body>
 </html>
