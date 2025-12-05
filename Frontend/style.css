@@ -2180,195 +2180,276 @@ main {
 }
 
 /* ============================================================================
-   BOTÃO DE INSTALAÇÃO PWA - VERSÃO MOBILE DESTACADA
-   Substitua o CSS anterior por este
+   BOTÃO DE INSTALAÇÃO PWA - SUPER VISÍVEL
+   Adicione este CSS no seu style.css (ou substitua o existente)
    ============================================================================ */
 
-/* ========================================
-   OPÇÃO 1: BANNER FIXO NO TOPO (RECOMENDADO)
-   ======================================== */
-
-.install-button {
-  /* Desktop: Canto inferior direito */
+/* Botão de instalação do PWA */
+#btn-install-pwa {
   position: fixed;
-  bottom: 80px;
-  right: 20px;
-  padding: 14px 28px;
+  z-index: 10000;
+
+  /* Estilo do botão */
+  padding: 16px 32px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 30px;
-  font-size: 15px;
-  font-weight: 600;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-  z-index: 9999;
-  display: none;
-  transition: all 0.3s ease;
-  animation: pulse-install 2s infinite;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
 
-.install-button::before {
-  content: "📱";
-  margin-right: 8px;
-  font-size: 18px;
+  /* Sombra chamativa */
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5),
+    0 0 0 4px rgba(255, 255, 255, 0.9);
+
+  /* Animações */
+  animation: pulse-button 2s ease-in-out infinite,
+    float-button 3s ease-in-out infinite;
+
+  /* Transição suave */
+  transition: all 0.3s ease;
+
+  /* Fonte legível */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: 0.5px;
+
+  /* Display inicialmente oculto (JS vai mostrar) */
+  display: none;
 }
 
 /* ========================================
-   MOBILE: BANNER NO TOPO (Muito Visível!)
+   POSICIONAMENTO
    ======================================== */
 
+/* DESKTOP: Canto inferior direito */
+@media (min-width: 769px) {
+  #btn-install-pwa {
+    bottom: 30px;
+    right: 30px;
+  }
+}
+
+/* MOBILE: Centro inferior (MUITO VISÍVEL) */
 @media (max-width: 768px) {
-  .install-button {
-    /* Posição: Topo da página, largura total */
-    top: 60px; /* Abaixo do header */
-    bottom: auto;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-width: 100%;
+  #btn-install-pwa {
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
 
-    /* Visual */
-    padding: 16px 20px;
-    border-radius: 0; /* Sem borda arredondada nas laterais */
-    font-size: 16px;
-
-    /* Centralizar texto */
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    /* Mais largo no mobile */
+    min-width: 280px;
+    padding: 18px 40px;
+    font-size: 18px;
 
     /* Sombra mais forte */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
-    /* Animação mais chamativa */
-    animation: slide-down 0.5s ease-out, pulse-mobile 3s infinite 1s;
-  }
-
-  .install-button::before {
-    font-size: 24px;
-    margin-right: 0;
-  }
-
-  /* Adiciona ícone de seta para chamar atenção */
-  .install-button::after {
-    content: "👉";
-    font-size: 20px;
-    margin-left: 8px;
-    animation: point-finger 1s infinite;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.6),
+      0 0 0 5px rgba(255, 255, 255, 0.95);
   }
 }
 
-/* Animação de entrada suave */
-@keyframes slide-down {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+/* ========================================
+   ÍCONE DO BOTÃO
+   ======================================== */
+
+#btn-install-pwa::before {
+  content: "📱";
+  font-size: 24px;
+  margin-right: 10px;
+  display: inline-block;
+  animation: bounce-icon 2s ease-in-out infinite;
 }
 
-/* Animação de pulso no mobile */
-@keyframes pulse-mobile {
+/* ========================================
+   ANIMAÇÕES
+   ======================================== */
+
+/* Pulso do botão */
+@keyframes pulse-button {
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-  }
-}
-
-/* Animação do dedinho apontando */
-@keyframes point-finger {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(5px);
-  }
-}
-
-/* Animação de pulso padrão (desktop) */
-@keyframes pulse-install {
-  0%,
-  100% {
-    transform: scale(1);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5),
+      0 0 0 4px rgba(255, 255, 255, 0.9);
   }
   50% {
     transform: scale(1.05);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.7),
+      0 0 0 4px rgba(255, 255, 255, 0.95), 0 0 30px rgba(102, 126, 234, 0.4);
   }
 }
 
-/* Hover (desktop) */
-.install-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+/* Flutuação suave */
+@keyframes float-button {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
-/* Esconde quando já instalado */
-.standalone-mode .install-button {
+/* Mobile: ajustar float com translateX */
+@media (max-width: 768px) {
+  @keyframes float-button {
+    0%,
+    100% {
+      transform: translateX(-50%) translateY(0);
+    }
+    50% {
+      transform: translateX(-50%) translateY(-8px);
+    }
+  }
+}
+
+/* Ícone pulando */
+@keyframes bounce-icon {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotate(-10deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(10deg);
+  }
+}
+
+/* ========================================
+   HOVER (Desktop)
+   ======================================== */
+
+#btn-install-pwa:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 50px rgba(102, 126, 234, 0.8),
+    0 0 0 5px rgba(255, 255, 255, 0.95);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Mobile: hover não funciona, use active */
+@media (max-width: 768px) {
+  #btn-install-pwa:hover {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+#btn-install-pwa:active {
+  transform: scale(0.95);
+}
+
+/* ========================================
+   QUANDO JÁ ESTÁ INSTALADO
+   ======================================== */
+
+.standalone-mode #btn-install-pwa {
   display: none !important;
 }
 
 /* ========================================
-   AJUSTE DO CONTEÚDO (Mobile)
-   Push content down quando banner aparecer
+   BADGE "GRÁTIS" (Opcional)
    ======================================== */
 
-@media (max-width: 768px) {
-  body.has-install-banner {
-    padding-top: 70px; /* Espaço para o banner */
-  }
-
-  body.has-install-banner header {
-    margin-top: 70px; /* Empurra header para baixo */
-  }
-}
-
-/* ========================================
-   VARIAÇÃO: Badge "GRÁTIS"
-   ======================================== */
-
-.install-button .badge {
+#btn-install-pwa::after {
+  content: "GRÁTIS";
   position: absolute;
-  top: -8px;
-  right: 10%;
+  top: -10px;
+  right: 10px;
   background: #ff4444;
   color: white;
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
-  animation: bounce-badge 1.5s infinite;
+  box-shadow: 0 2px 10px rgba(255, 68, 68, 0.5);
+  animation: wiggle 2s ease-in-out infinite;
 }
 
-@keyframes bounce-badge {
+@keyframes wiggle {
   0%,
   100% {
-    transform: translateY(0);
+    transform: rotate(0deg);
   }
-  50% {
-    transform: translateY(-4px);
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
   }
 }
 
-/* Remove badge em desktop */
-@media (min-width: 769px) {
-  .install-button .badge {
-    display: none;
+/* ========================================
+   ESTADO VISÍVEL (Adicionar via JS)
+   ======================================== */
+
+#btn-install-pwa.show {
+  display: block !important;
+  animation: slide-in 0.5s ease-out, pulse-button 2s ease-in-out infinite 0.5s,
+    float-button 3s ease-in-out infinite 0.5s;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
+
+/* Mobile: ajustar slide-in com translateX */
+@media (max-width: 768px) {
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+}
+
+/* ========================================
+   VERSÃO SEM BADGE (Comentar o ::after se quiser)
+   ======================================== */
+
+/* 
+Remova o badge "GRÁTIS" deletando ou comentando este bloco:
+
+#btn-install-pwa::after {
+  display: none;
+}
+*/
+
+/* ========================================
+   CORES ALTERNATIVAS (Opcional)
+   ======================================== */
+
+/* Verde: */
+/*
+#btn-install-pwa {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+}
+*/
+
+/* Vermelho: */
+/*
+#btn-install-pwa {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+}
+*/
+
+/* Azul: */
+/*
+#btn-install-pwa {
+  background: linear-gradient(135deg, #2196F3 0%, #00BCD4 100%);
+}
+*/
 
 /* ============================================================================
    FIM DO ARQUIVO CSS
