@@ -1,203 +1,155 @@
 // ============================================================================
 // SERVICE WORKER - ROBERTO LOTERIAS PWA
-// Ajustado para estrutura: /Frontend/
+// Versão corrigida para PRODUÇÃO (Vercel/Netlify/GitHub Pages)
 // ============================================================================
 
-const CACHE_NAME = "roberto-loterias-v1";
-const CACHE_VERSION = "1.0.0";
+const CACHE_NAME = "roberto-loterias-v1.0.0";
 
 // ============================================================================
-// ✅ ARQUIVOS PARA CACHE - AJUSTADO PARA SUA ESTRUTURA
+// ARQUIVOS PARA CACHEAR
 // ============================================================================
 
 const FILES_TO_CACHE = [
-  "/Frontend/",
-  "/Frontend/index.html",
-  "/Frontend/style.css",
-  "/Frontend/script.js",
-  "/Frontend/manifest.json",
-  "/Frontend/offline.html",
-];
-
-// Ícones (opcional - só adiciona se existirem)
-const ICON_FILES = [
-  "/assets/images/icon-48x48.png",
-  "/assets/images/icon-72x72.png",
-  "/assets/images/icon-96x96.png",
-  "/assets/images/icon-144x144.png",
-  "/assets/images/icon-192x192.png",
-  "/assets/images/icon-512x512.png",
+  "/",
+  "/index.html",
+  "/style.css",
+  "/script.js",
+  "/manifest.json",
+  "/favicon.svg",
+  "/favicon.ico",
+  "/assets/images/favicon-96x96.png",
+  "/assets/images/web-app-manifest-192x192.png",
+  "/assets/images/web-app-manifest-512x512.png",
 ];
 
 // ============================================================================
-// INSTALAÇÃO
+// INSTALAÇÃO DO SERVICE WORKER
 // ============================================================================
 
 self.addEventListener("install", (event) => {
-  console.log("🚀 [SW] Instalando Service Worker...");
+  console.log("[SW] Instalando Service Worker...");
 
   event.waitUntil(
     caches
       .open(CACHE_NAME)
       .then((cache) => {
-        console.log("📦 [SW] Fazendo cache dos arquivos essenciais");
+        console.log("[SW] Fazendo cache dos arquivos essenciais");
 
-        // Adiciona arquivos essenciais
-        return cache.addAll(FILES_TO_CACHE).then(() => {
-          console.log("✅ [SW] Arquivos essenciais cacheados");
-
-          // Tenta adicionar ícones (não falha se não existirem)
-          return Promise.allSettled(
-            ICON_FILES.map((url) =>
-              cache.add(url).catch((err) => {
-                console.warn(`⚠️ [SW] Ícone não encontrado: ${url}`);
-              })
-            )
-          );
-        });
+        // Cachear arquivos um por um (mais robusto)
+        return Promise.allSettled(
+          FILES_TO_CACHE.map((url) => {
+            return cache.add(url).catch((err) => {
+              console.warn(`[SW] Falha ao cachear: ${url}`, err);
+            });
+          })
+        );
       })
       .then(() => {
-        console.log("✅ [SW] Service Worker instalado!");
-        return self.skipWaiting();
+        console.log("[SW] Service Worker instalado com sucesso!");
+        return self.skipWaiting(); // Ativa imediatamente
       })
       .catch((error) => {
-        console.error("❌ [SW] Erro na instalação:", error);
-        // Tenta instalar mesmo com erro em alguns arquivos
-        return self.skipWaiting();
+        console.error("[SW] Erro durante instalação:", error);
       })
   );
 });
 
 // ============================================================================
-// ATIVAÇÃO
+// ATIVAÇÃO DO SERVICE WORKER
 // ============================================================================
 
 self.addEventListener("activate", (event) => {
-  console.log("🔄 [SW] Ativando Service Worker...");
+  console.log("[SW] Ativando Service Worker...");
 
   event.waitUntil(
     caches
       .keys()
       .then((cacheNames) => {
         return Promise.all(
-          cacheNames
-            .filter((cacheName) => cacheName !== CACHE_NAME)
-            .map((cacheName) => {
-              console.log("🗑️ [SW] Removendo cache antigo:", cacheName);
+          cacheNames.map((cacheName) => {
+            // Remove caches antigos
+            if (cacheName !== CACHE_NAME) {
+              console.log("[SW] Removendo cache antigo:", cacheName);
               return caches.delete(cacheName);
-            })
+            }
+          })
         );
       })
       .then(() => {
-        console.log("✅ [SW] Service Worker ativado!");
-        return self.clients.claim();
+        console.log("[SW] Service Worker ativado!");
+        return self.clients.claim(); // Toma controle imediatamente
       })
   );
 });
 
 // ============================================================================
-// FETCH (Intercepta requisições)
+// INTERCEPTAÇÃO DE REQUISIÇÕES (FETCH)
 // ============================================================================
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Ignora requisições de outros domínios
+  // Ignora requisições de outros domínios (CDN, APIs externas)
   if (url.origin !== location.origin) {
     return;
   }
 
-  // Ignora requisições do DevTools
-  if (request.cache === "only-if-cached" && request.mode !== "same-origin") {
-    return;
-  }
-
+  // Estratégia: Cache First (com fallback para Network)
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {
-        console.log("📦 [SW] Servindo do cache:", request.url);
+        console.log("[SW] Servindo do cache:", request.url);
         return cachedResponse;
       }
 
-      // Busca da rede
+      // Se não está no cache, busca na rede
+      console.log("[SW] Buscando na rede:", request.url);
       return fetch(request)
         .then((networkResponse) => {
-          // Verifica se é resposta válida
-          if (!networkResponse || networkResponse.status !== 200) {
-            return networkResponse;
+          // Cachear a resposta para uso futuro
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseToCache);
+            });
           }
-
-          // Cacheia a resposta
-          const responseToCache = networkResponse.clone();
-
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseToCache);
-          });
-
           return networkResponse;
         })
         .catch((error) => {
-          console.error("❌ [SW] Erro ao buscar:", request.url);
+          console.error("[SW] Falha na requisição:", request.url, error);
 
-          // Se for HTML, retorna página offline
+          // Fallback para página offline (se existir)
           if (request.destination === "document") {
-            return caches
-              .match("/Frontend/offline.html")
-              .then((offlineResponse) => {
-                return (
-                  offlineResponse ||
-                  new Response("Offline", {
-                    status: 503,
-                    statusText: "Service Unavailable",
-                  })
-                );
-              });
+            return caches.match("/index.html");
           }
-
-          return new Response("Recurso não disponível", {
-            status: 503,
-            statusText: "Service Unavailable",
-          });
         });
     })
   );
 });
 
 // ============================================================================
-// MENSAGENS
+// MENSAGENS DO CLIENTE
 // ============================================================================
 
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") {
+    console.log("[SW] Forçando atualização...");
     self.skipWaiting();
-  }
-
-  if (event.data && event.data.type === "CLEAR_CACHE") {
-    event.waitUntil(
-      caches
-        .keys()
-        .then((cacheNames) => {
-          return Promise.all(
-            cacheNames.map((cacheName) => caches.delete(cacheName))
-          );
-        })
-        .then(() => {
-          console.log("✅ [SW] Cache limpo!");
-        })
-    );
   }
 });
 
 // ============================================================================
-// LOG
+// INFORMAÇÕES DO SERVICE WORKER
 // ============================================================================
 
 console.log(`
-╔══════════════════════════════════════════════════════════╗
-║         🎰 ROBERTO LOTERIAS PWA 🎰                      ║
-║         Service Worker: v${CACHE_VERSION}                      ║
-║         Cache: ${CACHE_NAME}                      ║
-║         Estrutura: /Frontend/                            ║
-╚══════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════╗
+║                                                           ║
+║        🎰 ROBERTO LOTERIAS SERVICE WORKER 🎰            ║
+║                                                           ║
+║        Versão: ${CACHE_NAME}                            ║
+║        Status: Iniciando...                               ║
+║                                                           ║
+╚═══════════════════════════════════════════════════════════╝
 `);

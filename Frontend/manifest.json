@@ -2,81 +2,34 @@
   "name": "Roberto Loterias",
   "short_name": "R. Loterias",
   "description": "Aplicativo para análise e gestão de jogos da Lotofácil",
-  "start_url": "/Frontend/",
-  "scope": "/Frontend/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6366f1",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "../assets/images/favicon-96x96.png",
+      "src": "/assets/images/favicon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "../assets/images/web-app-manifest-192x192.png",
+      "src": "/assets/images/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "../assets/images/web-app-manifest-512x512.png",
+      "src": "/assets/images/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "../assets/images/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any"
     }
   ],
   "categories": ["productivity", "utilities", "finance"],
   "dir": "ltr",
   "lang": "pt-BR",
-  "prefer_related_applications": false,
-  "shortcuts": [
-    {
-      "name": "Ver Resultados",
-      "short_name": "Resultados",
-      "description": "Ver últimos resultados da Lotofácil",
-      "url": "/Frontend/?tab=tabela",
-      "icons": [
-        {
-          "src": "../assets/images/favicon-96x96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Gerador",
-      "short_name": "Gerar",
-      "description": "Gerar novos jogos",
-      "url": "/Frontend/?tab=gerador",
-      "icons": [
-        {
-          "src": "../assets/images/favicon-96x96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Meus Jogos",
-      "short_name": "Jogos",
-      "description": "Ver meus jogos salvos",
-      "url": "/Frontend/?tab=meus-jogos",
-      "icons": [
-        {
-          "src": "../assets/images/favicon-96x96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    }
-  ]
+  "prefer_related_applications": false
 }
