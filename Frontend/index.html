@@ -696,12 +696,20 @@ ${jogosTexto.length} jogos • ${dataAtual}
       });
     </script>
 
+    <!-- ========================================
+         BOTÃO DE INSTALAÇÃO PWA
+         Deve estar ANTES do script PWA, mas DENTRO do body
+         ======================================== -->
+    <button id="btn-install-pwa" class="install-button" style="display: none">
+      Instalar App
+    </button>
+
     <!-- Script PWA: Service Worker e Instalação -->
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
-            .register("service-worker.js")
+            .register("/service-worker.js")
             .then((registration) => {
               console.log("✅ Service Worker registrado:", registration.scope);
 
@@ -737,170 +745,67 @@ ${jogosTexto.length} jogos • ${dataAtual}
         });
       }
 
-      // ============================================================================
-      // PWA: INSTALAÇÃO COM BOTÃO SUPER VISÍVEL
-      // Cole este código no seu index.html, substituindo o código PWA existente
-      // ============================================================================
-
+      // PWA: Botão de Instalação
       let deferredPrompt;
       const installButton = document.getElementById("btn-install-pwa");
 
-      // ============================================================================
-      // CAPTURA O EVENTO DE INSTALAÇÃO
-      // ============================================================================
-
       window.addEventListener("beforeinstallprompt", (e) => {
-        console.log("📱 [PWA] Botão de instalação pode ser mostrado!");
-
-        // Previne o prompt automático do navegador
+        console.log("📱 [PWA] Prompt de instalação disponível!");
         e.preventDefault();
-
-        // Guarda o evento para usar depois
         deferredPrompt = e;
 
-        // MOSTRA O BOTÃO
         if (installButton) {
           installButton.style.display = "block";
-          installButton.classList.add("show");
-          console.log("✅ [PWA] Botão de instalação está visível!");
+          console.log("✅ [PWA] Botão está visível!");
         } else {
-          console.error(
-            "❌ [PWA] Botão #btn-install-pwa não encontrado no HTML!"
-          );
+          console.error("❌ [PWA] Botão não encontrado!");
         }
       });
 
-      // ============================================================================
-      // FUNÇÃO DE INSTALAÇÃO
-      // ============================================================================
-
       async function installApp() {
-        console.log("🔘 [PWA] Botão clicado - iniciando instalação...");
-
         if (!deferredPrompt) {
-          console.log("❌ [PWA] Prompt não disponível");
-          alert(
-            "Este app já foi instalado ou seu navegador não suporta instalação PWA."
-          );
+          alert("App já instalado ou navegador não suporta PWA.");
           return;
         }
 
-        // Mostra o prompt de instalação
         deferredPrompt.prompt();
-
-        // Aguarda a escolha do usuário
         const { outcome } = await deferredPrompt.userChoice;
 
         console.log(
-          `👤 [PWA] Usuário ${
-            outcome === "accepted" ? "aceitou ✅" : "recusou ❌"
-          } a instalação`
+          `👤 [PWA] ${outcome === "accepted" ? "Aceito" : "Recusado"}`
         );
 
-        if (outcome === "accepted") {
-          // Esconde o botão após aceitar
-          if (installButton) {
-            installButton.classList.remove("show");
-            setTimeout(() => {
-              installButton.style.display = "none";
-            }, 500);
-          }
+        if (outcome === "accepted" && installButton) {
+          installButton.style.display = "none";
         }
 
-        // Limpa o prompt
         deferredPrompt = null;
       }
 
-      // ============================================================================
-      // CLICK NO BOTÃO
-      // ============================================================================
-
       if (installButton) {
         installButton.addEventListener("click", installApp);
-        console.log("✅ [PWA] Event listener do botão registrado");
-      } else {
-        console.error(
-          "❌ [PWA] Botão #btn-install-pwa não encontrado no HTML!"
-        );
       }
-
-      // ============================================================================
-      // DETECTA QUANDO O APP FOI INSTALADO
-      // ============================================================================
 
       window.addEventListener("appinstalled", () => {
-        console.log("✅ [PWA] App instalado com sucesso!");
-
-        // Esconde o botão permanentemente
-        if (installButton) {
-          installButton.style.display = "none";
-        }
-
-        // Opcional: Mostrar mensagem de sucesso
-        console.log("🎉 Roberto Loterias instalado! Acesse pela tela inicial.");
+        console.log("✅ [PWA] Instalado!");
+        if (installButton) installButton.style.display = "none";
       });
 
-      // ============================================================================
-      // DETECTA MODO STANDALONE (App já instalado)
-      // ============================================================================
-
-      function isStandalone() {
-        return (
-          window.matchMedia("(display-mode: standalone)").matches ||
-          window.navigator.standalone === true
-        );
-      }
-
-      if (isStandalone()) {
-        console.log("📱 [PWA] App rodando em modo standalone (já instalado)");
+      // Detecta standalone
+      if (window.matchMedia("(display-mode: standalone)").matches) {
         document.body.classList.add("standalone-mode");
-
-        // Esconde o botão se já está instalado
-        if (installButton) {
-          installButton.style.display = "none";
-        }
-      } else {
-        console.log("🌐 [PWA] App rodando no navegador (não instalado)");
-        document.body.classList.add("browser-mode");
+        if (installButton) installButton.style.display = "none";
       }
 
-      // ============================================================================
-      // LOG DE DEBUG
-      // ============================================================================
-
+      // Log
       console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║              🎰 ROBERTO LOTERIAS PWA 🎰                  ║
-║                                                           ║
-║              Botão de instalação: ${
-        installButton ? "Encontrado ✅" : "NÃO encontrado ❌"
-      }      ║
-║              Modo: ${
-        isStandalone() ? "Standalone" : "Browser"
-      }                       ║
-║              Online: ${
-        navigator.onLine ? "Sim" : "Não"
-      }                              ║
-║                                                           ║
+║              Botão: ${
+        installButton ? "✅ OK" : "❌ ERRO"
+      }                          ║
 ╚═══════════════════════════════════════════════════════════╝
-`);
-
-      // ============================================================================
-      // VERIFICAÇÃO (DELETE DEPOIS DE TESTAR)
-      // ============================================================================
-
-      // Descomente para debug:
-      /*
-setTimeout(() => {
-  if (installButton) {
-    console.log('🔍 [DEBUG] Botão existe:', installButton);
-    console.log('🔍 [DEBUG] Display:', window.getComputedStyle(installButton).display);
-    console.log('🔍 [DEBUG] Visibility:', window.getComputedStyle(installButton).visibility);
-    console.log('🔍 [DEBUG] Z-index:', window.getComputedStyle(installButton).zIndex);
-  }
-}, 3000);
-*/
+      `);
     </script>
-    <button id="btn-install-pwa" class="install-button">Instalar App</button>
   </body>
 </html>
