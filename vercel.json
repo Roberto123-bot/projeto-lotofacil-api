@@ -4,6 +4,10 @@
     {
       "src": "Frontend/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "assets/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -29,6 +33,13 @@
     {
       "src": "/favicon.svg",
       "dest": "/Frontend/favicon.svg"
+    },
+    {
+      "src": "/assets/images/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      },
+      "dest": "/assets/images/$1"
     },
     {
       "src": "/assets/(.*)",
