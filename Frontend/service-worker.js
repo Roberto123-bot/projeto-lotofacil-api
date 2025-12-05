@@ -18,6 +18,7 @@ const FILES_TO_CACHE = [
   "/favicon.svg",
   "/favicon.ico",
   "/assets/images/favicon-96x96.png",
+  "/assets/images/apple-touch-icon.png",
   "/assets/images/web-app-manifest-192x192.png",
   "/assets/images/web-app-manifest-512x512.png",
 ];
