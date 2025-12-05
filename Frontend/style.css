@@ -2180,5 +2180,196 @@ main {
 }
 
 /* ============================================================================
+   BOTÃO DE INSTALAÇÃO PWA - VERSÃO MOBILE DESTACADA
+   Substitua o CSS anterior por este
+   ============================================================================ */
+
+/* ========================================
+   OPÇÃO 1: BANNER FIXO NO TOPO (RECOMENDADO)
+   ======================================== */
+
+.install-button {
+  /* Desktop: Canto inferior direito */
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  z-index: 9999;
+  display: none;
+  transition: all 0.3s ease;
+  animation: pulse-install 2s infinite;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.install-button::before {
+  content: "📱";
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+/* ========================================
+   MOBILE: BANNER NO TOPO (Muito Visível!)
+   ======================================== */
+
+@media (max-width: 768px) {
+  .install-button {
+    /* Posição: Topo da página, largura total */
+    top: 60px; /* Abaixo do header */
+    bottom: auto;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+
+    /* Visual */
+    padding: 16px 20px;
+    border-radius: 0; /* Sem borda arredondada nas laterais */
+    font-size: 16px;
+
+    /* Centralizar texto */
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    /* Sombra mais forte */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    /* Animação mais chamativa */
+    animation: slide-down 0.5s ease-out, pulse-mobile 3s infinite 1s;
+  }
+
+  .install-button::before {
+    font-size: 24px;
+    margin-right: 0;
+  }
+
+  /* Adiciona ícone de seta para chamar atenção */
+  .install-button::after {
+    content: "👉";
+    font-size: 20px;
+    margin-left: 8px;
+    animation: point-finger 1s infinite;
+  }
+}
+
+/* Animação de entrada suave */
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Animação de pulso no mobile */
+@keyframes pulse-mobile {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+}
+
+/* Animação do dedinho apontando */
+@keyframes point-finger {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
+/* Animação de pulso padrão (desktop) */
+@keyframes pulse-install {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Hover (desktop) */
+.install-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+}
+
+/* Esconde quando já instalado */
+.standalone-mode .install-button {
+  display: none !important;
+}
+
+/* ========================================
+   AJUSTE DO CONTEÚDO (Mobile)
+   Push content down quando banner aparecer
+   ======================================== */
+
+@media (max-width: 768px) {
+  body.has-install-banner {
+    padding-top: 70px; /* Espaço para o banner */
+  }
+
+  body.has-install-banner header {
+    margin-top: 70px; /* Empurra header para baixo */
+  }
+}
+
+/* ========================================
+   VARIAÇÃO: Badge "GRÁTIS"
+   ======================================== */
+
+.install-button .badge {
+  position: absolute;
+  top: -8px;
+  right: 10%;
+  background: #ff4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+  animation: bounce-badge 1.5s infinite;
+}
+
+@keyframes bounce-badge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Remove badge em desktop */
+@media (min-width: 769px) {
+  .install-button .badge {
+    display: none;
+  }
+}
+
+/* ============================================================================
    FIM DO ARQUIVO CSS
    ============================================================================ */

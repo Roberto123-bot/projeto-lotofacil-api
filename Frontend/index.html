@@ -3,12 +3,158 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Resultados da Lotofácil</title>
+    <title>Roberto Loterias - Lotofácil</title>
+
+    <!-- ========================================
+       FAVICON - CONFIGURAÇÃO COMPLETA
+       ======================================== -->
+
+    <!-- Favicon SVG (Moderna, melhor qualidade, escalável) -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+
+    <!-- Favicon PNG 96x96 (Boa compatibilidade) -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="../assets/images/favicon-96x96.png"
+    />
+
+    <!-- Favicon ICO (Compatibilidade com navegadores antigos) -->
+    <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+    <link rel="shortcut icon" href="../favicon.ico" />
+
+    <!-- ========================================
+       APPLE TOUCH ICONS (iOS/iPadOS)
+       ======================================== -->
+
+    <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="../assets/images/apple-touch-icon.png"
+    />
+
+    <!-- ========================================
+       PWA MANIFEST
+       ======================================== -->
+
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- ========================================
+       THEME COLOR (Cor da barra de status)
+       ======================================== -->
+
+    <meta name="theme-color" content="#6366f1" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#6366f1"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#4f46e5"
+    />
+
+    <!-- ========================================
+       MOBILE WEB APP (PWA)
+       ======================================== -->
+
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="R. Loterias" />
+
+    <!-- ========================================
+       MICROSOFT TILES (Windows)
+       ======================================== -->
+
+    <meta name="msapplication-TileColor" content="#6366f1" />
+    <meta
+      name="msapplication-TileImage"
+      content="../assets/images/web-app-manifest-192x192.png"
+    />
+
+    <!-- ========================================
+       SEO E DESCRIÇÃO
+       ======================================== -->
+
+    <meta
+      name="description"
+      content="Aplicativo completo para análise e gestão de jogos da Lotofácil. Veja resultados, gere combinações e confira seus jogos."
+    />
+    <meta
+      name="keywords"
+      content="lotofácil, loteria, loterias caixa, resultados, gerador de jogos, conferidor"
+    />
+    <meta name="author" content="Roberto Loterias" />
+
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
     />
+
+    <style>
+      /* Botão de instalação PWA */
+      .install-button {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        z-index: 9999;
+        display: none;
+        transition: all 0.3s ease;
+        animation: pulse-install 2s infinite;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .install-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+      }
+
+      @keyframes pulse-install {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .install-button::before {
+        content: "📱";
+        margin-right: 8px;
+        font-size: 18px;
+      }
+
+      /* Mobile */
+      @media (max-width: 768px) {
+        .install-button {
+          bottom: 20px;
+          right: 50%;
+          transform: translateX(50%);
+          padding: 12px 24px;
+          font-size: 14px;
+        }
+      }
+
+      /* Esconde quando já instalado */
+      .standalone-mode .install-button {
+        display: none !important;
+      }
+    </style>
   </head>
   <body>
     <header>
@@ -400,6 +546,8 @@
       window.inicializarModalRandomico = null;
     </script>
     <script src="script.js"></script>
+
+    <!-- Script de integração do Bottom Sheet -->
     <script>
       // Integração do controle do Bottom Sheet
       document.addEventListener("DOMContentLoaded", () => {
@@ -430,9 +578,7 @@
         window.fecharMenuPopup = fecharMenu;
         window.abrirMenuPopup = abrirMenu;
 
-        // ======================================================================
-        // ✨ FUNÇÃO ATUALIZADA: Copiar jogos com cabeçalho personalizado
-        // ======================================================================
+        // Função para copiar jogos com cabeçalho personalizado
         window.copiarJogosSelecionados = async function () {
           const checkboxes = document.querySelectorAll(
             ".jogo-select-checkbox:checked"
@@ -456,9 +602,6 @@
             return;
           }
 
-          // ======================================================================
-          // ✨ NOVO: Adiciona cabeçalho e rodapé personalizados
-          // ======================================================================
           const dataAtual = new Date().toLocaleDateString("pt-BR", {
             day: "2-digit",
             month: "2-digit",
@@ -467,33 +610,7 @@
             minute: "2-digit",
           });
 
-          // Cabeçalho personalizado (escolha uma das versões abaixo)
-
-          // VERSÃO 1: Simples e Limpo
-          //           const cabecalho = `🎰 Roberto Loterias
-          // Jogos: ${jogosTexto.length} | Data: ${dataAtual}
-          // ────────────────────────────────────────
-          // `;
-
-          //           const rodape = `────────────────────────────────────────
-          // Boa sorte! 🍀`;
-
-          // VERSÃO 2: Detalhado e Profissional (RECOMENDADO)
-          //           const cabecalho = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          // 🎰 ROBERTO LOTERIAS
-          // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-          // 📋 Jogos Selecionados: ${jogosTexto.length}
-          // 📅 Data: ${dataAtual}
-
-          // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          // `;
-
-          //           const rodape = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          // ✨ Boa sorte! 🍀
-          // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
-
-          // VERSÃO 3: Compacto para WhatsApp
+          // Cabeçalho compacto para WhatsApp
           const cabecalho = `🎰 *Roberto Loterias*
 ${jogosTexto.length} jogos • ${dataAtual}
 ─────────────────────
@@ -502,14 +619,12 @@ ${jogosTexto.length} jogos • ${dataAtual}
           const rodape = `─────────────────────
 🍀 _Boa sorte!_`;
 
-          // Monta o texto completo com cabeçalho + jogos + rodapé
           const textoParaCopiar =
             cabecalho + jogosTexto.join("\n") + "\n\n" + rodape;
 
           try {
             await navigator.clipboard.writeText(textoParaCopiar);
 
-            // Feedback visual
             const btnCopiar = document.getElementById(
               "btn-copiar-selecionados"
             );
@@ -555,6 +670,142 @@ ${jogosTexto.length} jogos • ${dataAtual}
           });
         }
       });
+    </script>
+
+    <!-- Script PWA: Service Worker e Instalação -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("service-worker.js")
+            .then((registration) => {
+              console.log("✅ Service Worker registrado:", registration.scope);
+
+              setInterval(() => {
+                registration.update();
+              }, 3600000);
+
+              registration.addEventListener("updatefound", () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener("statechange", () => {
+                  if (
+                    newWorker.state === "installed" &&
+                    navigator.serviceWorker.controller
+                  ) {
+                    if (confirm("Nova versão disponível! Deseja atualizar?")) {
+                      newWorker.postMessage({ type: "SKIP_WAITING" });
+                      window.location.reload();
+                    }
+                  }
+                });
+              });
+            })
+            .catch((error) => {
+              console.error("❌ Erro ao registrar Service Worker:", error);
+            });
+
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener("controllerchange", () => {
+            if (refreshing) return;
+            refreshing = true;
+            window.location.reload();
+          });
+        });
+      }
+
+      // ============================================================================
+      // PWA: INSTALAÇÃO COM BOTÃO VISÍVEL
+      // ============================================================================
+
+      let deferredPrompt;
+      const installButton = document.getElementById("btn-install-pwa");
+
+      // Captura evento de instalação
+      window.addEventListener("beforeinstallprompt", (e) => {
+        console.log("📱 [PWA] App pode ser instalado!");
+
+        // Previne banner automático
+        e.preventDefault();
+
+        // Guarda o evento
+        deferredPrompt = e;
+
+        // Mostra o botão
+        if (installButton) {
+          installButton.style.display = "block";
+          installButton.classList.add("show");
+        }
+      });
+
+      // Função de instalação
+      async function installApp() {
+        if (!deferredPrompt) {
+          console.log("❌ [PWA] Prompt não disponível");
+          alert(
+            "Este app já foi instalado ou seu navegador não suporta instalação."
+          );
+          return;
+        }
+
+        // Mostra o prompt
+        deferredPrompt.prompt();
+
+        // Aguarda escolha do usuário
+        const { outcome } = await deferredPrompt.userChoice;
+
+        console.log(
+          `👤 [PWA] Usuário ${outcome === "accepted" ? "aceitou" : "recusou"}`
+        );
+
+        if (outcome === "accepted") {
+          // Esconde o botão com animação
+          if (installButton) {
+            installButton.classList.add("hide");
+            setTimeout(() => {
+              installButton.style.display = "none";
+            }, 500);
+          }
+        }
+
+        // Limpa o prompt
+        deferredPrompt = null;
+      }
+
+      // Click no botão
+      if (installButton) {
+        installButton.addEventListener("click", installApp);
+      }
+
+      // Detecta quando instalou
+      window.addEventListener("appinstalled", () => {
+        console.log("✅ [PWA] App instalado com sucesso!");
+
+        // Esconde o botão
+        if (installButton) {
+          installButton.style.display = "none";
+        }
+
+        // Opcional: Mostrar mensagem
+        alert("🎉 Roberto Loterias instalado! Acesse pela tela inicial.");
+      });
+
+      // Detecta modo standalone (já instalado)
+      function isStandalone() {
+        return (
+          window.matchMedia("(display-mode: standalone)").matches ||
+          window.navigator.standalone === true
+        );
+      }
+
+      if (isStandalone()) {
+        console.log("📱 [PWA] Rodando em modo standalone");
+        document.body.classList.add("standalone-mode");
+
+        // Esconde botão se instalado
+        if (installButton) {
+          installButton.style.display = "none";
+        }
+      }
     </script>
   </body>
 </html>
